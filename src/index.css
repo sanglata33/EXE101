@@ -1,0 +1,376 @@
+/* ─── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800;900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-navy-950: #f8fafc;
+  --color-navy-900: #f1f5f9;
+  --color-navy-800: #e2e8f0;
+  --color-navy-700: #cbd5e1;
+  --color-navy-600: #94a3b8;
+  --color-navy-500: #64748b;
+  --color-navy-400: #475569;
+  --color-navy-300: #334155;
+  --color-navy-200: #1e293b;
+  --color-navy-100: #0f172a;
+  --color-navy-50: #020617;
+
+  --color-cyan-950: #083344;
+  --color-cyan-900: #164e63;
+  --color-cyan-800: #155e75;
+  --color-cyan-700: #0e7490;
+  --color-cyan-600: #0891b2;
+  --color-cyan-500: #06b6d4;
+  --color-cyan-400: #22d3ee;
+  --color-cyan-300: #67e8f9;
+  --color-cyan-200: #a5f3fc;
+  --color-cyan-100: #cffafe;
+  --color-cyan-50: #ecfeff;
+
+  --color-gold-500: #f59e0b;
+  --color-gold-400: #fbbf24;
+  --color-gold-300: #fcd34d;
+  --color-gold-600: #d97706;
+
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
+
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Prevent layout shift from scrollbar */
+  scrollbar-gutter: stable;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #e0f2fe;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #06b6d4, #0891b2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0891b2;
+}
+
+/* ─── Glass morphism ──────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+}
+
+.glass-dark {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(6, 182, 212, 0.12);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 20px rgba(6,182,212,0.06);
+}
+
+/* ─── Gradient text ───────────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #0891b2 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-cyan {
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Glow effects ────────────────────────────────────────────────────────── */
+.glow-cyan {
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.2);
+}
+.glow-gold {
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+}
+
+/* ─── Background patterns ─────────────────────────────────────────────────── */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(6, 182, 212, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6, 182, 212, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.bg-dots {
+  background-image: radial-gradient(rgba(6, 182, 212, 0.10) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* ─── Gradient border ─────────────────────────────────────────────────────── */
+.gradient-border {
+  position: relative;
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+              linear-gradient(135deg, #06b6d4, #f59e0b) border-box;
+  border: 1.5px solid transparent;
+}
+
+/* ─── Hero gradient ───────────────────────────────────────────────────────── */
+.hero-gradient {
+  background:
+    radial-gradient(ellipse at 10% 40%, rgba(6, 182, 212, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 10%, rgba(245, 158, 11, 0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(14, 116, 144, 0.05) 0%, transparent 45%),
+    linear-gradient(165deg, #f0f9ff 0%, #fafcff 60%, #f8fafc 100%);
+}
+
+/* ─── Card hover ──────────────────────────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(6, 182, 212, 0.12);
+}
+
+/* ─── Shimmer loading ─────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── Floating animation ──────────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* ─── Pulse glow ──────────────────────────────────────────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.2); }
+  50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.4); }
+}
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ─── Spin slow ───────────────────────────────────────────────────────────── */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  FORM ELEMENTS — Global, consistent, polished                              */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Base reset for all inputs */
+input,
+textarea,
+select {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;   /* 14px — consistent everywhere */
+  line-height: 1.5;
+  /* Prevent text from ever overflowing input boundaries */
+  min-width: 0;
+  max-width: 100%;
+  /* Light color-scheme ensures date/time pickers are readable */
+  color-scheme: light;
+}
+
+/* ─── Placeholder ─────────────────────────────────────────────────────────── */
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+  /* Slightly lighter weight for placeholder vs real text */
+  font-weight: 400;
+}
+
+/* ─── Select & date inputs — light theme ──────────────────────────────────── */
+select,
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"] {
+  color: #1e293b;
+  background-color: #f8fafc;
+  /* Ensure text doesn't overflow on narrow widths */
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ─── Select options dropdown ─────────────────────────────────────────────── */
+select option {
+  background-color: #ffffff;
+  color: #1e293b;
+  font-weight: 500;
+  padding: 8px 12px;
+}
+
+/* ─── Date/time picker calendar icon ─────────────────────────────────────── */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  cursor: pointer;
+  opacity: 0.5;
+  /* Fixed size to prevent icon from eating input width */
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Prevent date input content from being clipped on smaller widths */
+input[type="date"],
+input[type="datetime-local"] {
+  /* Ensure icon + value fit properly */
+  padding-right: 0.75rem !important;
+}
+
+/* ─── Autofill — prevent browser's ugly yellow override ──────────────────── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #f8fafc inset;
+  -webkit-text-fill-color: #1e293b;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ─── Focus ring — remove browser default, use custom border ─────────────── */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
+/* ─── Number input — hide spinners ───────────────────────────────────────── */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/*  UTILITY HELPERS                                                           */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Line clamp */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Truncate text with ellipsis */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Safe padding for fixed Navbar (h-20 = 80px) */
+.page-top-padding {
+  padding-top: 5rem; /* 80px */
+}
+
+/* ─── Form field wrapper — consistent icon + input layout ─────────────────── */
+/*
+  Usage: <div class="form-field"> <Icon /> <input /> </div>
+  The icon is absolutely positioned, input has left padding.
+*/
+.form-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-field > svg {
+  position: absolute;
+  left: 1rem;
+  pointer-events: none;
+  flex-shrink: 0;
+  color: #94a3b8;
+  width: 1rem;
+  height: 1rem;
+  z-index: 1;
+}
+
+/* Standard input style — use as base class */
+.fw-input {
+  width: 100%;
+  min-width: 0;
+  background-color: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: #1e293b;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fw-input:focus {
+  outline: none;
+  border-color: #06b6d4;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.10);
+}
+
+.fw-input.has-icon {
+  padding-left: 2.75rem;
+}
+
+.fw-input::placeholder {
+  color: #94a3b8;
+}
