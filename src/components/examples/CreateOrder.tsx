@@ -44,14 +44,11 @@ export const CreateOrder: React.FC = () => {
 
     // Payload gửi lên Backend — FE không cần biết URL hay header
     const payload: CreateOrderPayload = {
-      items: [
-        // Mẫu: 1 dịch vụ giặt thường 3kg
-        { serviceId: 'service_standard_01', name: 'Giặt thường', quantity: 3, price: 25000 },
-      ],
+      serviceId: 'service_standard_01',
+      quantity: 3,
       pickupAddress,
       deliveryAddress,
-      pickupDate: new Date(pickupDate).toISOString(),
-      paymentMethod,
+      scheduledPickupTime: new Date(pickupDate).toISOString(),
       note: note || undefined,
     };
 
@@ -113,7 +110,7 @@ export const CreateOrder: React.FC = () => {
                 </p>
                 <p className="text-xs text-slate-400">
                   Tổng tiền: <span className="text-emerald-300 font-semibold">
-                    {successOrder.totalAmount.toLocaleString('vi-VN')}₫
+                    {successOrder.totalPrice.toLocaleString('vi-VN')}₫
                   </span>
                 </p>
               </div>

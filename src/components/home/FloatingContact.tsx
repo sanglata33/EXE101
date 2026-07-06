@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PhoneCall, MessageCircle } from 'lucide-react';
+import { PhoneCall } from 'lucide-react';
 
 const HOTLINE = '0901234567'; // Thay số thật của shop vào đây
 const ZALO_URL = `https://zalo.me/${HOTLINE}`;

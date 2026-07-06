@@ -1,7 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, PackageCheck, Calendar, Calculator, Sparkles } from 'lucide-react';
+import { PackageCheck, Calendar, Calculator, Sparkles } from 'lucide-react';
 import { HeroBanner } from '../components/home/HeroBanner';
 import { FeaturesSection } from '../components/home/FeaturesSection';
 import { PricingSection } from '../components/home/PricingSection';

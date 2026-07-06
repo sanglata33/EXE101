@@ -13,4 +13,20 @@ export * from './authService';
 export * from './orderService';
 export * from './serviceService';
 export * from './paymentService';
-export * from './adminService';
+export {
+  adminService,
+  type Staff,
+  type StaffNoteItem,
+  type OrderDetail,
+  type OrderImage,
+  type OrderDetailResponse,
+  type DashboardOverview,
+  type DashboardRevenue,
+  type DashboardStatusCount,
+  type DashboardTopService,
+  type DashboardStats,
+  type GetAllOrdersParams,
+  type GetAllOrdersResponse,
+  type AppUser
+} from './adminService';
+

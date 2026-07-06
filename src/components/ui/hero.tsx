@@ -1,32 +1,11 @@
-import { useEffect, useRef, useState } from "react";
 import { MeshGradient, PulsingBorder } from "@paper-design/shaders-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Wind, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function ShaderHero() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isActive, setIsActive] = useState(false);
-
-  useEffect(() => {
-    const handleMouseEnter = () => setIsActive(true);
-    const handleMouseLeave = () => setIsActive(false);
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener("mouseenter", handleMouseEnter);
-      container.addEventListener("mouseleave", handleMouseLeave);
-    }
-    return () => {
-      if (container) {
-        container.removeEventListener("mouseenter", handleMouseEnter);
-        container.removeEventListener("mouseleave", handleMouseLeave);
-      }
-    };
-  }, []);
-
   return (
     <div
-      ref={containerRef}
       className="relative min-h-screen overflow-hidden bg-black"
       style={{ isolation: "isolate" }}
     >
@@ -82,15 +61,12 @@ export default function ShaderHero() {
         className="absolute inset-0 w-full h-full"
         colors={["#000810", "#0e4a5e", "#06b6d4", "#0891b2", "#f59e0b"]}
         speed={0.25}
-        backgroundColor="#000810"
       />
       {/* Wireframe overlay layer */}
       <MeshGradient
         className="absolute inset-0 w-full h-full opacity-30"
         colors={["#000000", "#ffffff", "#06b6d4", "#f59e0b"]}
         speed={0.15}
-        wireframe="true"
-        backgroundColor="transparent"
       />
       {/* Dark overlay to ensure readability */}
       <div className="absolute inset-0 bg-black/30" />
@@ -197,7 +173,7 @@ export default function ShaderHero() {
             thickness={0.1}
             softness={0.2}
             intensity={5}
-            spotsPerColor={5}
+            spots={5}
             spotSize={0.1}
             pulse={0.1}
             smoke={0.5}
