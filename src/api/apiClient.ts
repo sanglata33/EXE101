@@ -19,7 +19,7 @@ export const USER_KEY  = 'freshwash_user';
 
 // ─── Tạo Axios Instance ───────────────────────────────────────────────────────
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
   timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10_000,
   headers: {
     'Content-Type': 'application/json',
