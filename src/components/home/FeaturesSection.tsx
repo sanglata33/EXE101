@@ -54,7 +54,7 @@ export const FeaturesSection: React.FC = () => {
       {/* Subtle bg accent */}
       <div className="absolute -top-40 right-0 w-[600px] h-[600px] bg-cyan-50/60 rounded-full filter blur-[120px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-none px-4 sm:px-12 lg:px-16 relative z-10">
 
         {/* Section header */}
         <div className="text-center max-w-xl mx-auto mb-20">

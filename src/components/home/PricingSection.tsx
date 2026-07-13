@@ -41,7 +41,7 @@ export const PricingSection: React.FC = () => {
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-cyan-50/50 rounded-full filter blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-amber-50/40 rounded-full filter blur-[100px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-none px-4 sm:px-12 lg:px-16 relative z-10">
 
         {/* Header */}
         <div className="text-center max-w-xl mx-auto mb-16">

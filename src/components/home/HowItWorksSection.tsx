@@ -44,7 +44,7 @@ export const HowItWorksSection: React.FC = () => {
       {/* Decorative */}
       <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-cyan-100/30 rounded-full filter blur-[80px] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-none px-4 sm:px-12 lg:px-16">
 
         {/* Header */}
         <div className="text-center max-w-md mx-auto mb-16">
