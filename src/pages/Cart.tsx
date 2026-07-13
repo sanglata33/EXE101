@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Trash2, ShoppingBag, ArrowRight, CheckCircle2, ChevronRight,
-  MapPin, Phone, User, Calendar, CreditCard, AlertCircle, Loader2, Package,
+  MapPin, Phone, User, Calendar, CreditCard, AlertCircle, Loader2,
+  Package, RefreshCw, WifiOff,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -11,52 +12,50 @@ import { Button } from '../components/ui/Button';
 import { getAllServices, type LaundryService } from '../api/serviceService';
 import { createOrder } from '../api/orderService';
 
-// ─── Helper: map product slug/name → backend serviceId ────────────────────────
-/**
- * Cố gắng tìm service tương ứng với product dựa trên tên.
- * Thuật toán: lowercase + bỏ dấu + so sánh từ khóa chính.
- */
-const normalizeStr = (s: string) =>
-  s
-    .toLowerCase()
+// ─── Helper: normalize chuỗi tiếng Việt ──────────────────────────────────────
+const norm = (s: string) =>
+  s.toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/đ/g, 'd')
     .trim();
 
-const findMatchingService = (
-  productName: string,
+// ─── Map product → service (dựa trên keyword) ────────────────────────────────
+const PRODUCT_KEYWORDS: Record<string, string[]> = {
+  'giat-say-nhanh':    ['giat say', 'tieu chuan', 'standard', 'say'],
+  'giat-say-premium':  ['premium', 'nuoc hoa', 'cao cap', 'say'],
+  'giat-hap-suit':     ['vest', 'suit', 'ao vest', 'hap'],
+  'giat-hap-vay-cuoi': ['vay cuoi', 'cuoi', 'vay', 'hap'],
+  'ui-phang-nhanh':    ['ui phang', 'ui'],
+  'giat-giay-sneaker': ['giay', 'sneaker'],
+  'giat-thu-bong':     ['thu bong', 'gau bong', 'bong'],
+  'giat-nem-sofa':     ['nem', 'sofa', 've sinh', 'dem'],
+};
+
+const findService = (
   productId: string,
+  productName: string,
   services: LaundryService[]
 ): LaundryService | null => {
   if (services.length === 0) return null;
 
-  const normProduct = normalizeStr(productName);
-  const normId      = normalizeStr(productId);
+  const keywords = PRODUCT_KEYWORDS[productId] ?? [norm(productName).split(' ')[0]];
+  const normName  = norm(productName);
 
-  // Keywords map từ product slug → service keywords
-  const KEYWORD_MAP: Record<string, string[]> = {
-    'giat-say-nhanh':   ['giat say', 'giat say', 'tieu chuan', 'standard'],
-    'giat-say-premium': ['premium', 'nuoc hoa', 'cao cap'],
-    'giat-hap-suit':    ['vest', 'suit', 'ao vest'],
-    'giat-hap-vay-cuoi':['vay cuoi', 'cuoi'],
-    'ui-phang-nhanh':   ['ui phang', 'ui'],
-    'giat-giay-sneaker':['giay', 'sneaker'],
-    'giat-thu-bong':    ['thu bong', 'gau bong'],
-    'giat-nem-sofa':    ['nem', 'sofa', 've sinh'],
-  };
-
-  const keywords = KEYWORD_MAP[normId] || [normProduct.split(' ').slice(0, 2).join(' ')];
-
-  // Tìm service khớp keyword
+  // Pass 1: keyword map match
   for (const svc of services) {
-    const normSvc = normalizeStr(svc.name);
-    if (keywords.some((kw) => normSvc.includes(kw) || kw.includes(normSvc.split(' ')[0]))) {
-      return svc;
-    }
+    const ns = norm(svc.name);
+    if (keywords.some((kw) => ns.includes(kw))) return svc;
   }
 
-  // Fallback: service đầu tiên
+  // Pass 2: any word from product name in service name
+  const words = normName.split(' ').filter((w) => w.length > 3);
+  for (const svc of services) {
+    const ns = norm(svc.name);
+    if (words.some((w) => ns.includes(w))) return svc;
+  }
+
+  // Fallback: first service
   return services[0];
 };
 
@@ -75,35 +74,54 @@ export const Cart: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  // Services từ backend
-  const [services, setServices] = useState<LaundryService[]>([]);
+  // Services state với retry
+  const [services, setServices]             = useState<LaundryService[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [servicesError, setServicesError]   = useState(false);
 
   // Form state
-  const [address, setAddress]           = useState('');
-  const [phone, setPhone]               = useState('');
-  const [name, setName]                 = useState('');
-  const [bookingDate, setBookingDate]   = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [address, setAddress]                 = useState('');
+  const [phone, setPhone]                     = useState('');
+  const [name, setName]                       = useState('');
+  const [bookingDate, setBookingDate]         = useState('');
+  const [paymentMethod, setPaymentMethod]     = useState('cod');
 
-  // UI state
-  const [isOrdered, setIsOrdered]       = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderError, setOrderError]     = useState<string | null>(null);
-  const [orderedItems, setOrderedItems] = useState<typeof cartItems>([]);
-  const [orderTotal, setOrderTotal]     = useState(0);
+  // Order state
+  const [isOrdered, setIsOrdered]             = useState(false);
+  const [isSubmitting, setIsSubmitting]       = useState(false);
+  const [orderError, setOrderError]           = useState<string | null>(null);
+  const [orderedItems, setOrderedItems]       = useState<typeof cartItems>([]);
+  const [orderTotal, setOrderTotal]           = useState(0);
   const [createdOrderCodes, setCreatedOrderCodes] = useState<string[]>([]);
 
-  // Fetch services khi mount để có serviceId thật cho checkout
-  useEffect(() => {
-    getAllServices()
-      .then(setServices)
-      .catch(() => {}); // silently ignore — fallback sẽ xử lý
+  // ── Fetch services với retry ──────────────────────────────────────────────
+  const fetchServices = useCallback(async (attempt = 1) => {
+    setServicesLoading(true);
+    setServicesError(false);
+    try {
+      const data = await getAllServices();
+      setServices(data);
+      setServicesError(false);
+    } catch {
+      if (attempt < 3) {
+        // Auto retry sau 1.5s
+        setTimeout(() => fetchServices(attempt + 1), 1500);
+      } else {
+        setServicesError(true);
+      }
+    } finally {
+      setServicesLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
-  // ── Checkout Handler ─────────────────────────────────────────────────────────
+  // ── Checkout ──────────────────────────────────────────────────────────────
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -112,73 +130,85 @@ export const Cart: React.FC = () => {
       return;
     }
 
+    // Nếu services chưa load được, thử lại lần cuối
+    let activeServices = services;
+    if (activeServices.length === 0) {
+      try {
+        setIsSubmitting(true);
+        activeServices = await getAllServices();
+        setServices(activeServices);
+        setServicesError(false);
+      } catch {
+        setOrderError('Không thể kết nối đến server. Vui lòng thử làm mới trang và thử lại.');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setOrderError(null);
 
     try {
       const orderCodes: string[] = [];
-      const errors: string[] = [];
+      const failedItems: string[] = [];
 
-      // Tạo đơn hàng cho từng item trong giỏ
       for (const item of cartItems) {
-        const matchedService = findMatchingService(item.product.name, item.product.id, services);
+        const svc = findService(item.product.id, item.product.name, activeServices);
 
-        if (!matchedService) {
-          errors.push(`Không tìm thấy dịch vụ cho "${item.product.name}"`);
+        if (!svc) {
+          failedItems.push(item.product.name);
           continue;
         }
 
         try {
           const order = await createOrder({
-            serviceId:           matchedService._id,
+            serviceId:           svc._id,
             quantity:            item.quantity,
             pickupAddress:       address,
             deliveryAddress:     address,
             scheduledPickupTime: bookingDate ? new Date(bookingDate).toISOString() : undefined,
-            note: `Tên KH: ${name} | SĐT: ${phone} | Thanh toán: ${paymentMethod === 'cod' ? 'Khi giao nhận' : 'Chuyển khoản'} | Dịch vụ gốc: ${item.product.name}`,
+            note: [
+              `Dịch vụ: ${item.product.name}`,
+              `Khách hàng: ${name}`,
+              `SĐT: ${phone}`,
+              `Thanh toán: ${paymentMethod === 'cod' ? 'Khi giao nhận' : 'Chuyển khoản'}`,
+            ].join(' | '),
           });
           if (order.orderCode) orderCodes.push(order.orderCode);
-        } catch (itemErr: any) {
-          errors.push(
-            itemErr?.response?.data?.message ||
-            `Lỗi tạo đơn cho "${item.product.name}"`
+        } catch (err: any) {
+          failedItems.push(
+            err?.response?.data?.message ?? `Lỗi tạo đơn "${item.product.name}"`
           );
         }
       }
 
-      if (errors.length > 0 && orderCodes.length === 0) {
-        // Tất cả item đều lỗi
-        setOrderError(errors.join('. '));
+      if (orderCodes.length === 0 && failedItems.length > 0) {
+        setOrderError(`Không thể tạo đơn hàng: ${failedItems.join(', ')}. Vui lòng thử lại.`);
         return;
       }
 
-      // Lưu snapshot trước khi clear
+      // Lưu snapshot
       setOrderedItems([...cartItems]);
       setOrderTotal(cartTotal);
       setCreatedOrderCodes(orderCodes);
-
-      // Xóa giỏ hàng và hiện màn hình thành công
       clearCart();
       setIsOrdered(true);
     } catch (err: any) {
-      setOrderError(
-        err?.response?.data?.message || 'Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.'
-      );
+      setOrderError(err?.response?.data?.message ?? 'Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // ── Order success screen ─────────────────────────────────────────────────────
+  // ── Order success screen ──────────────────────────────────────────────────
   if (isOrdered) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center pt-32 pb-16 px-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center pt-36 pb-16 px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-lg w-full bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-6 shadow-xl"
         >
-          {/* Icon */}
           <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto">
             <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
           </div>
@@ -190,7 +220,6 @@ export const Cart: React.FC = () => {
             </p>
           </div>
 
-          {/* Order codes */}
           {createdOrderCodes.length > 0 && (
             <div className="flex flex-wrap gap-2 justify-center">
               {createdOrderCodes.map((code) => (
@@ -202,7 +231,6 @@ export const Cart: React.FC = () => {
             </div>
           )}
 
-          {/* Summary */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2 text-xs text-slate-700">
             <div className="flex justify-between">
               <span className="text-slate-500">Người nhận:</span>
@@ -248,38 +276,62 @@ export const Cart: React.FC = () => {
     );
   }
 
-  // ── Empty cart ───────────────────────────────────────────────────────────────
+  // ── Empty cart ────────────────────────────────────────────────────────────
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center pt-32 px-4 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 mb-6 shadow-sm">
-          <ShoppingBag className="w-6 h-6" />
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center pt-36 px-4 text-center">
+        <div className="w-20 h-20 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 mb-6 shadow-sm">
+          <ShoppingBag className="w-8 h-8" />
         </div>
         <h2 className="text-xl font-bold text-slate-800 mb-2">Giỏ hàng của bạn đang trống</h2>
         <p className="text-slate-500 text-sm mb-8 max-w-xs">Hãy khám phá các gói dịch vụ giặt sấy chất lượng cao của chúng tôi ngay hôm nay.</p>
         <Link to="/products">
           <Button variant="primary" className="gap-2 text-white bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400">
             Khám phá dịch vụ
-            <ArrowRight className="w-4.5 h-4.5" />
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </Link>
       </div>
     );
   }
 
-  // ── Main cart page ───────────────────────────────────────────────────────────
+  // ── Main cart ─────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-slate-50 pt-32 pb-24">
-      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 pt-36 pb-24">
+      <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8">
 
         {/* Title */}
         <h1 className="font-display font-extrabold text-3xl text-slate-900 mb-10">
           Giỏ Hàng <span className="text-cyan-600">Dịch Vụ</span>
         </h1>
 
+        {/* Services loading/error banner */}
+        {servicesLoading && (
+          <div className="mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 text-sm">
+            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+            <span>Đang kết nối đến server để chuẩn bị đặt hàng...</span>
+          </div>
+        )}
+
+        {servicesError && !servicesLoading && (
+          <div className="mb-6 flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-sm">
+            <div className="flex items-center gap-2">
+              <WifiOff className="w-4 h-4 shrink-0" />
+              <span>Không thể kết nối đến server. Bấm đặt lịch để thử lại tự động.</span>
+            </div>
+            <button
+              onClick={() => fetchServices()}
+              className="flex items-center gap-1 text-xs font-bold bg-amber-100 hover:bg-amber-200 px-2 py-1 rounded-lg transition-colors shrink-0"
+            >
+              <RefreshCw className="w-3 h-3" />
+              Thử lại
+            </button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
 
-          {/* Left Column: Cart Items */}
+          {/* ── Left: Cart Items ─────────────────────────────────────────── */}
           <div className="lg:col-span-7 space-y-4">
             {cartItems.map((item) => (
               <motion.div
@@ -288,13 +340,13 @@ export const Cart: React.FC = () => {
                 className="flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl bg-white border border-slate-200 gap-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 {/* Thumbnail + info */}
-                <div className="flex gap-4 items-center">
+                <div className="flex gap-4 items-center min-w-0">
                   <img
                     src={item.product.image}
                     alt={item.product.name}
-                    className="w-16 h-16 rounded-xl object-cover border border-slate-200"
+                    className="w-20 h-20 rounded-xl object-cover border border-slate-200 shrink-0"
                   />
-                  <div>
+                  <div className="min-w-0">
                     <span className="text-[10px] text-cyan-600 uppercase font-bold tracking-wider block">
                       {item.product.categoryLabel}
                     </span>
@@ -305,41 +357,41 @@ export const Cart: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center justify-between sm:justify-end gap-6 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                {/* Qty + Price + Delete */}
+                <div className="flex items-center justify-between sm:justify-end gap-4 sm:gap-6 pt-3 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
                   {/* Qty */}
                   <div className="flex items-center bg-slate-50 border border-slate-200 rounded-lg p-1">
                     <button
                       onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                      className="w-8 h-8 rounded-md flex items-center justify-center text-slate-500 hover:text-slate-950 hover:bg-slate-100 transition-all font-bold"
-                    >-</button>
-                    <span className="w-8 text-center text-slate-800 text-xs font-bold select-none">
+                      className="w-8 h-8 rounded-md flex items-center justify-center text-slate-500 hover:text-slate-950 hover:bg-slate-100 transition-all font-bold text-base"
+                    >−</button>
+                    <span className="w-8 text-center text-slate-800 text-sm font-bold select-none">
                       {item.quantity}
                     </span>
                     <button
                       onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                      className="w-8 h-8 rounded-md flex items-center justify-center text-slate-500 hover:text-slate-950 hover:bg-slate-100 transition-all font-bold"
+                      className="w-8 h-8 rounded-md flex items-center justify-center text-slate-500 hover:text-slate-950 hover:bg-slate-100 transition-all font-bold text-base"
                     >+</button>
                   </div>
 
-                  {/* Price + delete */}
-                  <div className="flex items-center gap-4">
-                    <span className="font-display font-bold text-slate-800 text-base sm:w-24 text-right">
-                      {formatPrice(item.product.price * item.quantity)}
-                    </span>
-                    <button
-                      onClick={() => removeFromCart(item.product.id)}
-                      className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  {/* Price */}
+                  <span className="font-display font-bold text-slate-800 text-base w-28 text-right">
+                    {formatPrice(item.product.price * item.quantity)}
+                  </span>
+
+                  {/* Delete */}
+                  <button
+                    onClick={() => removeFromCart(item.product.id)}
+                    className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Right Column: Summary + Form */}
+          {/* ── Right: Summary + Form ─────────────────────────────────────── */}
           <div className="lg:col-span-5 space-y-6">
 
             {/* Price summary */}
@@ -385,57 +437,35 @@ export const Cart: React.FC = () => {
                   {/* Name */}
                   <div className="relative">
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
-                    <input
-                      required
-                      type="text"
-                      placeholder="Họ và tên của bạn"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="fw-input has-icon"
-                    />
+                    <input required type="text" placeholder="Họ và tên của bạn"
+                      value={name} onChange={(e) => setName(e.target.value)} className="fw-input has-icon" />
                   </div>
 
                   {/* Phone */}
                   <div className="relative">
                     <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
-                    <input
-                      required
-                      type="tel"
-                      placeholder="Số điện thoại liên hệ"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="fw-input has-icon"
-                    />
+                    <input required type="tel" placeholder="Số điện thoại liên hệ"
+                      value={phone} onChange={(e) => setPhone(e.target.value)} className="fw-input has-icon" />
                   </div>
 
                   {/* Address */}
                   <div className="relative">
                     <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
-                    <input
-                      required
-                      type="text"
-                      placeholder="Địa chỉ chi tiết để shipper đến lấy đồ"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      className="fw-input has-icon"
-                    />
+                    <input required type="text" placeholder="Địa chỉ chi tiết để shipper đến lấy đồ"
+                      value={address} onChange={(e) => setAddress(e.target.value)} className="fw-input has-icon" />
                   </div>
 
                   {/* Date */}
                   <div className="relative">
                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
-                    <input
-                      required
-                      type="date"
-                      value={bookingDate}
-                      onChange={(e) => setBookingDate(e.target.value)}
+                    <input required type="date"
+                      value={bookingDate} onChange={(e) => setBookingDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
-                      className="fw-input has-icon min-w-0"
-                    />
+                      className="fw-input has-icon min-w-0" />
                   </div>
 
-                  {/* Payment method */}
-                  <div className="pt-2">
+                  {/* Payment */}
+                  <div className="pt-1">
                     <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block mb-2">
                       Hình thức thanh toán
                     </label>
@@ -444,23 +474,15 @@ export const Cart: React.FC = () => {
                         { value: 'cod',      label: 'Khi giao nhận' },
                         { value: 'transfer', label: 'Chuyển khoản'  },
                       ].map((opt) => (
-                        <label
-                          key={opt.value}
-                          className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
-                            paymentMethod === opt.value
-                              ? 'border-cyan-500 bg-cyan-50 text-cyan-600'
-                              : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-800'
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="payment"
-                            value={opt.value}
+                        <label key={opt.value} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
+                          paymentMethod === opt.value
+                            ? 'border-cyan-500 bg-cyan-50 text-cyan-600'
+                            : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-800'
+                        }`}>
+                          <input type="radio" name="payment" value={opt.value}
                             checked={paymentMethod === opt.value}
-                            onChange={() => setPaymentMethod(opt.value)}
-                            className="sr-only"
-                          />
-                          <CreditCard className="w-4 h-4" />
+                            onChange={() => setPaymentMethod(opt.value)} className="sr-only" />
+                          <CreditCard className="w-4 h-4 shrink-0" />
                           <span className="text-xs font-bold">{opt.label}</span>
                         </label>
                       ))}
@@ -468,7 +490,7 @@ export const Cart: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Warning: not logged in */}
+                {/* Not logged in warning */}
                 {!isAuthenticated && (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-xs font-medium">
                     <AlertCircle className="w-4 h-4 shrink-0" />
@@ -493,15 +515,11 @@ export const Cart: React.FC = () => {
                   className="py-3 mt-2 gap-2 text-white bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 shadow-md shadow-amber-500/20 disabled:opacity-60"
                 >
                   {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Đang gửi đơn hàng...
-                    </>
+                    <><Loader2 className="w-4 h-4 animate-spin" />Đang gửi đơn hàng...</>
+                  ) : servicesLoading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" />Đang kết nối server...</>
                   ) : (
-                    <>
-                      Xác Nhận Đặt Lịch
-                      <ChevronRight className="w-4 h-4" />
-                    </>
+                    <>Xác Nhận Đặt Lịch<ChevronRight className="w-4 h-4" /></>
                   )}
                 </Button>
               </div>
