@@ -12,12 +12,13 @@ dist
 dist-ssr
 *.local
 
-# Environment variables — KHÔNG commit file này!
+# Environment variables — KHÔNG commit file chứa secrets!
 .env
 .env.local
-.env.production
-# Chỉ commit file example:
+*.local
+# Chỉ commit file example và production URL (không chứa secret):
 !.env.example
+!.env.production
 
 # Editor directories and files
 .vscode/*

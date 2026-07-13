@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Menu, X, Wind, User, LogOut, Shield } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
@@ -7,16 +7,19 @@ import { useAuth } from '../../context/AuthContext';
 
 export const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { cartCount } = useCart();
+  const { cartCount, clearCart } = useCart();
   const location = useLocation();
   const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
-      window.location.reload();
+      clearCart(); // Xóa giỏ hàng khi đăng xuất
+      navigate('/', { replace: true }); // Về trang chủ
     } catch (err) {
       console.error('Logout failed:', err);
+      navigate('/', { replace: true }); // Vẫn về trang chủ dù lỗi
     }
   };
 
