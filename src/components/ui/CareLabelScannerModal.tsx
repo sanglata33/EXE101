@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Camera, Upload, AlertCircle, Sparkles, HelpCircle, 
+  X, Upload, AlertCircle, Sparkles, HelpCircle, 
   Loader2, CheckCircle2, ShieldAlert 
 } from 'lucide-react';
 import { detectCareLabel, type AIDetectResponse } from '../../api/aiService';
