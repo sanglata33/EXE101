@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Product, CartItem } from '../types';
+import { useAuth } from './AuthContext';
 
 interface CartContextType {
   cartItems: CartItem[];
@@ -16,10 +17,18 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     const savedCart = localStorage.getItem('freshwash_cart');
     return savedCart ? JSON.parse(savedCart) : [];
   });
+
+  // Tự động xóa giỏ hàng khi đăng xuất
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCartItems([]);
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
     localStorage.setItem('freshwash_cart', JSON.stringify(cartItems));

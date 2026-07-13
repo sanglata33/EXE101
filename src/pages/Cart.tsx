@@ -52,9 +52,9 @@ const findService = (
   productId: string,
   productName: string,
   services: LaundryService[]
-): LaundryService => {
-  // Always returns something — fallback là service đầu tiên
-  if (services.length === 0) return services[0];
+): LaundryService | null => {
+  // Always returns something if services available — fallback là service đầu tiên
+  if (!services || services.length === 0) return null;
 
   const keywords = PRODUCT_KEYWORDS[productId] ?? [norm(productName).split(' ')[0]];
   for (const svc of services) {
@@ -62,7 +62,7 @@ const findService = (
     if (keywords.some((kw) => ns.includes(kw) || kw.includes(ns.split(' ')[0]))) return svc;
   }
   // Fallback luôn trả về service đầu tiên
-  return services[0];
+  return services[0] || null;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -162,6 +162,10 @@ export const Cart: React.FC = () => {
 
       for (const item of cartItems) {
         const svc = findService(item.product.id, item.product.name, services);
+        if (!svc) {
+          failedMsgs.push(`Không tìm thấy dịch vụ tương ứng cho "${item.product.name}"`);
+          continue;
+        }
         try {
           const order = await createOrder({
             serviceId:           svc._id,
