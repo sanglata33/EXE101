@@ -17,6 +17,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import type { OrderDetail, OrderImage, OrderStatus, Staff } from '../../api/adminService';
+import { CareLabelScannerModal } from '../ui/CareLabelScannerModal';
+
 
 // ─── Status config ──────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<
@@ -115,7 +117,14 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
   onSaveAdminNote,
   onConfirmStatus,
 }) => {
+  const [isScannerOpen, setIsScannerOpen] = React.useState(false);
+
+  const handleApplyAINote = (aiAdvice: string) => {
+    onStaffNoteChange(newStaffNote ? `${newStaffNote} ${aiAdvice}` : aiAdvice);
+  };
+
   return (
+
     <AnimatePresence>
       {selectedOrderId && (
         <>
@@ -307,7 +316,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                           value={adminNoteInput}
                           onChange={(e) => onAdminNoteChange(e.target.value)}
                           rows={2}
-                          className="w-full text-xs font-medium border border-slate-200 rounded-xl p-3 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white transition-all resize-none"
+                          className="w-full text-xs font-medium text-slate-800 border border-slate-200 rounded-xl p-3 bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:bg-white transition-all resize-none"
                         />
                         <button
                           onClick={onSaveAdminNote}
@@ -362,10 +371,20 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
 
                   {/* Section 6: Staff Notes */}
                   <div className="border-t border-slate-100 pt-4 space-y-3">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5" />
-                      Ghi chú nghiệp vụ
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5" />
+                        Ghi chú nghiệp vụ
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsScannerOpen(true)}
+                        className="text-[11px] text-white font-bold flex items-center gap-1 cursor-pointer transition-all bg-cyan-600 hover:bg-cyan-500 px-2.5 py-1.5 rounded-lg shadow-sm"
+                      >
+                        🤖 Quét nhãn AI
+                      </button>
+                    </div>
+
                     <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
                       {!detail.staffNotes || detail.staffNotes.length === 0 ? (
                         <p className="text-xs text-slate-400 italic">Chưa có ghi chú nào.</p>
@@ -396,7 +415,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                         value={newStaffNote}
                         onChange={(e) => onStaffNoteChange(e.target.value)}
                         disabled={isAddingNote}
-                        className="w-full text-xs font-medium border border-slate-200 rounded-xl px-3 py-2 bg-slate-50/50 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:bg-white transition-all placeholder-slate-400"
+                        className="w-full text-xs font-medium text-slate-800 border border-slate-200 rounded-xl px-3 py-2 bg-slate-50/50 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:bg-white transition-all placeholder-slate-400"
                       />
                       <button
                         type="submit"
@@ -456,8 +475,15 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                       )}
                     </div>
                   </div>
+
+                  <CareLabelScannerModal
+                    isOpen={isScannerOpen}
+                    onClose={() => setIsScannerOpen(false)}
+                    onApplyNote={handleApplyAINote}
+                  />
                 </>
               ) : null}
+
             </div>
 
             {/* Footer */}

@@ -398,30 +398,32 @@ export const AdminDashboard: React.FC = () => {
       {/* ── Main Content ─────────────────────────────────────────────────── */}
       <main className="flex-1 min-h-screen flex flex-col" style={{ marginLeft: '16rem', width: 'calc(100% - 16rem)' }}>
         {/* Top Header */}
-        <header className="sticky top-0 z-20 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between shadow-sm">
-          {/* Breadcrumbs */}
-          <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-            <span className="hover:text-slate-800 transition-colors cursor-pointer" onClick={() => setActiveTab('overview')}>Home</span>
-            <span className="text-slate-300">/</span>
-            <span className="hover:text-slate-800 transition-colors cursor-pointer" onClick={() => setActiveTab('overview')}>Dashboard</span>
-            <span className="text-slate-300">/</span>
-            <span className="text-slate-800 font-semibold capitalize">{currentTitle.title}</span>
-          </div>
-
-          {/* User Info / Badge */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f8fafc] border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#321fdb] animate-pulse" />
-              <span>{user?.role === 'admin' ? 'Quản trị viên' : 'Nhân viên'}</span>
+        <header className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
+          <div className="max-w-screen-2xl mx-auto w-full px-6 py-3 flex items-center justify-between">
+            {/* Breadcrumbs */}
+            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+              <span className="hover:text-slate-800 transition-colors cursor-pointer" onClick={() => setActiveTab('overview')}>Home</span>
+              <span className="text-slate-300">/</span>
+              <span className="hover:text-slate-800 transition-colors cursor-pointer" onClick={() => setActiveTab('overview')}>Dashboard</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-slate-800 font-semibold capitalize">{currentTitle.title}</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#321fdb] flex items-center justify-center text-white text-xs font-bold shadow-xs">
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+
+            {/* User Info / Badge */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f8fafc] border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#321fdb] animate-pulse" />
+                <span>{user?.role === 'admin' ? 'Quản trị viên' : 'Nhân viên'}</span>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-[#321fdb] flex items-center justify-center text-white text-xs font-bold shadow-xs">
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              </div>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 px-8 py-6">
+        <div className="flex-1 max-w-screen-2xl mx-auto w-full px-8 py-6">
           <AnimatePresence mode="wait">
             {activeTab === 'overview' && (
               <motion.div

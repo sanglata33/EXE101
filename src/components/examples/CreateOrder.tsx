@@ -12,6 +12,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, MapPin, Calendar, CheckCircle, AlertCircle, Loader2, PackagePlus } from 'lucide-react';
 import { createOrder, type CreateOrderPayload, type Order } from '../../api/orderService';
 import { useAuth } from '../../context/AuthContext';
+import { CareLabelScannerModal } from '../ui/CareLabelScannerModal';
+
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -24,6 +26,12 @@ export const CreateOrder: React.FC = () => {
   const [pickupDate,      setPickupDate]      = useState('');
   const [paymentMethod,   setPaymentMethod]   = useState<'cash' | 'vnpay' | 'momo'>('cash');
   const [note,            setNote]            = useState('');
+  const [isScannerOpen,   setIsScannerOpen]   = useState(false);
+
+  const handleApplyAINote = (aiAdvice: string) => {
+    setNote(prev => prev ? `${prev}\n${aiAdvice}` : aiAdvice);
+  };
+
 
   // Async state
   const [isLoading,     setIsLoading]     = useState(false);
@@ -211,10 +219,20 @@ export const CreateOrder: React.FC = () => {
 
           {/* Note */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Ghi chú (tuỳ chọn)
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Ghi chú (tuỳ chọn)
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsScannerOpen(true)}
+                className="text-[11px] text-white font-bold flex items-center gap-1.5 cursor-pointer transition-all bg-cyan-600 hover:bg-cyan-500 px-2.5 py-1.5 rounded-full shadow-sm shadow-cyan-500/20"
+              >
+                🤖 Quét nhãn bằng AI
+              </button>
+            </div>
             <textarea
+
               id="order-note"
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -247,7 +265,14 @@ export const CreateOrder: React.FC = () => {
           </motion.button>
         </form>
       </motion.div>
+
+      <CareLabelScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onApplyNote={handleApplyAINote}
+      />
     </div>
+
   );
 };
 
