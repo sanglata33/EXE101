@@ -5,8 +5,8 @@ import { Wind, Mail, Phone, MapPin } from 'lucide-react';
 export const Footer: React.FC = () => {
   return (
     <footer className="bg-slate-800 border-t border-slate-700 pt-16 pb-8 text-slate-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+      <div className="max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 mb-12">
           {/* Brand Info */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">

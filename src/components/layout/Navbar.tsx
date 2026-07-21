@@ -29,11 +29,11 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 glass-dark border-b border-cyan-100 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-cyan-100/80 shadow-xs transition-all duration-300">
+      <div className="max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-amber-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-300">
               <Wind className="w-5 h-5 text-white stroke-[2.5]" />
             </div>
@@ -42,8 +42,8 @@ export const Navbar: React.FC = () => {
             </span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-8">
+          {/* Desktop Nav Links - Centered between Logo and Actions */}
+          <div className="hidden md:flex items-center justify-center gap-8 flex-1 mx-8">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
@@ -68,7 +68,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Actions */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4 flex-shrink-0">
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
                 <span className="text-sm text-slate-600 flex items-center gap-1.5 font-medium">

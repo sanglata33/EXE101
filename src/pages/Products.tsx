@@ -153,12 +153,12 @@ export const Products: React.FC = () => {
     <div className="min-h-screen bg-slate-50">
 
       {/* ── Hero banner ─────────────────────────────── */}
-      <div className="relative overflow-hidden bg-white border-b border-slate-100 pt-24 pb-5">
+      <div className="relative overflow-hidden bg-white border-b border-slate-100 pt-10 sm:pt-14 pb-6">
         {/* Ambient blobs */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-100/50 rounded-full filter blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-amber-100/40 rounded-full filter blur-[80px] pointer-events-none" />
 
-        <div className="w-full max-w-none px-4 sm:px-12 lg:px-16 relative z-10">
+        <div className="w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -180,7 +180,7 @@ export const Products: React.FC = () => {
 
       {/* ── Filter bar ──────────────────────────────── */}
       <div className="bg-white border-b border-slate-100 shadow-sm">
-        <div className="w-full max-w-none px-4 sm:px-12 lg:px-16 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+        <div className="w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
           {/* Category pills — horizontal scroll on mobile */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 pb-0.5">
             {CATEGORIES.map(c => (
@@ -213,7 +213,7 @@ export const Products: React.FC = () => {
       </div>
 
       {/* ── Grid ────────────────────────────────────── */}
-      <div className="w-full max-w-none px-4 sm:px-12 lg:px-16 py-6">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-6">
         {/* Result count */}
         <div className="flex items-center justify-between mb-8">
           <p className="text-sm text-slate-500">
@@ -238,7 +238,7 @@ export const Products: React.FC = () => {
               initial="hidden"
               animate="show"
               exit="hidden"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-6"
             >
               {filtered.map(product => (
                 <ServiceCard key={product.id} product={product} />

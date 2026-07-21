@@ -106,7 +106,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-[#212631] border-r border-[#3c4b64]/20 flex flex-col z-40 shadow-xl">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-[#212631] border-r border-[#3c4b64]/20 hidden md:flex flex-col z-40 shadow-xl">
       {/* ── Logo & Brand ───────────────────────────────────────────────── */}
       <div className="px-6 py-5 border-b border-[#3c4b64]/20 bg-[#1d222b]">
         <div className="flex items-center gap-3">

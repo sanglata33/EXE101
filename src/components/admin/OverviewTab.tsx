@@ -179,7 +179,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ stats, isLoading }) =>
   return (
     <div className="space-y-6">
       {/* ── KPI Cards ──────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {statCards.map((card, i) => (
           <StatCard key={i} {...card} delay={i * 0.07} />
         ))}

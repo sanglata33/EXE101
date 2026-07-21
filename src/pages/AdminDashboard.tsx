@@ -396,7 +396,7 @@ export const AdminDashboard: React.FC = () => {
       />
 
       {/* ── Main Content ─────────────────────────────────────────────────── */}
-      <main className="flex-1 min-h-screen flex flex-col" style={{ marginLeft: '16rem', width: 'calc(100% - 16rem)' }}>
+      <main className="flex-1 min-h-screen flex flex-col ml-0 md:ml-64 w-full md:w-[calc(100%-16rem)]">
         {/* Top Header */}
         <header className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
           <div className="max-w-screen-2xl mx-auto w-full px-6 py-3 flex items-center justify-between">

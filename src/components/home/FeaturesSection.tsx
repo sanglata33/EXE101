@@ -54,7 +54,7 @@ export const FeaturesSection: React.FC = () => {
       {/* Subtle bg accent */}
       <div className="absolute -top-40 right-0 w-[600px] h-[600px] bg-cyan-50/60 rounded-full filter blur-[120px] pointer-events-none" />
 
-      <div className="w-full max-w-none px-4 sm:px-12 lg:px-16 relative z-10">
+      <div className="w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
 
         {/* Section header */}
         <div className="text-center max-w-xl mx-auto mb-20">
@@ -71,7 +71,7 @@ export const FeaturesSection: React.FC = () => {
         </div>
 
         {/* Feature Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-6 gap-6">
           {features.map((feat, index) => {
             const c = colorMap[feat.color];
             return (

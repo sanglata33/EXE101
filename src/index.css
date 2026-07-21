@@ -39,6 +39,10 @@
   --radius-xl: 0.75rem;
   --radius-2xl: 1rem;
   --radius-3xl: 1.5rem;
+
+  --breakpoint-xs: 475px;
+  --breakpoint-3xl: 1920px;
+  --breakpoint-4xl: 2560px;
 }
 
 *, *::before, *::after {

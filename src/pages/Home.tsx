@@ -25,7 +25,7 @@ export const Home: React.FC = () => {
 
       {/* ── Booking CTA ───────────────────────────── */}
       <section id="quick-booking" className="py-24 bg-slate-50">
-        <div className="w-full max-w-none px-4 sm:px-12 lg:px-16">
+        <div className="w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="relative rounded-[2rem] overflow-hidden bg-white border border-slate-100 shadow-xl shadow-slate-100/60">
             {/* Top accent line */}
             <div className="h-1 w-full bg-gradient-to-r from-cyan-500 via-cyan-400 to-amber-400" />

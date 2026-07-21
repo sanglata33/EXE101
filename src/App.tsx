@@ -54,7 +54,7 @@ const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <>
     <Navbar />
-    <main className="flex-grow">{children}</main>
+    <main className="flex-grow pt-20">{children}</main>
     <Footer />
   </>
 );

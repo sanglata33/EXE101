@@ -335,13 +335,13 @@ export const Cart: React.FC = () => {
       </AnimatePresence>
 
       {/* ── Page content ─────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-8">
+      <div className="max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-12 pt-8">
 
         <h1 className="font-display font-extrabold text-3xl text-slate-900 mb-8">
           Giỏ Hàng <span className="text-cyan-600">Dịch Vụ</span>
         </h1>
 
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* ── Left: Cart items ───────────────────────────────────────── */}
           <div className="xl:col-span-7 space-y-4">
