@@ -183,12 +183,13 @@ export const BookingFormSection: React.FC = () => {
                       Họ và tên <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                       <input
                         {...register('fullName')}
                         type="text"
                         placeholder="Nguyễn Văn A"
-                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
+                        style={{ paddingLeft: '2.75rem' }}
+                        className={`w-full pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
                           errors.fullName
                             ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
                             : 'border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
@@ -209,13 +210,14 @@ export const BookingFormSection: React.FC = () => {
                       Số điện thoại <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                       <input
                         {...register('phone')}
                         type="tel"
                         maxLength={10}
                         placeholder="0901 234 567"
-                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
+                        style={{ paddingLeft: '2.75rem' }}
+                        className={`w-full pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
                           errors.phone
                             ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
                             : 'border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
@@ -237,12 +239,13 @@ export const BookingFormSection: React.FC = () => {
                     Địa chỉ nhận đồ tận nơi <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                     <input
                       {...register('address')}
                       type="text"
                       placeholder="Ghi rõ: Số nhà, Đường, Phường/Xã, Quận/Huyện..."
-                      className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
+                      style={{ paddingLeft: '2.75rem' }}
+                      className={`w-full pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
                         errors.address
                           ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
                           : 'border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
@@ -265,12 +268,13 @@ export const BookingFormSection: React.FC = () => {
                       Ngày hẹn lấy đồ <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                       <input
                         {...register('bookingDate')}
                         type="date"
                         min={todayStr}
-                        className={`w-full pl-10 pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 focus:outline-none transition-all cursor-pointer ${
+                        style={{ paddingLeft: '2.75rem' }}
+                        className={`w-full pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 focus:outline-none transition-all cursor-pointer ${
                           errors.bookingDate
                             ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
                             : 'border-slate-200 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
@@ -291,10 +295,11 @@ export const BookingFormSection: React.FC = () => {
                       Khung giờ hẹn <span className="text-rose-500">*</span>
                     </label>
                     <div className="relative">
-                      <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                       <select
                         {...register('bookingTime')}
-                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all cursor-pointer"
+                        style={{ paddingLeft: '2.75rem' }}
+                        className="w-full pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all cursor-pointer"
                       >
                         <option value="08:00 - 10:00">08:00 – 10:00 (Sáng)</option>
                         <option value="10:00 - 12:00">10:00 – 12:00 (Trưa)</option>
@@ -312,12 +317,13 @@ export const BookingFormSection: React.FC = () => {
                     Ghi chú thêm (Nếu có)
                   </label>
                   <div className="relative">
-                    <FileText className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
+                    <FileText className="absolute left-3.5 top-3 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                     <textarea
                       {...register('note')}
                       rows={2}
                       placeholder="Ví dụ: Đồ mỏng giặt nhẹ, gọi trước 15 phút..."
-                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all resize-none"
+                      style={{ paddingLeft: '2.75rem' }}
+                      className="w-full pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all resize-none"
                     />
                   </div>
                   {errors.note && (

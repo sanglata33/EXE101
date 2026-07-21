@@ -372,7 +372,7 @@ input[type="number"] {
 }
 
 .fw-input.has-icon {
-  padding-left: 2.75rem;
+  padding-left: 2.75rem !important;
 }
 
 .fw-input::placeholder {

@@ -445,6 +445,7 @@ export const Cart: React.FC = () => {
                   <div className="relative">
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                     <input required type="text" placeholder="Họ và tên của bạn"
+                      style={{ paddingLeft: '2.75rem' }}
                       value={name} onChange={(e) => setName(e.target.value)} className="fw-input has-icon" />
                   </div>
 
@@ -452,6 +453,7 @@ export const Cart: React.FC = () => {
                   <div className="relative">
                     <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                     <input required type="tel" placeholder="Số điện thoại liên hệ"
+                      style={{ paddingLeft: '2.75rem' }}
                       value={phone} onChange={(e) => setPhone(e.target.value)} className="fw-input has-icon" />
                   </div>
 
@@ -459,6 +461,7 @@ export const Cart: React.FC = () => {
                   <div className="relative">
                     <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                     <input required type="text" placeholder="Địa chỉ chi tiết để shipper lấy đồ"
+                      style={{ paddingLeft: '2.75rem' }}
                       value={address} onChange={(e) => setAddress(e.target.value)} className="fw-input has-icon" />
                   </div>
 
@@ -466,6 +469,7 @@ export const Cart: React.FC = () => {
                   <div className="relative">
                     <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none z-10" />
                     <input required type="date"
+                      style={{ paddingLeft: '2.75rem' }}
                       value={bookingDate} onChange={(e) => setBookingDate(e.target.value)}
                       min={new Date().toISOString().split('T')[0]}
                       className="fw-input has-icon min-w-0" />
