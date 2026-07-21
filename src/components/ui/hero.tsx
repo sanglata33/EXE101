@@ -74,7 +74,7 @@ export default function ShaderHero() {
 
 
       {/* ── Centered Container for absolute positioned elements on wide screens ── */}
-      <div className="absolute inset-0 w-full max-w-none px-4 sm:px-12 lg:px-16 pointer-events-none z-20">
+      <div className="absolute inset-0 w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pointer-events-none z-20">
         <div className="relative w-full h-full">
           {/* ── Main hero content — bottom left ──────────── */}
           <main className="absolute bottom-10 left-0 pointer-events-auto max-w-2xl">
