@@ -153,7 +153,7 @@ export const Products: React.FC = () => {
     <div className="min-h-screen bg-slate-50">
 
       {/* ── Hero banner ─────────────────────────────── */}
-      <div className="relative overflow-hidden bg-white border-b border-slate-100 pt-10 sm:pt-14 pb-6">
+      <div className="relative overflow-hidden bg-white border-b border-slate-100 pt-28 sm:pt-36 pb-10 sm:pb-12">
         {/* Ambient blobs */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-100/50 rounded-full filter blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-72 h-72 bg-amber-100/40 rounded-full filter blur-[80px] pointer-events-none" />

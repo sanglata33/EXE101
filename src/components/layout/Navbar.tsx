@@ -32,42 +32,45 @@ export const Navbar: React.FC = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-cyan-100/80 shadow-xs transition-all duration-300">
       <div className="max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-amber-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-300">
-              <Wind className="w-5 h-5 text-white stroke-[2.5]" />
-            </div>
-            <span className="font-display font-bold text-2xl tracking-tight text-slate-800">
-              Fresh<span className="text-cyan-600">Wash</span>
-            </span>
-          </Link>
+          {/* Left Section: Logo + Nav Links */}
+          <div className="flex items-center gap-10">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-amber-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-300">
+                <Wind className="w-5 h-5 text-white stroke-[2.5]" />
+              </div>
+              <span className="font-display font-bold text-2xl tracking-tight text-slate-800">
+                Fresh<span className="text-cyan-600">Wash</span>
+              </span>
+            </Link>
 
-          {/* Desktop Nav Links - Centered between Logo and Actions */}
-          <div className="hidden md:flex items-center justify-center gap-8 flex-1 mx-8">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`relative font-medium text-sm transition-colors duration-300 py-2 ${
-                    isActive ? 'text-cyan-600' : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {link.label}
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeNav"
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full"
-                      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                    />
-                  )}
-                </Link>
-              );
-            })}
+            {/* Desktop Nav Links (Next to Logo) */}
+            <div className="hidden md:flex items-center gap-8">
+              {navLinks.map((link) => {
+                const isActive = location.pathname === link.path;
+                return (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`relative font-medium text-sm transition-colors duration-300 py-2 ${
+                      isActive ? 'text-cyan-600 font-bold' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {link.label}
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeNav"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full"
+                        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Actions */}
+          {/* Right Section: Actions */}
           <div className="hidden md:flex items-center gap-4 flex-shrink-0">
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
