@@ -23,7 +23,7 @@ export const FloatingContact: React.FC = () => {
         className="group flex items-center gap-2.5 bg-[#0068ff] text-white rounded-full shadow-lg shadow-blue-500/40 hover:shadow-blue-500/60 transition-shadow duration-300 pl-4 pr-3 py-2.5"
       >
         {/* Tooltip label */}
-        <span className="text-xs font-semibold whitespace-nowrap">
+        <span className="hidden sm:inline text-xs font-semibold whitespace-nowrap">
           Chat Zalo
         </span>
         {/* Zalo icon */}
@@ -45,9 +45,9 @@ export const FloatingContact: React.FC = () => {
         transition={{ delay: 1.7, type: 'spring', stiffness: 260, damping: 20 }}
         whileHover={{ scale: 1.12 }}
         whileTap={{ scale: 0.95 }}
-        className="relative group flex items-center gap-2.5 bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/40 hover:shadow-cyan-500/60 transition-shadow duration-300 pl-4 pr-3 py-2.5"
+        className="relative group flex items-center gap-2.5 bg-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/40 hover:shadow-cyan-500/60 transition-shadow duration-300 p-2 sm:pl-4 sm:pr-3 sm:py-2.5"
       >
-        <span className="text-xs font-semibold whitespace-nowrap">
+        <span className="hidden sm:inline text-xs font-semibold whitespace-nowrap">
           {HOTLINE.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
         </span>
         <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">

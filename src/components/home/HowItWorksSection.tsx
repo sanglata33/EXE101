@@ -59,10 +59,10 @@ export const HowItWorksSection: React.FC = () => {
         </div>
 
         {/* Steps */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 relative">
 
-          {/* Connector line (desktop only) */}
-          <div className="hidden lg:block absolute top-9 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-cyan-200 via-amber-200 to-cyan-200 z-0" />
+          {/* Connector line (desktop xl only) */}
+          <div className="hidden xl:block absolute top-9 left-[12.5%] right-[12.5%] h-px bg-gradient-to-r from-cyan-200 via-amber-200 to-cyan-200 z-0" />
 
           {steps.map((step, i) => {
             const c = colorMap[step.color as keyof typeof colorMap];
