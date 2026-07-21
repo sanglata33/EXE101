@@ -182,6 +182,123 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                 </div>
               ) : detail ? (
                 <>
+                  {/* Admin Workflow Stepper */}
+                  <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">
+                        ⚡ Quy trình xử lý đơn hàng
+                      </span>
+                      <span className="text-xs font-mono font-bold bg-white/10 px-2 py-0.5 rounded text-white">
+                        #{detail.orderCode}
+                      </span>
+                    </div>
+
+                    {/* 5 Step Progress Dots */}
+                    <div className="grid grid-cols-5 gap-1 pt-1 text-center">
+                      {[
+                        { key: 'received', label: 'Nhận đơn', emoji: '📦' },
+                        { key: 'washing', label: 'Đang giặt', emoji: '🫧' },
+                        { key: 'drying', label: 'Đang sấy', emoji: '🌬️' },
+                        { key: 'delivering', label: 'Đang giao', emoji: '🚚' },
+                        { key: 'completed', label: 'Hoàn thành', emoji: '✅' },
+                      ].map((st, idx) => {
+                        const orderStages: OrderStatus[] = ['received', 'washing', 'drying', 'delivering', 'completed'];
+                        const currentIdx = orderStages.indexOf(detail.status);
+                        const isDone = currentIdx >= idx && detail.status !== 'cancelled';
+                        const isCurrent = detail.status === st.key;
+
+                        return (
+                          <div key={st.key} className="flex flex-col items-center gap-1">
+                            <div
+                              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all ${
+                                isCurrent
+                                  ? 'bg-cyan-400 text-slate-900 font-bold ring-4 ring-cyan-400/30 scale-110'
+                                  : isDone
+                                  ? 'bg-emerald-500 text-white'
+                                  : 'bg-white/10 text-white/40'
+                              }`}
+                            >
+                              {st.emoji}
+                            </div>
+                            <span
+                              className={`text-[9px] font-bold tracking-tight truncate w-full ${
+                                isCurrent ? 'text-cyan-300 font-extrabold' : isDone ? 'text-slate-200' : 'text-white/40'
+                              }`}
+                            >
+                              {st.label}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Nút 1-Click chuyển bước tiếp theo */}
+                    {detail.status !== 'completed' && detail.status !== 'cancelled' && (
+                      <div className="pt-2 border-t border-white/10">
+                        {detail.status === 'received' && (
+                          <button
+                            onClick={() =>
+                              onConfirmStatus({
+                                orderId: detail._id,
+                                orderCode: detail.orderCode,
+                                currentStatus: detail.status,
+                                newStatus: 'washing',
+                              })
+                            }
+                            className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                          >
+                            <span>📦 Xác Nhận Đơn & Chuyển Sang Đang Giặt 🫧</span>
+                          </button>
+                        )}
+                        {detail.status === 'washing' && (
+                          <button
+                            onClick={() =>
+                              onConfirmStatus({
+                                orderId: detail._id,
+                                orderCode: detail.orderCode,
+                                currentStatus: detail.status,
+                                newStatus: 'drying',
+                              })
+                            }
+                            className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                          >
+                            <span>🫧 Đã Giặt Xong → Chuyển Sang Đang Sấy/Ủi 🌬️</span>
+                          </button>
+                        )}
+                        {detail.status === 'drying' && (
+                          <button
+                            onClick={() =>
+                              onConfirmStatus({
+                                orderId: detail._id,
+                                orderCode: detail.orderCode,
+                                currentStatus: detail.status,
+                                newStatus: 'delivering',
+                              })
+                            }
+                            className="w-full py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                          >
+                            <span>🌬️ Đã Sấy/Ủi Xong → Đóng Gói & Chuyển Giao 🚚</span>
+                          </button>
+                        )}
+                        {detail.status === 'delivering' && (
+                          <button
+                            onClick={() =>
+                              onConfirmStatus({
+                                orderId: detail._id,
+                                orderCode: detail.orderCode,
+                                currentStatus: detail.status,
+                                newStatus: 'completed',
+                              })
+                            }
+                            className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                          >
+                            <span>🚚 Xác Nhận Đã Giao Đồ & Hoàn Thành ✅</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
                   {/* Section 1: Customer */}
                   <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
@@ -408,6 +525,31 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                         ))
                       )}
                     </div>
+                    {/* Quick Wash Method Presets */}
+                    <div className="space-y-1.5 pt-1">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Chọn nhanh quy trình & cách thức giặt:
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { label: '🫧 Giặt Hữu Cơ', note: 'Quy trình: Giặt nước hữu cơ dịu nhẹ + xả hương nước hoa Pháp.' },
+                          { label: '🧥 Giặt Khô Premium', note: 'Quy trình: Giặt khô chuyên dụng hấp dung môi giữ form dáng suit/vest.' },
+                          { label: '🌬️ Sấy Nhiệt Thấp', note: 'Quy trình: Sấy nhiệt độ thấp chống co rút & giảm nhăn sợi vải.' },
+                          { label: '✨ Giặt Hấp Mỏng/Ren', note: 'Quy trình: Giặt hấp khử trùng UV, bảo vệ ren & đính hạt cườm.' },
+                          { label: '💨 Ủi Hơi Nước', note: 'Quy trình: Ủi bằng bàn ủi hơi nước công nghiệp áp suất cao.' },
+                        ].map((preset) => (
+                          <button
+                            key={preset.label}
+                            type="button"
+                            onClick={() => onStaffNoteChange(newStaffNote ? `${newStaffNote} | ${preset.note}` : preset.note)}
+                            className="text-[10px] font-semibold bg-cyan-50 hover:bg-cyan-100 text-cyan-800 border border-cyan-200 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     <form onSubmit={onAddStaffNote} className="flex gap-2">
                       <input
                         type="text"
