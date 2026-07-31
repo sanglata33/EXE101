@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Scale, Package, Clock, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { Scale, Package, Clock, ArrowRight, Sparkles, Loader2, ShoppingBag } from 'lucide-react';
 import { getAllServices, type LaundryService } from '../../api/serviceService';
 
 /* ── Format giá VNĐ ──────────────────────────────────────────────── */
@@ -19,11 +19,52 @@ const SkeletonCard = () => (
   </div>
 );
 
+/* ── Helper to map service name → correct image ──────────────── */
+const getServiceImage = (name: string): string => {
+  const n = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  // Giày / sneaker / boot
+  if (n.includes('giay') || n.includes('sneaker') || n.includes('boot') || n.includes('dep')) {
+    return '/service_giat_giay.png';
+  }
+  // Vest / áo vest / áo khoác / suit / hấp / khô / lụa / cao cấp
+  if (n.includes('vest') || n.includes('au') || n.includes('suit') || n.includes('hap') ||
+      n.includes('kho') || n.includes('lua') || n.includes('cao cap') || n.includes('sang')) {
+    return '/service_giat_vest.png';
+  }
+  // Rèm / sofa / nệm / thảm / mền / chăn / gối
+  if (n.includes('rem') || n.includes('sofa') || n.includes('nem') || n.includes('tham') ||
+      n.includes('men') || n.includes('chan') || n.includes('goi') || n.includes('may')) {
+    return '/service_rem_sofa.png';
+  }
+  // Mặc định: giặt sấy thường
+  return '/service_giat_say_moi.png';
+};
+
 /* ── Main component ──────────────────────────────────────────────── */
 export const PricingSection: React.FC = () => {
   const [services, setServices] = useState<LaundryService[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const handleCardClick = (serviceId: string) => {
+    // Dispatch custom event for react-hook-form inside BookingFormSection to catch
+    window.dispatchEvent(
+      new CustomEvent('select-booking-service', { detail: { serviceId } })
+    );
+
+    const selectEl = document.querySelector('select[name="serviceId"]') as HTMLSelectElement;
+    if (selectEl) {
+      selectEl.value = serviceId;
+      selectEl.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    const formSec = document.getElementById('quick-booking');
+    if (formSec) {
+      formSec.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.hash = 'quick-booking';
+    }
+  };
 
   useEffect(() => {
     getAllServices()
@@ -36,23 +77,23 @@ export const PricingSection: React.FC = () => {
   }, []);
 
   return (
-    <section id="bang-gia" className="py-24 bg-white relative overflow-hidden">
+    <section id="bang-gia" className="py-24 bg-[#FCFBF9] relative overflow-hidden">
       {/* Subtle background */}
-      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-cyan-50/50 rounded-full filter blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-amber-50/40 rounded-full filter blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#C5A880]/5 rounded-full filter blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-[#FAF6F0]/40 rounded-full filter blur-[100px] pointer-events-none" />
 
       <div className="w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
 
         {/* Header */}
         <div className="text-center max-w-xl mx-auto mb-16">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-50 text-cyan-700 border border-cyan-100 rounded-full text-xs font-semibold uppercase tracking-wider mb-5">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#C5A880]/10 text-[#8E7A58] border border-[#EBE3D5] rounded-full text-xs font-semibold uppercase tracking-wider mb-5">
             <Sparkles className="w-3 h-3" /> Bảng giá dịch vụ
           </span>
-          <h2 className="font-display font-black text-3xl sm:text-4xl text-slate-900 leading-tight">
+          <h2 className="font-display font-black text-3xl sm:text-4xl text-[#2A2520] leading-tight">
             Giá rõ ràng,{' '}
             <span className="gradient-text">không phát sinh</span>
           </h2>
-          <p className="mt-4 text-slate-500 text-sm sm:text-base font-light">
+          <p className="mt-4 text-[#756458] text-sm sm:text-base font-light">
             Báo giá chính xác trước khi nhận đồ. Không phụ thu, không ẩn phí.
           </p>
         </div>
@@ -90,55 +131,77 @@ export const PricingSection: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.45, delay: i * 0.08 }}
-                className="group relative flex flex-col bg-white rounded-2xl border border-slate-100 hover:border-cyan-200 hover:shadow-lg hover:shadow-cyan-50/80 p-6 transition-all duration-300"
+                onClick={() => handleCardClick(service._id)}
+                className="group relative flex flex-col bg-white rounded-2xl border border-slate-100 hover:border-[#C5A880] hover:shadow-lg hover:shadow-gold-500/5 overflow-hidden transition-all duration-300 cursor-pointer"
               >
-                {/* Price type icon */}
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-5 border transition-transform duration-300 group-hover:scale-105 ${
-                  service.priceType === 'per_kg'
-                    ? 'bg-cyan-50 border-cyan-100 text-cyan-600'
-                    : 'bg-amber-50 border-amber-100 text-amber-600'
-                }`}>
-                  {service.priceType === 'per_kg'
-                    ? <Scale className="w-5 h-5" />
-                    : <Package className="w-5 h-5" />
-                  }
+                {/* Service Image */}
+                <div className="h-48 w-full overflow-hidden relative">
+                  <img
+                    src={getServiceImage(service.name)}
+                    alt={service.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+                  
+                  {/* Select indicator on hover */}
+                  <div className="absolute inset-0 bg-[#C5A880]/15 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                    <span className="px-4 py-2 bg-white/95 backdrop-blur-xs text-[#2A2520] text-xs font-bold rounded-full border border-[#C5A880]/30 shadow-md transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 animate-in fade-in zoom-in-95">
+                      Đặt lịch nhanh dịch vụ này
+                    </span>
+                  </div>
+                  
+                  {/* Price type icon absolute overlay */}
+                  <div className={`absolute top-4 right-4 w-9 h-9 rounded-xl flex items-center justify-center border shadow-sm backdrop-blur-md ${
+                    service.priceType === 'per_kg'
+                      ? 'bg-white/90 border-[#EBE3D5] text-[#C5A880]'
+                      : 'bg-white/90 border-[#EBE3D5] text-amber-600'
+                  }`}>
+                    {service.priceType === 'per_kg'
+                      ? <Scale className="w-4.5 h-4.5" />
+                      : <Package className="w-4.5 h-4.5" />
+                    }
+                  </div>
                 </div>
 
-                {/* Name */}
-                <h3 className="font-bold text-slate-800 text-base mb-1.5 leading-snug">
-                  {service.name}
-                </h3>
+                <div className="p-6 flex-grow flex flex-col justify-between">
+                  <div>
+                    {/* Name */}
+                    <h3 className="font-bold text-[#2A2520] text-base mb-1.5 leading-snug">
+                      {service.name}
+                    </h3>
 
-                {/* Description */}
-                {service.description && (
-                  <p className="text-slate-500 text-sm leading-relaxed mb-4 flex-1">
-                    {service.description}
-                  </p>
-                )}
-
-                {/* Price */}
-                <div className="mt-auto pt-4 border-t border-slate-100">
-                  <div className="flex items-end justify-between gap-2">
-                    <div>
-                      <span className={`text-2xl font-black ${
-                        service.priceType === 'per_kg'
-                          ? 'text-cyan-600'
-                          : 'text-amber-600'
-                      }`}>
-                        {formatPrice(service.price)}
-                      </span>
-                      <span className="text-slate-400 text-xs ml-1">
-                        /{service.priceType === 'per_kg' ? 'kg' : 'món'}
-                      </span>
-                    </div>
-
-                    {/* Estimated time */}
-                    {service.estimatedHours && (
-                      <div className="flex items-center gap-1 text-slate-400 text-xs flex-shrink-0">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>{service.estimatedHours}h</span>
-                      </div>
+                    {/* Description */}
+                    {service.description && (
+                      <p className="text-[#756458] text-sm leading-relaxed mb-4">
+                        {service.description}
+                      </p>
                     )}
+                  </div>
+
+                  {/* Price */}
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <div className="flex items-end justify-between gap-2">
+                      <div>
+                        <span className={`text-2xl font-black ${
+                          service.priceType === 'per_kg'
+                            ? 'text-[#C5A880]'
+                            : 'text-[#BCA374]'
+                        }`}>
+                          {formatPrice(service.price)}
+                        </span>
+                        <span className="text-[#8F7E71] text-xs ml-1">
+                          /{service.priceType === 'per_kg' ? 'kg' : 'món'}
+                        </span>
+                      </div>
+
+                      {/* Estimated time */}
+                      {service.estimatedHours && (
+                        <div className="flex items-center gap-1 text-[#8F7E71] text-xs flex-shrink-0">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span>{service.estimatedHours}h</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -154,14 +217,22 @@ export const PricingSection: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-center mt-12"
         >
-          <Link
-            to="/login"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-cyan-400 text-white font-semibold text-sm hover:from-cyan-400 hover:to-cyan-300 shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300"
-          >
-            Đặt lịch ngay <ArrowRight className="w-4 h-4" />
-          </Link>
-          <p className="text-slate-400 text-xs mt-3">
-            Đăng nhập để đặt dịch vụ · Thanh toán sau khi nhận đồ
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+            <a
+              href="#quick-booking"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#BCA374] to-[#C5A880] text-white font-semibold text-sm hover:from-[#C5A880] hover:to-[#D4AF37] shadow-lg shadow-gold-500/10 hover:shadow-gold-500/20 transition-all duration-300"
+            >
+              Đặt lịch ngay <ArrowRight className="w-4 h-4" />
+            </a>
+            <Link
+              to="/products"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[#C5A880]/30 hover:border-[#C5A880] bg-white hover:bg-[#FAF6F0] text-[#2A2520] font-semibold text-sm transition-all duration-300"
+            >
+              Vào trang Dịch Vụ để Order <ShoppingBag className="w-4 h-4" />
+            </Link>
+          </div>
+          <p className="text-[#8F7E71] text-xs mt-3">
+            Đặt lịch dễ dàng · Cung cấp nhiều tùy chọn thanh toán và giỏ hàng đa dạng
           </p>
         </motion.div>
 

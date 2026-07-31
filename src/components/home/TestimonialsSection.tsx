@@ -6,7 +6,7 @@ const testimonials = [
   {
     name: 'Nguyễn Minh Thư',
     role: 'Nhân viên văn phòng, Q.3',
-    text: 'FreshWash đã chinh phục tôi hoàn toàn. Vest về đúng dáng, mùi hương tinh tế, đóng gói cẩn thận.',
+    text: 'Skill-Up đã chinh phục tôi hoàn toàn. Vest về đúng dáng, mùi hương tinh tế, đóng gói cẩn thận.',
     rating: 5,
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
   },
@@ -20,7 +20,7 @@ const testimonials = [
   {
     name: 'Lê Thị Thu Hà',
     role: 'Kinh doanh tự do, Q.7',
-    text: 'Da con nhạy cảm, từ khi dùng nước giặt hữu cơ của FreshWash không bị ngứa nữa. Cực kỳ tin tưởng.',
+    text: 'Da con nhạy cảm, từ khi dùng nước giặt hữu cơ của Skill-Up không bị ngứa nữa. Cực kỳ tin tưởng.',
     rating: 5,
     avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80',
   },
@@ -42,7 +42,7 @@ export const TestimonialsSection: React.FC = () => {
           </span>
           <h2 className="font-display font-black text-3xl sm:text-4xl text-slate-900 leading-tight">
             Khách hàng nói gì về{' '}
-            <span className="gradient-text">FreshWash</span>?
+            <span className="gradient-text">Skill-Up</span>?
           </h2>
         </div>
 

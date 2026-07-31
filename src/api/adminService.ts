@@ -63,6 +63,9 @@ export interface StaffNoteItem {
 }
 
 export interface OrderDetail extends Order {
+  quantity?: number;
+  note?: string | null;
+  pickupAddress?: string;
   statusHistory?: StatusHistoryItem[];
   staffNotes?: StaffNoteItem[];
   adminNote?: string;

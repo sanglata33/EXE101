@@ -29,18 +29,18 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-cyan-100/80 shadow-xs transition-all duration-300">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#FCFBF9]/95 backdrop-blur-md border-b border-[#C5A880]/15 shadow-xs transition-all duration-300">
       <div className="max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Logo + Nav Links */}
           <div className="flex items-center gap-10">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-amber-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform duration-300">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#C5A880] to-[#D4AF37] flex items-center justify-center shadow-lg shadow-gold-500/10 group-hover:scale-105 transition-transform duration-300">
                 <Wind className="w-5 h-5 text-white stroke-[2.5]" />
               </div>
-              <span className="font-display font-bold text-2xl tracking-tight text-slate-800">
-                Fresh<span className="text-cyan-600">Wash</span>
+              <span className="font-display font-bold text-2xl tracking-tight text-[#2A2520]">
+                Skill-<span className="text-[#C5A880]">Up</span>
               </span>
             </Link>
 
@@ -53,14 +53,14 @@ export const Navbar: React.FC = () => {
                     key={link.path}
                     to={link.path}
                     className={`relative font-medium text-sm transition-colors duration-300 py-2 ${
-                      isActive ? 'text-cyan-600 font-bold' : 'text-slate-600 hover:text-slate-900'
+                      isActive ? 'text-[#C5A880] font-bold' : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     {link.label}
                     {isActive && (
                       <motion.div
                         layoutId="activeNav"
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full"
+                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#C5A880] to-[#D4AF37] rounded-full"
                         transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                       />
                     )}
@@ -74,10 +74,14 @@ export const Navbar: React.FC = () => {
           <div className="hidden md:flex items-center gap-4 flex-shrink-0">
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
-                <span className="text-sm text-slate-600 flex items-center gap-1.5 font-medium">
+                <Link
+                  to="/profile"
+                  className="text-sm text-[#756458] hover:text-[#C5A880] flex items-center gap-1.5 font-semibold transition-colors duration-200"
+                  title="Xem hồ sơ cá nhân"
+                >
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   {user?.name || 'Khách hàng'}
-                </span>
+                </Link>
                 {(user?.role === 'admin' || user?.role === 'staff') && (
                   <Link
                     to="/admin"
@@ -98,7 +102,7 @@ export const Navbar: React.FC = () => {
             ) : (
               <Link
                 to="/login"
-                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white rounded-xl font-semibold text-sm shadow-md shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-300"
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#BCA374] to-[#C5A880] hover:from-[#C5A880] hover:to-[#D4AF37] text-white rounded-xl font-semibold text-sm shadow-md shadow-gold-500/10 hover:shadow-gold-500/20 transition-all duration-300"
               >
                 <User className="w-4 h-4" />
                 Đăng Nhập
@@ -108,14 +112,14 @@ export const Navbar: React.FC = () => {
             {/* Cart Button */}
             <Link
               to="/cart"
-              className="relative p-2.5 bg-slate-50 border border-slate-200 hover:border-cyan-400 hover:bg-cyan-50 text-slate-700 rounded-xl transition-all duration-300 group"
+              className="relative p-2.5 bg-slate-50 border border-slate-200 hover:border-[#C5A880] hover:bg-[#FAF6F0] text-slate-700 rounded-xl transition-all duration-300 group"
             >
               <ShoppingCart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
               {cartCount > 0 && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[10px] font-extrabold flex items-center justify-center rounded-full shadow-lg shadow-amber-500/20"
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-r from-[#D4AF37] to-[#BCA374] text-white text-[10px] font-extrabold flex items-center justify-center rounded-full shadow-lg shadow-gold-500/10"
                 >
                   {cartCount}
                 </motion.span>
@@ -154,7 +158,7 @@ export const Navbar: React.FC = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white/95 backdrop-blur-xl border-b border-cyan-100"
+            className="md:hidden bg-[#FCFBF9]/95 backdrop-blur-xl border-b border-[#C5A880]/15"
           >
             <div className="px-4 pt-2 pb-6 space-y-3">
               {navLinks.map((link) => {
@@ -166,7 +170,7 @@ export const Navbar: React.FC = () => {
                     onClick={() => setIsOpen(false)}
                     className={`block px-4 py-3 rounded-xl text-base font-medium transition-all ${
                       isActive
-                        ? 'bg-gradient-to-r from-cyan-50 to-cyan-100/50 text-cyan-600 border-l-2 border-cyan-500'
+                        ? 'bg-gradient-to-r from-[#FAF6F0] to-[#EBE3D5]/50 text-[#C5A880] border-l-2 border-[#C5A880]'
                         : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                     }`}
                   >
@@ -201,7 +205,7 @@ export const Navbar: React.FC = () => {
                   <Link
                     to="/login"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-xl font-bold transition-all duration-300"
+                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#BCA374] to-[#C5A880] text-white rounded-xl font-bold transition-all duration-300"
                   >
                     <User className="w-5 h-5" />
                     Đăng Nhập

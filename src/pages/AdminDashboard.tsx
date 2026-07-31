@@ -112,6 +112,42 @@ export const AdminDashboard: React.FC = () => {
     refetch,
   } = useAdminOrders();
 
+  // Lắng nghe đơn hàng mới qua WebSocket dành cho Admin/Staff
+  useEffect(() => {
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const wsUrl = backendUrl.replace(/^http/, 'ws') + '/admin/notifications';
+
+    let ws: WebSocket | null = null;
+    try {
+      ws = new WebSocket(wsUrl);
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'new_order') {
+            showToast(`🎉 Có đơn đặt lịch mới #${data.orderCode} từ ${data.customerName || 'khách hàng'}!`, 'success');
+            // Refresh danh sách đơn hàng và thống kê
+            refetch();
+            // Load lại thống kê dashboard nếu có
+            adminService.getDashboardStats().then(setStats).catch(console.error);
+          }
+        } catch (err) {
+          console.error('Lỗi phân tích WebSocket Admin message:', err);
+        }
+      };
+
+      ws.onerror = (err) => {
+        console.warn('Lỗi kết nối WebSocket Admin:', err);
+      };
+    } catch (err) {
+      console.warn('Không thể kết nối WebSocket Admin:', err);
+    }
+
+    return () => {
+      if (ws) ws.close();
+    };
+  }, [showToast, refetch]);
+
   // Order detail drawer
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [detail, setDetail] = useState<OrderDetail | null>(null);
@@ -361,10 +397,12 @@ export const AdminDashboard: React.FC = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-500 font-semibold">
-          <Loader className="w-5 h-5 animate-spin text-cyan-600" />
-          <span>Đang kiểm tra quyền truy cập...</span>
+      <div className="min-h-screen bg-[#0F1117] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#C5A880] to-[#D4AF37] flex items-center justify-center shadow-lg shadow-[#C5A880]/25 animate-pulse">
+            <Loader className="w-6 h-6 text-white animate-spin" />
+          </div>
+          <p className="text-slate-400 text-sm font-semibold">Đang kiểm tra quyền truy cập...</p>
         </div>
       </div>
     );
@@ -381,7 +419,7 @@ export const AdminDashboard: React.FC = () => {
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#ebedef] flex">
+    <div className="min-h-screen bg-[#F4F6F8] flex">
 
       {/* ── Sidebar ─────────────────────────────────────────────────────── */}
       <AdminSidebar
@@ -398,32 +436,33 @@ export const AdminDashboard: React.FC = () => {
       {/* ── Main Content ─────────────────────────────────────────────────── */}
       <main className="flex-1 min-h-screen flex flex-col ml-0 md:ml-64 w-full md:w-[calc(100%-16rem)]">
         {/* Top Header */}
-        <header className="sticky top-0 z-20 bg-white border-b border-slate-200 shadow-sm">
-          <div className="max-w-screen-2xl mx-auto w-full px-6 py-3 flex items-center justify-between">
-            {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-              <span className="hover:text-slate-800 transition-colors cursor-pointer" onClick={() => setActiveTab('overview')}>Home</span>
-              <span className="text-slate-300">/</span>
-              <span className="hover:text-slate-800 transition-colors cursor-pointer" onClick={() => setActiveTab('overview')}>Dashboard</span>
-              <span className="text-slate-300">/</span>
-              <span className="text-slate-800 font-semibold capitalize">{currentTitle.title}</span>
+        <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+          <div className="w-full px-6 py-3.5 flex items-center justify-between">
+            {/* Title + breadcrumbs */}
+            <div>
+              <div className="flex items-center gap-2 text-[10px] text-slate-400 font-semibold mb-0.5">
+                <span className="hover:text-slate-700 transition-colors cursor-pointer" onClick={() => setActiveTab('overview')}>Skill-Up</span>
+                <span className="text-slate-200">/</span>
+                <span className="text-slate-600 font-bold">{currentTitle.title}</span>
+              </div>
+              <p className="text-[11px] text-slate-400">{currentTitle.sub}</p>
             </div>
 
-            {/* User Info / Badge */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f8fafc] border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#321fdb] animate-pulse" />
-                <span>{user?.role === 'admin' ? 'Quản trị viên' : 'Nhân viên'}</span>
+            {/* User badge */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FAF6F0] border border-[#EBE3D5] rounded-xl text-xs font-semibold text-[#8E7A58]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C5A880] animate-pulse" />
+                {user?.role === 'admin' ? '👑 Quản trị viên' : '🧺 Nhân viên'}
               </div>
-              <div className="w-8 h-8 rounded-full bg-[#321fdb] flex items-center justify-center text-white text-xs font-bold shadow-xs">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#C5A880] to-[#D4AF37] flex items-center justify-center text-white text-xs font-black shadow-md">
+                {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
               </div>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 max-w-screen-2xl mx-auto w-full px-8 py-6">
+        <div className="flex-1 w-full px-6 py-6">
           <AnimatePresence mode="wait">
             {activeTab === 'overview' && (
               <motion.div
@@ -541,10 +580,10 @@ export const AdminDashboard: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl relative z-10 space-y-4 border border-slate-100"
+              className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl relative z-10 space-y-4 border border-slate-100"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-cyan-600">
+                <div className="w-10 h-10 rounded-xl bg-[#FAF6F0] border border-[#EBE3D5] flex items-center justify-center text-[#C5A880]">
                   <AlertCircle className="w-5 h-5" />
                 </div>
                 <div>
@@ -555,10 +594,10 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between bg-slate-50 border border-slate-100 p-3 rounded-2xl text-xs font-bold">
+              <div className="flex items-center justify-between bg-[#FAF6F0] border border-[#EBE3D5] p-3 rounded-xl text-xs font-bold">
                 <span className="text-slate-500">{STATUS_CONFIG[confirmStatus.currentStatus]?.label}</span>
                 <ArrowRight className="w-4 h-4 text-slate-300" />
-                <span className="text-cyan-600">{STATUS_CONFIG[confirmStatus.newStatus]?.label}</span>
+                <span className="text-[#C5A880]">{STATUS_CONFIG[confirmStatus.newStatus]?.label}</span>
               </div>
 
               <div className="space-y-1.5">
@@ -570,21 +609,21 @@ export const AdminDashboard: React.FC = () => {
                   placeholder="Lý do cập nhật (VD: Khách xác nhận, Đã giặt xong...)"
                   value={statusNote}
                   onChange={(e) => setStatusNote(e.target.value)}
-                  className="w-full text-xs font-medium border border-slate-200 rounded-xl px-3 py-2.5 bg-slate-50/50 focus:outline-none focus:ring-1 focus:ring-cyan-500 focus:bg-white transition-all placeholder-slate-400"
+                  className="w-full text-xs font-medium border border-[#EBE3D5] rounded-xl px-3 py-2.5 bg-[#FAF6F0]/50 focus:outline-none focus:ring-2 focus:ring-[#C5A880]/30 focus:border-[#C5A880] focus:bg-white transition-all placeholder-slate-300"
                 />
               </div>
 
               <div className="flex gap-2.5 pt-1">
                 <button
                   onClick={() => { setConfirmStatus(null); setStatusNote(''); }}
-                  className="flex-1 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-colors"
+                  className="flex-1 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Hủy
                 </button>
                 <button
                   onClick={executeStatusUpdate}
                   disabled={updating}
-                  className="flex-1 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-1.5 shadow-md shadow-cyan-200/50"
+                  className="flex-1 py-2.5 bg-gradient-to-r from-[#BCA374] to-[#C5A880] hover:from-[#C5A880] hover:to-[#D4AF37] text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-md shadow-[#C5A880]/20 cursor-pointer"
                 >
                   {updating ? <Loader className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                   Xác nhận

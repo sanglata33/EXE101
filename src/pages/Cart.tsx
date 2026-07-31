@@ -94,31 +94,47 @@ const norm = (s: string) =>
     .replace(/đ/g, 'd')
     .trim();
 
-// ─── Map product → service ────────────────────────────────────────────────────
-const PRODUCT_KEYWORDS: Record<string, string[]> = {
-  'giat-say-nhanh':    ['tieu chuan', 'giat say', 'standard'],
-  'giat-say-premium':  ['premium', 'nuoc hoa', 'cao cap'],
-  'giat-hap-suit':     ['vest', 'suit', 'ao vest'],
-  'giat-hap-vay-cuoi': ['vay cuoi', 'cuoi'],
-  'ui-phang-nhanh':    ['ui phang', 'ui'],
-  'giat-giay-sneaker': ['giay', 'sneaker'],
-  'giat-thu-bong':     ['thu bong', 'bong'],
-  'giat-nem-sofa':     ['nem', 'sofa', 've sinh'],
+// ─── Map product FE → service DB (khớp 1:1 với 3 service trong seed.js) ─────
+//
+//  DB service names (sau khi norm):
+//   1. "giat say say tieu chuan"  → per_kg,   25.000đ
+//   2. "giat hap ao vest"         → per_item, 80.000đ
+//   3. "giat giay sneaker"        → per_item, 50.000đ
+//
+const PRODUCT_SERVICE_MAP: Record<string, string[]> = {
+  // Giặt Sấy Tiêu Chuẩn → service "Giặt sấy sấy tiêu chuẩn"
+  'giat-say-tieu-chuan': ['tieu chuan', 'giat say'],
+  // Giặt Hấp Áo Vest → service "Giặt hấp áo vest"
+  'giat-hap-ao-vest':    ['hap', 'vest', 'ao vest'],
+  // Spa & Giặt Giày Sneaker → service "Giặt giày sneaker"
+  'giat-giay-sneaker':   ['giay', 'sneaker'],
 };
 
 const findService = (
   productId: string,
-  productName: string,
+  _productName: string,
   services: LaundryService[]
 ): LaundryService | null => {
   if (!services || services.length === 0) return null;
 
-  const keywords = PRODUCT_KEYWORDS[productId] ?? [norm(productName).split(' ')[0]];
+  const keywords = PRODUCT_SERVICE_MAP[productId];
+  if (!keywords) {
+    // Fallback: trả về service đầu tiên và log cảnh báo
+    console.warn(`[findService] Không tìm thấy mapping cho productId: ${productId}`);
+    return services[0];
+  }
+
+  // Tìm service khớp với bất kỳ keyword nào (AND: tất cả keywords phải có ít nhất 1 match)
   for (const svc of services) {
     const ns = norm(svc.name);
-    if (keywords.some((kw) => ns.includes(kw) || kw.includes(ns.split(' ')[0]))) return svc;
+    if (keywords.some((kw) => ns.includes(kw))) {
+      return svc;
+    }
   }
-  return services[0] || null;
+
+  // Không tìm thấy → log lỗi rõ ràng
+  console.error(`[findService] Không match service nào cho "${productId}". Services:`, services.map(s => s.name));
+  return null;
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -288,17 +304,17 @@ export const Cart: React.FC = () => {
           <div className="space-y-2">
             <h2 className="font-display font-black text-2xl text-slate-900">Đặt Hàng Thành Công!</h2>
             <p className="text-slate-500 text-sm">
-              Cảm ơn bạn đã tin tưởng FreshWash. Nhân viên sẽ liên hệ xác nhận đơn hàng sớm nhất.
+              Cảm ơn bạn đã tin tưởng Skill-Up. Nhân viên sẽ liên hệ xác nhận đơn hàng sớm nhất.
             </p>
           </div>
 
           {/* List mã đơn hàng */}
           {createdOrderCodes.length > 0 && (
-            <div className="p-4 rounded-2xl bg-cyan-50/60 border border-cyan-100 text-left space-y-2">
-              <p className="text-xs font-bold text-cyan-800 uppercase tracking-wider">Mã đơn hàng của bạn:</p>
+            <div className="p-4 rounded-2xl bg-[#C5A880]/10 border border-[#EBE3D5] text-left space-y-2">
+              <p className="text-xs font-bold text-[#8E7A58] uppercase tracking-wider">Mã đơn hàng của bạn:</p>
               <div className="flex flex-wrap gap-2">
                 {createdOrderCodes.map((code) => (
-                  <span key={code} className="px-3 py-1 bg-white border border-cyan-200 rounded-lg text-xs font-mono font-bold text-cyan-700 shadow-xs">
+                  <span key={code} className="px-3 py-1 bg-white border border-[#EBE3D5] rounded-lg text-xs font-mono font-bold text-[#8E7A58] shadow-xs">
                     #{code}
                   </span>
                 ))}
@@ -356,15 +372,15 @@ export const Cart: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-6 max-w-md mx-4 p-8 bg-white rounded-3xl border border-slate-200 shadow-xl"
         >
-          <div className="w-20 h-20 bg-cyan-50 rounded-full flex items-center justify-center mx-auto text-cyan-500">
+          <div className="w-20 h-20 bg-[#C5A880]/10 rounded-full flex items-center justify-center mx-auto text-[#C5A880]">
             <ShoppingBag className="w-10 h-10" />
           </div>
           <div className="space-y-2">
             <h2 className="font-display font-bold text-2xl text-slate-900">Giỏ Hàng Trống</h2>
-            <p className="text-slate-500 text-sm">Bạn chưa thêm dịch vụ nào vào giỏ hàng. Hãy khám phá các dịch vụ giặt ủi cao cấp của FreshWash!</p>
+            <p className="text-slate-500 text-sm">Bạn chưa thêm dịch vụ nào vào giỏ hàng. Hãy khám phá các dịch vụ giặt ủi cao cấp của Skill-Up!</p>
           </div>
           <Link to="/products" className="inline-flex">
-            <Button variant="primary" className="px-8 py-3.5 gap-2 text-white bg-cyan-600 hover:bg-cyan-500">
+            <Button variant="primary" className="px-8 py-3.5 gap-2 text-white bg-gradient-to-r from-[#BCA374] to-[#C5A880] hover:from-[#C5A880] hover:to-[#D4AF37] shadow-md shadow-gold-500/10">
               Khám Phá Dịch Vụ <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>

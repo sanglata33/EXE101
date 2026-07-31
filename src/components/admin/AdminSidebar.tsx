@@ -6,8 +6,8 @@ import {
   ShoppingBag,
   Users,
   LogOut,
-  ChevronRight,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 
 export type AdminTab = 'overview' | 'orders' | 'users';
@@ -15,6 +15,7 @@ export type AdminTab = 'overview' | 'orders' | 'users';
 interface NavItem {
   id: AdminTab;
   label: string;
+  sublabel: string;
   icon: React.ReactNode;
   adminOnly?: boolean;
   badge?: number;
@@ -45,131 +46,153 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     {
       id: 'overview',
       label: 'Tổng quan',
-      icon: <LayoutDashboard className="w-5 h-5" />,
+      sublabel: 'Dashboard & thống kê',
+      icon: <LayoutDashboard className="w-4.5 h-4.5" />,
     },
     {
       id: 'orders',
       label: 'Đơn hàng',
-      icon: <ShoppingBag className="w-5 h-5" />,
+      sublabel: 'Quản lý & theo dõi',
+      icon: <ShoppingBag className="w-4.5 h-4.5" />,
       badge: orderBadge,
     },
     {
       id: 'users',
       label: 'Tài khoản',
-      icon: <Users className="w-5 h-5" />,
+      sublabel: 'Quản trị người dùng',
+      icon: <Users className="w-4.5 h-4.5" />,
       adminOnly: true,
     },
   ];
 
-  const generalItems = navItems.filter((item) => item.id === 'overview' || item.id === 'orders');
-  const adminItems = navItems.filter((item) => item.id === 'users');
+  const generalItems = navItems.filter(item => !item.adminOnly);
+  const adminItems   = navItems.filter(item => item.adminOnly);
 
-  const renderNavButton = (item: NavItem) => {
+  const NavButton = ({ item }: { item: NavItem }) => {
     const isActive = activeTab === item.id;
     return (
       <motion.button
         key={item.id}
         onClick={() => onTabChange(item.id)}
-        whileHover={{ x: 3 }}
         whileTap={{ scale: 0.98 }}
-        className={`relative w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group ${
-          isActive
-            ? 'bg-[#321fdb] text-white shadow-md shadow-[#321fdb]/20'
-            : 'text-[#8a93a2] hover:text-white hover:bg-[#3c4b64]/30'
-        }`}
+        className={`
+          relative w-full flex items-center gap-3.5 px-4 py-3 rounded-xl text-left
+          transition-all duration-200 group cursor-pointer
+          ${isActive
+            ? 'bg-gradient-to-r from-[#C5A880]/20 to-[#C5A880]/5 border border-[#C5A880]/30 text-[#C5A880]'
+            : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'}
+        `}
       >
-        <span
-          className={`flex-shrink-0 transition-colors ${
-            isActive ? 'text-white' : 'text-[#8a93a2] group-hover:text-white'
-          }`}
-        >
+        {/* Active left bar */}
+        {isActive && (
+          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#C5A880] rounded-r-full" />
+        )}
+
+        {/* Icon */}
+        <span className={`flex-shrink-0 transition-colors ${isActive ? 'text-[#C5A880]' : 'text-slate-500 group-hover:text-slate-300'}`}>
           {item.icon}
         </span>
 
-        <span className="flex-1 text-left">{item.label}</span>
+        {/* Label */}
+        <div className="flex-1 min-w-0">
+          <p className={`text-[13px] font-semibold leading-none mb-0.5 ${isActive ? 'text-[#C5A880]' : ''}`}>
+            {item.label}
+          </p>
+          <p className={`text-[10px] leading-none ${isActive ? 'text-[#C5A880]/60' : 'text-slate-600 group-hover:text-slate-500'}`}>
+            {item.sublabel}
+          </p>
+        </div>
 
-        {/* Badge count */}
+        {/* Badge */}
         {item.badge !== undefined && item.badge > 0 && (
-          <span className={`ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none ${
-            isActive ? 'bg-white/25 text-white' : 'bg-[#321fdb] text-white'
-          }`}>
+          <span className="ml-auto text-[10px] font-black px-2 py-0.5 rounded-full bg-[#C5A880] text-white min-w-[20px] text-center">
             {item.badge > 99 ? '99+' : item.badge}
           </span>
-        )}
-
-        {/* Chevron for active */}
-        {isActive && (
-          <ChevronRight className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
         )}
       </motion.button>
     );
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 bg-[#212631] border-r border-[#3c4b64]/20 hidden md:flex flex-col z-40 shadow-xl">
-      {/* ── Logo & Brand ───────────────────────────────────────────────── */}
-      <div className="px-6 py-5 border-b border-[#3c4b64]/20 bg-[#1d222b]">
+    <aside className="fixed left-0 top-0 h-screen w-64 hidden md:flex flex-col z-40"
+      style={{ background: 'linear-gradient(180deg, #0F1117 0%, #141820 100%)' }}>
+
+      {/* Subtle top glow */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#C5A880]/40 to-transparent" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-20 bg-[#C5A880]/5 blur-2xl pointer-events-none" />
+
+      {/* ── Logo ── */}
+      <div className="px-5 py-5 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-[#321fdb] flex items-center justify-center shadow-lg shadow-[#321fdb]/30 flex-shrink-0">
-            <Wind className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C5A880] to-[#D4AF37] flex items-center justify-center shadow-lg shadow-[#C5A880]/20 flex-shrink-0">
+            <Wind className="w-5 h-5 text-white stroke-[2.5]" />
           </div>
           <div>
-            <h1 className="text-sm font-bold text-white tracking-tight leading-none">
-              FreshWash
+            <h1 className="text-sm font-black text-white tracking-tight leading-none">
+              Skill-<span className="text-[#C5A880]">Up</span>
             </h1>
-            <p className="text-[10px] font-semibold text-[#8a93a2] mt-0.5 uppercase tracking-widest">
-              CoreUI Admin
+            <p className="text-[10px] font-semibold text-slate-500 mt-0.5 uppercase tracking-widest">
+              Admin Portal
             </p>
           </div>
         </div>
       </div>
 
-      {/* ── Navigation Items ───────────────────────────────────────────── */}
-      <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
-        {/* GENERAL SECTION */}
+      {/* Divider */}
+      <div className="mx-5 h-px bg-white/5 mb-2" />
+
+      {/* ── Navigation ── */}
+      <nav className="flex-1 px-3 py-3 space-y-5 overflow-y-auto">
+        {/* GENERAL */}
         <div className="space-y-1">
-          <p className="text-[10px] font-bold text-[#8a93a2]/50 uppercase tracking-widest px-4 mb-2">
-            CHUNG (GENERAL)
+          <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.15em] px-4 mb-3">
+            Chung
           </p>
-          {generalItems.map(renderNavButton)}
+          {generalItems.map(item => <NavButton key={item.id} item={item} />)}
         </div>
 
-        {/* MANAGEMENT SECTION (Admin only) */}
+        {/* ADMIN ONLY */}
         {userRole === 'admin' && adminItems.length > 0 && (
           <div className="space-y-1">
-            <p className="text-[10px] font-bold text-[#8a93a2]/50 uppercase tracking-widest px-4 mb-2">
-              QUẢN TRỊ (ADMIN)
+            <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.15em] px-4 mb-3">
+              Quản trị
             </p>
-            {adminItems.map(renderNavButton)}
+            {adminItems.map(item => <NavButton key={item.id} item={item} />)}
           </div>
         )}
       </nav>
 
-      {/* ── User Info & Actions ────────────────────────────────────────── */}
-      <div className="px-3 py-4 border-t border-[#3c4b64]/20 bg-[#1d222b] space-y-2">
-        {/* Refresh button */}
+      {/* Divider */}
+      <div className="mx-5 h-px bg-white/5" />
+
+      {/* ── Footer: user card + actions ── */}
+      <div className="px-3 py-4 space-y-2 flex-shrink-0">
+
+        {/* Refresh */}
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#8a93a2] hover:text-white hover:bg-[#3c4b64]/30 transition-all text-xs font-semibold disabled:opacity-40"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all text-xs font-semibold disabled:opacity-30 cursor-pointer group"
         >
-          <RefreshCw
-            className={`w-4 h-4 text-[#8a93a2] ${isRefreshing ? 'animate-spin' : ''}`}
-          />
-          <span>Làm mới dữ liệu</span>
+          <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-[#C5A880]' : 'group-hover:text-slate-300'}`} />
+          <span>{isRefreshing ? 'Đang làm mới...' : 'Làm mới dữ liệu'}</span>
         </button>
 
-        {/* User profile card */}
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-[#212631] border border-[#3c4b64]/20">
-          <div className="w-8 h-8 rounded-lg bg-[#321fdb] flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow">
+        {/* User card */}
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/5 border border-white/8">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C5A880] to-[#D4AF37] flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow">
             {userName ? userName.charAt(0).toUpperCase() : 'A'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-white truncate leading-none mb-0.5">
+            <p className="text-xs font-bold text-white truncate leading-none mb-0.5">
               {userName || 'Admin'}
             </p>
-            <p className="text-[10px] text-[#8a93a2] font-medium capitalize">
-              {userRole === 'admin' ? '👑 Quản trị viên' : '🧺 Nhân viên'}
+            <p className="text-[10px] text-slate-500 font-medium flex items-center gap-1">
+              {userRole === 'admin' ? (
+                <><Sparkles className="w-2.5 h-2.5 text-[#C5A880]" /> Quản trị viên</>
+              ) : (
+                '🧺 Nhân viên'
+              )}
             </p>
           </div>
         </div>
@@ -177,7 +200,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         {/* Logout */}
         <button
           onClick={onLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all text-xs font-semibold border border-transparent hover:border-rose-500/20"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-rose-500 hover:text-rose-400 hover:bg-rose-500/8 transition-all text-xs font-semibold border border-transparent hover:border-rose-500/15 cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
           <span>Đăng xuất</span>
@@ -186,4 +209,3 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     </aside>
   );
 };
-

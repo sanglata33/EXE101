@@ -11,6 +11,9 @@ import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
 import { Login } from './pages/Login';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { OrderTracking } from './pages/OrderTracking';
+import { Profile } from './pages/Profile';
+import { Orders } from './pages/Orders';
 
 // ─── Scroll to top on route change ──────────────────────────────────────────
 const ScrollToTop: React.FC = () => {
@@ -66,7 +69,7 @@ function App() {
       <CartProvider>
         <Router>
           <ScrollToTop />
-          <div className="flex flex-col min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500 selection:text-slate-950 font-sans antialiased">
+          <div className="flex flex-col min-h-screen bg-[#FCFBF9] text-[#2A2520] selection:bg-[#C5A880]/30 selection:text-[#2A2520] font-sans antialiased">
             <Routes>
 
               {/* Admin Dashboard — bảo vệ bởi AdminRoute, không có Navbar/Footer */}
@@ -89,6 +92,10 @@ function App() {
                       <Route path="/products" element={<Products />} />
                       <Route path="/products/:id" element={<ProductDetail />} />
                       <Route path="/cart" element={<Cart />} />
+                      <Route path="/tracking" element={<OrderTracking />} />
+                      <Route path="/tracking/:id" element={<OrderTracking />} />
+                      <Route path="/profile" element={<Profile />} />
+                      <Route path="/orders" element={<Orders />} />
 
                       {/* Login: nếu đã đăng nhập thì redirect theo role */}
                       <Route

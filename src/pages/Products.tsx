@@ -8,18 +8,17 @@ import { useCart } from '../context/CartContext';
 
 /* ─── Category config ────────────────────────────────────────────── */
 const CATEGORIES = [
-  { value: 'all',      label: 'Tất Cả',            emoji: '✨' },
-  { value: 'laundry',  label: 'Giặt Sấy',           emoji: '👕' },
-  { value: 'dryclean', label: 'Giặt Hấp (Khô)',     emoji: '🧥' },
-  { value: 'ironing',  label: 'Ủi Phẳng',           emoji: '👔' },
-  { value: 'special',  label: 'Chăm Sóc Đặc Biệt',  emoji: '⭐' },
+  { value: 'all',      label: 'Tất Cả',         emoji: '✨' },
+  { value: 'laundry',  label: 'Giặt Sấy',        emoji: '👕' },
+  { value: 'dryclean', label: 'Giặt Hấp (Khô)',  emoji: '🧥' },
+  { value: 'special',  label: 'Chăm Sóc Giày',  emoji: '👟' },
 ];
 
 const CATEGORY_ACCENT: Record<string, { pill: string; dot: string }> = {
-  laundry:  { pill: 'bg-cyan-50 text-cyan-700 border-cyan-200',    dot: 'bg-cyan-500'   },
-  dryclean: { pill: 'bg-indigo-50 text-indigo-700 border-indigo-200', dot: 'bg-indigo-500' },
-  ironing:  { pill: 'bg-amber-50 text-amber-700 border-amber-200', dot: 'bg-amber-500'  },
-  special:  { pill: 'bg-violet-50 text-violet-700 border-violet-200', dot: 'bg-violet-500' },
+  laundry:  { pill: 'bg-[#C5A880]/10 text-[#8E7A58] border-[#EBE3D5]',    dot: 'bg-[#C5A880]'   },
+  dryclean: { pill: 'bg-[#C5A880]/15 text-[#8E7A58] border-[#EBE3D5]',    dot: 'bg-[#D4AF37]'   },
+  ironing:  { pill: 'bg-[#FAF6F0] text-[#756458] border-[#EBE3D5]',       dot: 'bg-[#BCA374]'   },
+  special:  { pill: 'bg-[#C5A880]/5 text-[#8E7A58] border-[#EBE3D5]/50',   dot: 'bg-[#C5A880]'   },
 };
 
 /* ─── Stagger variants ───────────────────────────────────────────── */
@@ -77,7 +76,7 @@ const ServiceCard: React.FC<{ product: Product }> = ({ product }) => {
         {/* Time */}
         <div className="absolute bottom-3 left-3">
           <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-white/90 backdrop-blur-sm rounded-lg text-[11px] font-semibold text-slate-700 border border-white/60 shadow-sm">
-            <Clock className="w-3 h-3 text-cyan-600" />
+            <Clock className="w-3 h-3 text-[#C5A880]" />
             {product.timeEstimate}
           </span>
         </div>
@@ -94,7 +93,7 @@ const ServiceCard: React.FC<{ product: Product }> = ({ product }) => {
 
         {/* Name */}
         <Link to={`/products/${product.id}`}>
-          <h3 className="font-display font-bold text-[15px] text-slate-900 leading-snug line-clamp-2 group-hover:text-cyan-600 transition-colors duration-300">
+          <h3 className="font-display font-bold text-[15px] text-slate-900 leading-snug line-clamp-2 group-hover:text-[#C5A880] transition-colors duration-300">
             {product.name}
           </h3>
         </Link>
@@ -116,13 +115,13 @@ const ServiceCard: React.FC<{ product: Product }> = ({ product }) => {
           <div className="flex items-center gap-2">
             <Link
               to={`/products/${product.id}`}
-              className="flex items-center gap-1 px-3 py-2 text-[11px] font-semibold text-slate-600 border border-slate-200 rounded-xl hover:border-cyan-300 hover:text-cyan-600 transition-all duration-200"
+              className="flex items-center gap-1 px-3 py-2 text-[11px] font-semibold text-slate-600 border border-slate-200 rounded-xl hover:border-[#C5A880]/60 hover:text-[#C5A880] transition-all duration-200"
             >
               Chi tiết <ArrowRight className="w-3 h-3" />
             </Link>
             <button
               onClick={() => addToCart(product, 1)}
-              className="p-2 bg-gradient-to-br from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white rounded-xl shadow-md shadow-cyan-500/20 active:scale-95 transition-all duration-200 cursor-pointer"
+              className="p-2 bg-gradient-to-br from-[#BCA374] to-[#C5A880] hover:from-[#C5A880] hover:to-[#D4AF37] text-white rounded-xl shadow-md shadow-gold-500/10 active:scale-95 transition-all duration-200 cursor-pointer"
               title="Thêm vào giỏ"
             >
               <ShoppingBag className="w-4 h-4" />
@@ -150,13 +149,13 @@ export const Products: React.FC = () => {
   [search, cat]);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FCFBF9]">
 
       {/* ── Hero banner ─────────────────────────────── */}
-      <div className="relative overflow-hidden bg-white border-b border-slate-100 pt-28 sm:pt-36 pb-10 sm:pb-12">
+      <div className="relative overflow-hidden bg-white border-b border-[#EBE3D5]/30 pt-28 sm:pt-36 pb-10 sm:pb-12">
         {/* Ambient blobs */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-cyan-100/50 rounded-full filter blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-amber-100/40 rounded-full filter blur-[80px] pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#C5A880]/10 rounded-full filter blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#FAF6F0]/40 rounded-full filter blur-[80px] pointer-events-none" />
 
         <div className="w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10">
           <motion.div
@@ -165,13 +164,13 @@ export const Products: React.FC = () => {
             transition={{ duration: 0.6 }}
             className="max-w-2xl"
           >
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 text-cyan-700 border border-cyan-100 rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#C5A880]/10 text-[#8E7A58] border border-[#EBE3D5] rounded-full text-xs font-semibold uppercase tracking-wider mb-3">
               <Sparkles className="w-3 h-3" /> Danh mục dịch vụ
             </span>
-            <h1 className="font-display font-black text-3xl sm:text-4xl text-slate-900 leading-tight tracking-tight mb-2">
+            <h1 className="font-display font-black text-3xl sm:text-4xl text-[#2A2520] leading-tight tracking-tight mb-2">
               Bảng giá <span className="gradient-text">giặt ủi cao cấp</span>
             </h1>
-            <p className="text-slate-500 text-base font-light leading-relaxed">
+            <p className="text-[#756458] text-base font-light leading-relaxed">
               Giá minh bạch · Tính theo kg hoặc sản phẩm · Chất lượng đảm bảo
             </p>
           </motion.div>
@@ -179,7 +178,7 @@ export const Products: React.FC = () => {
       </div>
 
       {/* ── Filter bar ──────────────────────────────── */}
-      <div className="bg-white border-b border-slate-100 shadow-sm">
+      <div className="bg-white border-b border-[#EBE3D5]/20 shadow-xs">
         <div className="w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3">
           {/* Category pills — horizontal scroll on mobile */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 pb-0.5">
@@ -189,8 +188,8 @@ export const Products: React.FC = () => {
                 onClick={() => setCat(c.value)}
                 className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold transition-all duration-250 cursor-pointer whitespace-nowrap ${
                   cat === c.value
-                    ? 'bg-cyan-600 text-white shadow-md shadow-cyan-500/25'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-[#C5A880] text-white shadow-md shadow-gold-500/15'
+                    : 'bg-[#FAF6F0] text-[#756458] hover:bg-[#EBE3D5]/40'
                 }`}
               >
                 <span>{c.emoji}</span> {c.label}
@@ -206,7 +205,7 @@ export const Products: React.FC = () => {
               placeholder="Tìm dịch vụ..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-100 border border-transparent rounded-full text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-cyan-400 focus:bg-white transition-all duration-200"
+              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-[#EBE3D5]/60 rounded-full text-xs text-[#2A2520] placeholder:text-slate-400 focus:outline-none focus:border-[#C5A880] focus:bg-white transition-all duration-200"
             />
           </div>
         </div>
@@ -223,7 +222,7 @@ export const Products: React.FC = () => {
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="text-xs text-cyan-600 hover:underline cursor-pointer"
+              className="text-xs text-[#C5A880] hover:underline cursor-pointer"
             >
               Xoá tìm kiếm
             </button>
@@ -252,8 +251,8 @@ export const Products: React.FC = () => {
               exit={{ opacity: 0 }}
               className="flex flex-col items-center justify-center py-24 text-center"
             >
-              <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-5">
-                <SlidersHorizontal className="w-7 h-7 text-slate-400" />
+              <div className="w-16 h-16 rounded-2xl bg-[#FAF6F0] flex items-center justify-center mb-5 border border-[#EBE3D5]/40">
+                <SlidersHorizontal className="w-7 h-7 text-[#C5A880]" />
               </div>
               <h3 className="font-display font-bold text-slate-800 text-lg mb-2">
                 Không tìm thấy dịch vụ
@@ -263,7 +262,7 @@ export const Products: React.FC = () => {
               </p>
               <button
                 onClick={() => { setSearch(''); setCat('all'); }}
-                className="mt-5 px-5 py-2 bg-cyan-600 text-white text-sm font-semibold rounded-xl hover:bg-cyan-500 transition-colors cursor-pointer"
+                className="mt-5 px-5 py-2 bg-[#C5A880] hover:bg-[#BCA374] text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer"
               >
                 Xem tất cả dịch vụ
               </button>

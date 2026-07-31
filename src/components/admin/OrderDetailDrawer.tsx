@@ -360,7 +360,16 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             {detail.service?.priceType === 'per_kg' ? 'Tính/Kg' : 'Tính/Món'}
                           </span>
                         </div>
-                        <div className="mt-3 flex items-center justify-between text-xs border-t border-slate-100 pt-3">
+                        {/* Số lượng */}
+                        {detail.quantity != null && (
+                          <div className="mt-2 flex items-center justify-between text-xs border-t border-slate-100 pt-2">
+                            <span className="text-slate-400">Số lượng:</span>
+                            <span className="font-semibold text-slate-700">
+                              {detail.quantity} {detail.service?.priceType === 'per_kg' ? 'kg' : 'món'}
+                            </span>
+                          </div>
+                        )}
+                        <div className="mt-2 flex items-center justify-between text-xs border-t border-slate-100 pt-2">
                           <span className="text-slate-400">Đơn giá:</span>
                           <span className="font-semibold text-slate-600">
                             {detail.service?.price
@@ -369,6 +378,26 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                           </span>
                         </div>
                       </div>
+
+                      {/* Ghi chú khách hàng (chứa tên dịch vụ KH đã chọn) */}
+                      {detail.note && (
+                        <div className="border-t border-slate-100 px-4 py-3 bg-amber-50/60">
+                          <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">📝 Ghi chú của khách</p>
+                          <p className="text-xs text-amber-800 leading-relaxed font-medium">{detail.note}</p>
+                        </div>
+                      )}
+
+                      {/* Địa chỉ lấy đồ */}
+                      {detail.pickupAddress && (
+                        <div className="border-t border-slate-100 px-4 py-3 bg-slate-50/80 flex items-start gap-2">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Địa chỉ lấy & giao đồ</p>
+                            <p className="text-xs text-slate-700 font-medium leading-relaxed">{detail.pickupAddress}</p>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="bg-gradient-to-r from-cyan-50 to-sky-50 border-t border-slate-100 px-4 py-3 flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                           Tổng hóa đơn
