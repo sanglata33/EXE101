@@ -299,31 +299,49 @@ export const Cart: React.FC = () => {
         (data.paymentMethod === 'transfer' || data.paymentMethod === 'bank_transfer') &&
         createdOrderIds.length > 0
       ) {
+        const firstOrderId = createdOrderIds[0];
+        const firstOrderCode = orderCodes[0];
+
+        let qrUrl: string | undefined = undefined;
+        let bankInfo: BankInfo | null | undefined = undefined;
+
         try {
-          const firstOrderId = createdOrderIds[0];
           const paymentResult = await createPayment({
             orderId: firstOrderId,
             method: 'bank_transfer',
           });
 
-          const qrUrl = paymentResult.qrCodeUrl || paymentResult.payment?.qrCodeUrl;
-          const bankInfo = paymentResult.bankInfo || paymentResult.payment?.bankInfo;
-
-          if (qrUrl) {
-            setQrModalData({
-              orderId: firstOrderId,
-              orderCode: orderCodes[0],
-              amount: finalTotalAmount,
-              qrCodeUrl: qrUrl,
-              bankInfo: bankInfo,
-            });
-            setQrModalOpen(true);
-          } else {
-            console.warn('Backend không trả về mã QR thanh toán:', paymentResult);
-          }
+          const rawQr = paymentResult.qrCodeUrl || paymentResult.payment?.qrCodeUrl;
+          if (rawQr) qrUrl = rawQr;
+          bankInfo = paymentResult.bankInfo || paymentResult.payment?.bankInfo;
         } catch (payErr: any) {
-          console.warn('Lỗi tạo mã QR thanh toán:', payErr?.message);
+          console.warn('Lỗi tạo mã QR thanh toán từ API backend:', payErr?.message);
         }
+
+        // Fallback tự động tạo VietQR nếu backend không phản hồi QR url
+        if (!qrUrl) {
+          const bankId = 'BIDV';
+          const accountNo = '3144492536';
+          const accountName = 'NGUYEN VAN SANG';
+          const template = 'compact2';
+          qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${finalTotalAmount}&addInfo=${encodeURIComponent(firstOrderCode)}&accountName=${encodeURIComponent(accountName)}`;
+          bankInfo = {
+            bankId,
+            accountNo,
+            accountName,
+            amount: finalTotalAmount,
+            transferContent: firstOrderCode,
+          };
+        }
+
+        setQrModalData({
+          orderId: firstOrderId,
+          orderCode: firstOrderCode,
+          amount: finalTotalAmount,
+          qrCodeUrl: qrUrl,
+          bankInfo: bankInfo,
+        });
+        setQrModalOpen(true);
       }
 
       clearCart();
