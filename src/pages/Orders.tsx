@@ -19,7 +19,11 @@ import {
   ShoppingBag,
   X,
   ChevronRight,
+  QrCode,
+  CheckCircle2,
 } from 'lucide-react';
+import { getPaymentByOrder, createPayment, type Payment, type BankInfo } from '../api/paymentService';
+import { VietQRModal } from '../components/ui/VietQRModal';
 
 /* ─── Timeline steps ───────────────────────────────────────────── */
 const STEPS = [
@@ -70,8 +74,19 @@ export const Orders: React.FC = () => {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedOrder,   setSelectedOrder]   = useState<Order | null>(null);
   const [selectedImages,  setSelectedImages]  = useState<any[]>([]);
+  const [paymentInfo,     setPaymentInfo]     = useState<Payment | null>(null);
   const [detailLoading,   setDetailLoading]   = useState(false);
   const [detailError,     setDetailError]     = useState<string | null>(null);
+
+  /* ── VietQR modal state ── */
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrModalData, setQrModalData] = useState<{
+    orderId: string;
+    orderCode: string;
+    amount: number;
+    qrCodeUrl: string;
+    bankInfo?: BankInfo | null;
+  } | null>(null);
 
   /* fetch orders */
   useEffect(() => {
@@ -85,14 +100,65 @@ export const Orders: React.FC = () => {
 
   /* fetch detail when modal opens */
   useEffect(() => {
-    if (!selectedOrderId) { setSelectedOrder(null); setSelectedImages([]); return; }
+    if (!selectedOrderId) {
+      setSelectedOrder(null);
+      setSelectedImages([]);
+      setPaymentInfo(null);
+      return;
+    }
     setDetailLoading(true);
     setDetailError(null);
-    getOrderById(selectedOrderId)
-      .then(res => { setSelectedOrder(res.order); setSelectedImages(res.images ?? []); })
+
+    Promise.all([
+      getOrderById(selectedOrderId),
+      getPaymentByOrder(selectedOrderId).catch(() => null),
+    ])
+      .then(([orderRes, payRes]) => {
+        setSelectedOrder(orderRes.order);
+        setSelectedImages(orderRes.images ?? []);
+        setPaymentInfo(payRes);
+      })
       .catch(() => setDetailError('Không thể tải chi tiết đơn hàng.'))
       .finally(() => setDetailLoading(false));
   }, [selectedOrderId]);
+
+  /* Handle open VietQR Modal */
+  const handleOpenVietQR = async () => {
+    if (!selectedOrder) return;
+
+    try {
+      if (paymentInfo?.qrCodeUrl) {
+        setQrModalData({
+          orderId: selectedOrder._id,
+          orderCode: selectedOrder.orderCode,
+          amount: selectedOrder.totalPrice,
+          qrCodeUrl: paymentInfo.qrCodeUrl,
+          bankInfo: paymentInfo.bankInfo,
+        });
+        setQrModalOpen(true);
+        return;
+      }
+
+      // If no QR code generated yet, generate now
+      const result = await createPayment({
+        orderId: selectedOrder._id,
+        method: 'bank_transfer',
+      });
+
+      if (result.qrCodeUrl) {
+        setQrModalData({
+          orderId: selectedOrder._id,
+          orderCode: selectedOrder.orderCode,
+          amount: selectedOrder.totalPrice,
+          qrCodeUrl: result.qrCodeUrl,
+          bankInfo: result.bankInfo,
+        });
+        setQrModalOpen(true);
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Không thể tạo mã QR thanh toán.');
+    }
+  };
 
   /* tab count */
   const countFor = (key: string) =>
@@ -329,10 +395,34 @@ export const Orders: React.FC = () => {
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Tổng thanh toán</p>
                         <p className="font-black text-[#C5A880] text-base">{selectedOrder.totalPrice.toLocaleString('vi-VN')} VNĐ</p>
                       </div>
-                      <span className={`text-[10px] font-bold border rounded-lg px-2 py-0.5 ${STATUS_COLORS[selectedOrder.status] ?? 'bg-slate-50 text-slate-600 border-slate-200'}`}>
-                        {ORDER_STATUS_LABELS[selectedOrder.status] ?? selectedOrder.status}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {paymentInfo?.status === 'paid' ? (
+                          <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg px-2 py-0.5 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Đã thanh toán
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg px-2 py-0.5">
+                            Chưa thanh toán
+                          </span>
+                        )}
+                        <span className={`text-[10px] font-bold border rounded-lg px-2 py-0.5 ${STATUS_COLORS[selectedOrder.status] ?? 'bg-slate-50 text-slate-600 border-slate-200'}`}>
+                          {ORDER_STATUS_LABELS[selectedOrder.status] ?? selectedOrder.status}
+                        </span>
+                      </div>
                     </div>
+
+                    {/* QR Payment button if not paid */}
+                    {paymentInfo?.status !== 'paid' && selectedOrder.status !== 'cancelled' && (
+                      <div className="pt-2 border-t border-[#EBE3D5]/30 flex justify-end">
+                        <button
+                          onClick={handleOpenVietQR}
+                          className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-1.5"
+                        >
+                          <QrCode className="w-4 h-4" /> Thanh toán VietQR ngay
+                        </button>
+                      </div>
+                    )}
+
                     {selectedOrder.pickupAddress && (
                       <div className="pt-3 border-t border-[#EBE3D5]/30 flex items-start gap-2 text-xs text-[#5A4B40]">
                         <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
@@ -432,6 +522,26 @@ export const Orders: React.FC = () => {
 
           </div>
         </div>
+      )}
+
+      {/* Render VietQR Modal */}
+      {qrModalData && (
+        <VietQRModal
+          isOpen={qrModalOpen}
+          onClose={() => setQrModalOpen(false)}
+          orderId={qrModalData.orderId}
+          orderCode={qrModalData.orderCode}
+          amount={qrModalData.amount}
+          qrCodeUrl={qrModalData.qrCodeUrl}
+          bankInfo={qrModalData.bankInfo}
+          onPaymentSuccess={() => {
+            if (selectedOrderId) {
+              getPaymentByOrder(selectedOrderId)
+                .then(setPaymentInfo)
+                .catch(() => null);
+            }
+          }}
+        />
       )}
     </div>
   );

@@ -14,6 +14,8 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import type { LaundryService } from '../api/serviceService';
 import { createOrder } from '../api/orderService';
+import { createPayment, type BankInfo } from '../api/paymentService';
+import { VietQRModal } from '../components/ui/VietQRModal';
 
 /* ─── Zod Schema Validation cho Cart Order Form ──────────────────────────────── */
 const cartOrderSchema = z.object({
@@ -65,7 +67,7 @@ const cartOrderSchema = z.object({
       { message: 'Ngày hẹn không được chọn ngày trong quá khứ' }
     ),
 
-  paymentMethod: z.enum(['cod', 'transfer']),
+  paymentMethod: z.enum(['cod', 'transfer', 'bank_transfer']),
 });
 
 type CartOrderFormData = z.infer<typeof cartOrderSchema>;
@@ -187,6 +189,16 @@ export const Cart: React.FC = () => {
   const [orderTotal, setOrderTotal]       = useState(0);
   const [createdOrderCodes, setCreatedOrderCodes] = useState<string[]>([]);
 
+  // ── VietQR Modal state ────────────────────────────────────────────────────
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrModalData, setQrModalData] = useState<{
+    orderId: string;
+    orderCode: string;
+    amount: number;
+    qrCodeUrl: string;
+    bankInfo?: BankInfo | null;
+  } | null>(null);
+
   // ── Fetch services ────────────────────────────────────────────────────────
   const loadServices = useCallback(async (attempt: number) => {
     setSvcStatus('loading');
@@ -240,6 +252,7 @@ export const Cart: React.FC = () => {
 
     try {
       const orderCodes: string[] = [];
+      const createdOrderIds: string[] = [];
       const failedMsgs: string[] = [];
 
       for (const item of cartItems) {
@@ -259,10 +272,11 @@ export const Cart: React.FC = () => {
               `Dịch vụ KH chọn: ${item.product.name}`,
               `Khách hàng: ${data.fullName}`,
               `SĐT: ${data.phone}`,
-              `Thanh toán: ${data.paymentMethod === 'cod' ? 'Khi giao nhận' : 'Chuyển khoản'}`,
+              `Thanh toán: ${data.paymentMethod === 'cod' ? 'Khi giao nhận' : 'Chuyển khoản VietQR'}`,
             ].join(' | '),
           });
           if (order.orderCode) orderCodes.push(order.orderCode);
+          if (order._id) createdOrderIds.push(order._id);
         } catch (err: any) {
           failedMsgs.push(
             err?.response?.data?.message ?? `Lỗi tạo đơn "${item.product.name}"`
@@ -280,6 +294,33 @@ export const Cart: React.FC = () => {
       setCreatedOrderCodes(orderCodes);
       clearCart();
       setIsOrdered(true);
+
+      // Nếu chọn chuyển khoản QR ➔ Tạo VietQR payment
+      if (
+        (data.paymentMethod === 'transfer' || data.paymentMethod === 'bank_transfer') &&
+        createdOrderIds.length > 0
+      ) {
+        try {
+          const firstOrderId = createdOrderIds[0];
+          const paymentResult = await createPayment({
+            orderId: firstOrderId,
+            method: 'bank_transfer',
+          });
+
+          if (paymentResult.qrCodeUrl) {
+            setQrModalData({
+              orderId: firstOrderId,
+              orderCode: orderCodes[0],
+              amount: cartTotal,
+              qrCodeUrl: paymentResult.qrCodeUrl,
+              bankInfo: paymentResult.bankInfo,
+            });
+            setQrModalOpen(true);
+          }
+        } catch (payErr: any) {
+          console.warn('Lỗi tạo mã QR thanh toán:', payErr?.message);
+        }
+      }
     } catch (err: any) {
       setOrderError(err?.response?.data?.message ?? 'Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
@@ -339,6 +380,21 @@ export const Cart: React.FC = () => {
             </div>
           </div>
 
+          {/* Mở lại mã QR nếu chọn chuyển khoản */}
+          {qrModalData && (
+            <div className="pt-2">
+              <Button
+                variant="outline"
+                fullWidth
+                onClick={() => setQrModalOpen(true)}
+                className="border-cyan-600 text-cyan-700 bg-cyan-50 hover:bg-cyan-100 font-bold gap-2"
+              >
+                <CreditCard className="w-4 h-4 text-cyan-600" />
+                Mở lại Mã QR Thanh Toán VietQR
+              </Button>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
               variant="outline"
@@ -351,12 +407,28 @@ export const Cart: React.FC = () => {
             <Button
               variant="primary"
               fullWidth
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/orders')}
               className="bg-cyan-600 hover:bg-cyan-500 text-white"
             >
-              Về Trang Chủ
+              Theo Dõi Đơn Hàng
             </Button>
           </div>
+
+          {/* Render VietQR Modal */}
+          {qrModalData && (
+            <VietQRModal
+              isOpen={qrModalOpen}
+              onClose={() => setQrModalOpen(false)}
+              orderId={qrModalData.orderId}
+              orderCode={qrModalData.orderCode}
+              amount={qrModalData.amount}
+              qrCodeUrl={qrModalData.qrCodeUrl}
+              bankInfo={qrModalData.bankInfo}
+              onPaymentSuccess={() => {
+                console.log('Payment success callback triggered!');
+              }}
+            />
+          )}
         </motion.div>
       </div>
     );
