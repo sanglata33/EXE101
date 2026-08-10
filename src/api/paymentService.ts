@@ -19,21 +19,38 @@ import apiClient from './apiClient';
 
 // ─── TypeScript Interfaces (map 1:1 với Payment.model.js & Swagger) ───────────
 
+export interface BankInfo {
+  bankId?: string;
+  accountNo?: string;
+  accountName?: string;
+  amount?: number;
+  transferContent?: string;
+}
+
 export interface Payment {
   _id: string;
   order: string;                                // OrderId
   amount: number;                               // Số tiền (VNĐ)
-  method: 'cash' | 'vnpay' | 'momo';
+  method: 'cash' | 'vnpay' | 'momo' | 'bank_transfer' | 'vietqr';
   status: 'pending' | 'paid' | 'failed' | 'refunded';
   transactionId?: string | null;                // Mã giao dịch từ cổng thanh toán
   paymentUrl?: string | null;                   // URL redirect (chỉ có với vnpay/momo)
+  qrCodeUrl?: string | null;                    // Mã QR VietQR
+  bankInfo?: BankInfo | null;                   // Thông tin tài khoản thụ hưởng VietQR
   paidAt?: string | null;                       // ISO 8601 — thời điểm thanh toán thành công
   createdAt: string;
 }
 
 export interface CreatePaymentPayload {
   orderId: string;
-  method: 'cash' | 'vnpay' | 'momo';
+  method: 'cash' | 'vnpay' | 'momo' | 'bank_transfer' | 'vietqr';
+}
+
+export interface CreatePaymentResponse {
+  payment: Payment;
+  qrCodeUrl?: string;
+  bankInfo?: BankInfo;
+  paymentUrl?: string;
 }
 
 interface ApiResponse<T> {
@@ -46,38 +63,31 @@ interface ApiResponse<T> {
 
 /**
  * Tạo giao dịch thanh toán cho đơn hàng.
- *
- * @example — Thanh toán tiền mặt
- * const payment = await createPayment({ orderId: "64f1...", method: "cash" });
- * // payment.paymentUrl === null (không cần redirect)
- *
- * @example — Thanh toán VNPay
- * const payment = await createPayment({ orderId: "64f1...", method: "vnpay" });
- * if (payment.paymentUrl) {
- *   window.location.href = payment.paymentUrl; // redirect khách đến trang thanh toán
- * }
  */
-export const createPayment = async (payload: CreatePaymentPayload): Promise<Payment> => {
-  const response = await apiClient.post<ApiResponse<{ payment: Payment }>>(
+export const createPayment = async (payload: CreatePaymentPayload): Promise<CreatePaymentResponse> => {
+  const response = await apiClient.post<ApiResponse<CreatePaymentResponse>>(
     '/payments/create',
     payload
+  );
+  return response.data.data;
+};
+
+/**
+ * Lấy thông tin giao dịch thanh toán của một đơn hàng.
+ */
+export const getPaymentByOrder = async (orderId: string): Promise<Payment> => {
+  const response = await apiClient.get<ApiResponse<{ payment: Payment }>>(
+    `/payments/order/${orderId}`
   );
   return response.data.data.payment;
 };
 
 /**
- * Lấy thông tin giao dịch thanh toán của một đơn hàng.
- *
- * Dùng sau khi khách hoàn tất thanh toán VNPay để kiểm tra kết quả:
- * @example
- * const payment = await getPaymentByOrder(orderId);
- * if (payment.status === 'paid') {
- *   // Thanh toán thành công
- * }
+ * Staff / Admin xác nhận thanh toán chuyển khoản thủ công.
  */
-export const getPaymentByOrder = async (orderId: string): Promise<Payment> => {
-  const response = await apiClient.get<ApiResponse<{ payment: Payment }>>(
-    `/payments/order/${orderId}`
+export const confirmPayment = async (paymentId: string): Promise<Payment> => {
+  const response = await apiClient.patch<ApiResponse<{ payment: Payment }>>(
+    `/payments/${paymentId}/confirm`
   );
   return response.data.data.payment;
 };
