@@ -77,7 +77,6 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
         if (payment && payment.status === 'paid') {
           setIsPaid(true);
           setIsPolling(false);
-          if (onPaymentSuccess) onPaymentSuccess();
         }
       } catch (err) {
         // Silently ignore poll errors
@@ -90,7 +89,7 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
     return () => {
       if (pollTimerRef.current) clearInterval(pollTimerRef.current);
     };
-  }, [isOpen, isPaid, orderId, onPaymentSuccess]);
+  }, [isOpen, isPaid, orderId]);
 
   // Real-time Socket.io listener
   useEffect(() => {
@@ -109,7 +108,6 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
         if (data.orderId === orderId || data.orderCode === orderCode) {
           setIsPaid(true);
           setIsPolling(false);
-          if (onPaymentSuccess) onPaymentSuccess();
         }
       });
     } catch (err) {
@@ -119,7 +117,21 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
     return () => {
       if (socket) socket.disconnect();
     };
-  }, [isOpen, isPaid, orderId, orderCode, onPaymentSuccess]);
+  }, [isOpen, isPaid, orderId, orderCode]);
+
+  // Auto redirect / callback when payment success
+  useEffect(() => {
+    if (!isPaid) return;
+
+    const timer = setTimeout(() => {
+      if (onPaymentSuccess) {
+        onPaymentSuccess();
+      }
+      onClose();
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [isPaid, onPaymentSuccess, onClose]);
 
   if (!isOpen) return null;
 
@@ -157,17 +169,21 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
               <div className="space-y-1">
                 <h4 className="text-xl font-black text-slate-800">Thanh Toán Thành Công!</h4>
                 <p className="text-xs text-slate-500">
-                  Hệ thống đã ghi nhận số tiền <span className="font-bold text-emerald-600">{formattedAmount}</span>.
+                  Hệ thống đã nhận được số tiền <span className="font-bold text-emerald-600">{formattedAmount}</span>.
                 </p>
               </div>
-              <p className="text-xs text-slate-400 bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-emerald-700 font-medium">
-                Đơn hàng của bạn đang được nhân viên xử lý ngay!
+              <p className="text-xs text-emerald-700 bg-emerald-50 p-3 rounded-xl border border-emerald-200 font-medium flex items-center justify-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                <span>Đang tự động chuyển đến trang Quản lý đơn hàng...</span>
               </p>
               <button
-                onClick={onClose}
+                onClick={() => {
+                  if (onPaymentSuccess) onPaymentSuccess();
+                  onClose();
+                }}
                 className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md transition-colors cursor-pointer text-sm"
               >
-                Đóng & Xem Đơn Hàng
+                Xem Đơn Hàng Ngay
               </button>
             </div>
           ) : (

@@ -289,13 +289,12 @@ export const Cart: React.FC = () => {
         return;
       }
 
+      const finalTotalAmount = cartTotal;
       setOrderedItems([...cartItems]);
-      setOrderTotal(cartTotal);
+      setOrderTotal(finalTotalAmount);
       setCreatedOrderCodes(orderCodes);
-      clearCart();
-      setIsOrdered(true);
 
-      // Nếu chọn chuyển khoản QR ➔ Tạo VietQR payment
+      // Nếu chọn chuyển khoản QR ➔ Tạo VietQR payment trước khi hoàn tất
       if (
         (data.paymentMethod === 'transfer' || data.paymentMethod === 'bank_transfer') &&
         createdOrderIds.length > 0
@@ -307,20 +306,28 @@ export const Cart: React.FC = () => {
             method: 'bank_transfer',
           });
 
-          if (paymentResult.qrCodeUrl) {
+          const qrUrl = paymentResult.qrCodeUrl || paymentResult.payment?.qrCodeUrl;
+          const bankInfo = paymentResult.bankInfo || paymentResult.payment?.bankInfo;
+
+          if (qrUrl) {
             setQrModalData({
               orderId: firstOrderId,
               orderCode: orderCodes[0],
-              amount: cartTotal,
-              qrCodeUrl: paymentResult.qrCodeUrl,
-              bankInfo: paymentResult.bankInfo,
+              amount: finalTotalAmount,
+              qrCodeUrl: qrUrl,
+              bankInfo: bankInfo,
             });
             setQrModalOpen(true);
+          } else {
+            console.warn('Backend không trả về mã QR thanh toán:', paymentResult);
           }
         } catch (payErr: any) {
           console.warn('Lỗi tạo mã QR thanh toán:', payErr?.message);
         }
       }
+
+      clearCart();
+      setIsOrdered(true);
     } catch (err: any) {
       setOrderError(err?.response?.data?.message ?? 'Có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
@@ -426,6 +433,7 @@ export const Cart: React.FC = () => {
               bankInfo={qrModalData.bankInfo}
               onPaymentSuccess={() => {
                 console.log('Payment success callback triggered!');
+                navigate('/orders');
               }}
             />
           )}

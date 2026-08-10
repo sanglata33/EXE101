@@ -145,13 +145,16 @@ export const Orders: React.FC = () => {
         method: 'bank_transfer',
       });
 
-      if (result.qrCodeUrl) {
+      const qrUrl = result.qrCodeUrl || result.payment?.qrCodeUrl;
+      const bankInfo = result.bankInfo || result.payment?.bankInfo;
+
+      if (qrUrl) {
         setQrModalData({
           orderId: selectedOrder._id,
           orderCode: selectedOrder.orderCode,
           amount: selectedOrder.totalPrice,
-          qrCodeUrl: result.qrCodeUrl,
-          bankInfo: result.bankInfo,
+          qrCodeUrl: qrUrl,
+          bankInfo: bankInfo,
         });
         setQrModalOpen(true);
       }
