@@ -7,7 +7,7 @@ import { z } from 'zod';
 import {
   Trash2, ShoppingBag, ArrowRight, CheckCircle2, ChevronRight,
   MapPin, Phone, User, Calendar, CreditCard, AlertCircle, Loader2,
-  RefreshCw, ServerCrash,
+  RefreshCw, ServerCrash, Clock,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -184,6 +184,7 @@ export const Cart: React.FC = () => {
   // ── Order state ───────────────────────────────────────────────────────────
   const [isOrdered, setIsOrdered]         = useState(false);
   const [isSubmitting, setIsSubmitting]   = useState(false);
+  const [isPaymentConfirmed, setIsPaymentConfirmed] = useState(false);
   const [orderError, setOrderError]       = useState<string | null>(null);
   const [orderedItems, setOrderedItems]   = useState<typeof cartItems>([]);
   const [orderTotal, setOrderTotal]       = useState(0);
@@ -293,6 +294,7 @@ export const Cart: React.FC = () => {
       setOrderedItems([...cartItems]);
       setOrderTotal(finalTotalAmount);
       setCreatedOrderCodes(orderCodes);
+      setIsPaymentConfirmed(data.paymentMethod === 'cod');
 
       // Nếu chọn chuyển khoản QR ➔ Tạo VietQR payment trước khi hoàn tất
       if (
@@ -320,10 +322,10 @@ export const Cart: React.FC = () => {
 
         // Fallback tự động tạo VietQR nếu backend không phản hồi QR url
         if (!qrUrl) {
-          const bankId = 'BIDV';
-          const accountNo = '3144492536';
-          const accountName = 'NGUYEN VAN SANG';
-          const template = 'compact2';
+          const bankId      = import.meta.env.VITE_VIETQR_BANK_ID      || 'BIDV';
+          const accountNo   = import.meta.env.VITE_VIETQR_ACCOUNT_NO   || '9624787LVG';
+          const accountName = import.meta.env.VITE_VIETQR_ACCOUNT_NAME || 'NGUYEN VAN SANG';
+          const template    = import.meta.env.VITE_VIETQR_TEMPLATE    || 'compact2';
           qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${finalTotalAmount}&addInfo=${encodeURIComponent(firstOrderCode)}&accountName=${encodeURIComponent(accountName)}`;
           bankInfo = {
             bankId,
@@ -363,14 +365,35 @@ export const Cart: React.FC = () => {
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-lg w-full bg-white border border-slate-200 rounded-3xl p-8 text-center space-y-6 shadow-xl mx-4"
         >
-          <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center mx-auto">
-            <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto ${
+            isPaymentConfirmed
+              ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+              : 'bg-amber-50 text-amber-600 border border-amber-200'
+          }`}>
+            {isPaymentConfirmed ? (
+              <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+            ) : (
+              <Clock className="w-8 h-8 stroke-[2.5] animate-pulse" />
+            )}
           </div>
 
           <div className="space-y-2">
-            <h2 className="font-display font-black text-2xl text-slate-900">Đặt Hàng Thành Công!</h2>
+            <div className="flex items-center justify-center gap-2">
+              <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                isPaymentConfirmed
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-amber-100 text-amber-800'
+              }`}>
+                {isPaymentConfirmed ? 'Đã Thanh Toán Thành Công' : 'Đang Chờ Thanh Toán VietQR'}
+              </span>
+            </div>
+            <h2 className="font-display font-black text-2xl text-slate-900">
+              {isPaymentConfirmed ? 'Thanh Toán & Đặt Hàng Thành Công!' : 'Đã Tạo Đơn Hàng — Đang Chờ Thanh Toán'}
+            </h2>
             <p className="text-slate-500 text-sm">
-              Cảm ơn bạn đã tin tưởng Skill-Up. Nhân viên sẽ liên hệ xác nhận đơn hàng sớm nhất.
+              {isPaymentConfirmed
+                ? 'Cảm ơn bạn đã tin tưởng Skill-Up. Nhân viên sẽ liên hệ xác nhận và lấy đồ sớm nhất.'
+                : 'Vui lòng mở mã QR VietQR để chuyển khoản. Sau khi SePAY xác nhận giao dịch, hệ thống sẽ tự động cập nhật đơn hàng thành công.'}
             </p>
           </div>
 
@@ -451,6 +474,7 @@ export const Cart: React.FC = () => {
               bankInfo={qrModalData.bankInfo}
               onPaymentSuccess={() => {
                 console.log('Payment success callback triggered!');
+                setIsPaymentConfirmed(true);
                 navigate('/orders');
               }}
             />
