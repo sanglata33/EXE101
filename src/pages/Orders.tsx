@@ -123,15 +123,16 @@ export const Orders: React.FC = () => {
   }, [selectedOrderId]);
 
   /* Handle open VietQR Modal */
-  const handleOpenVietQR = async () => {
-    if (!selectedOrder) return;
+  const handleOpenVietQR = async (targetOrder?: Order) => {
+    const ord = targetOrder || selectedOrder;
+    if (!ord) return;
 
     try {
-      if (paymentInfo?.qrCodeUrl) {
+      if (paymentInfo?.qrCodeUrl && selectedOrderId === ord._id) {
         setQrModalData({
-          orderId: selectedOrder._id,
-          orderCode: selectedOrder.orderCode,
-          amount: selectedOrder.totalPrice,
+          orderId: ord._id,
+          orderCode: ord.orderCode,
+          amount: ord.totalPrice,
           qrCodeUrl: paymentInfo.qrCodeUrl,
           bankInfo: paymentInfo.bankInfo,
         });
@@ -141,7 +142,7 @@ export const Orders: React.FC = () => {
 
       // If no QR code generated yet, generate now
       const result = await createPayment({
-        orderId: selectedOrder._id,
+        orderId: ord._id,
         method: 'bank_transfer',
       });
 
@@ -150,9 +151,9 @@ export const Orders: React.FC = () => {
 
       if (qrUrl) {
         setQrModalData({
-          orderId: selectedOrder._id,
-          orderCode: selectedOrder.orderCode,
-          amount: selectedOrder.totalPrice,
+          orderId: ord._id,
+          orderCode: ord.orderCode,
+          amount: ord.totalPrice,
           qrCodeUrl: qrUrl,
           bankInfo: bankInfo,
         });
@@ -292,6 +293,19 @@ export const Orders: React.FC = () => {
                       <span className={`text-[10px] font-bold border rounded-md px-2 py-0.5 ${badge}`}>
                         {ORDER_STATUS_LABELS[ord.status] ?? ord.status}
                       </span>
+                      {ord.paymentStatus === 'paid' ? (
+                        <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md px-2 py-0.5 flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Đã thanh toán
+                        </span>
+                      ) : (ord.paymentMethod === 'bank_transfer' || ord.paymentMethod === 'vietqr') && ord.status !== 'cancelled' ? (
+                        <span className="text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 rounded-md px-2 py-0.5">
+                          Chờ thanh toán VietQR
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold bg-slate-50 text-slate-600 border border-slate-200 rounded-md px-2 py-0.5">
+                          Chưa thanh toán
+                        </span>
+                      )}
                     </div>
 
                     <p className="font-bold text-[#2A2520] text-sm truncate">
@@ -325,10 +339,24 @@ export const Orders: React.FC = () => {
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Thành tiền</p>
                       <p className="text-lg font-black text-[#C5A880]">{ord.totalPrice.toLocaleString('vi-VN')}đ</p>
                     </div>
-                    <span className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl border border-[#EBE3D5] group-hover:border-[#C5A880] group-hover:bg-[#FAF6F0] text-slate-400 group-hover:text-[#C5A880] transition-all">
-                      <Eye className="w-3.5 h-3.5" /> Xem tiến trình
-                      <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                    </span>
+                    <div className="flex items-center gap-2">
+                      {ord.paymentStatus !== 'paid' && (ord.paymentMethod === 'bank_transfer' || ord.paymentMethod === 'vietqr') && ord.status !== 'cancelled' && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedOrderId(ord._id);
+                            handleOpenVietQR(ord);
+                          }}
+                          className="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+                        >
+                          <QrCode className="w-3.5 h-3.5" /> Quét VietQR
+                        </button>
+                      )}
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border border-[#EBE3D5] group-hover:border-[#C5A880] group-hover:bg-[#FAF6F0] text-slate-400 group-hover:text-[#C5A880] transition-all">
+                        <Eye className="w-3.5 h-3.5" /> Chi tiết
+                        <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                      </span>
+                    </div>
                   </div>
                 </div>
               );
@@ -418,7 +446,7 @@ export const Orders: React.FC = () => {
                     {paymentInfo?.status !== 'paid' && selectedOrder.status !== 'cancelled' && (
                       <div className="pt-2 border-t border-[#EBE3D5]/30 flex justify-end">
                         <button
-                          onClick={handleOpenVietQR}
+                          onClick={() => handleOpenVietQR()}
                           className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-1.5"
                         >
                           <QrCode className="w-4 h-4" /> Thanh toán VietQR ngay
@@ -474,7 +502,9 @@ export const Orders: React.FC = () => {
                               </h5>
                               <p className={`text-[11px] mt-0.5 leading-relaxed
                                 ${isCompleted ? 'text-[#756458]' : 'text-slate-300'}`}>
-                                {step.desc}
+                                {step.key === 'received' && (selectedOrder.paymentMethod === 'bank_transfer' || selectedOrder.paymentMethod === 'vietqr') && paymentInfo?.status !== 'paid' && selectedOrder.paymentStatus !== 'paid'
+                                  ? 'Đơn hàng đã được tạo. Vui lòng thanh toán VietQR để hệ thống tự động ghi nhận và phân công nhân viên lấy đồ.'
+                                  : step.desc}
                               </p>
                               {hist?.note && (
                                 <p className="mt-1.5 text-[10px] text-[#5A4B40] bg-[#FAF6F0] border border-[#EBE3D5] rounded-lg px-2.5 py-1.5 italic">
