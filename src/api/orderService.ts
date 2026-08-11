@@ -101,6 +101,8 @@ export interface Order {
   quantity: number;                      // kg hoặc số món tùy priceType
   totalPrice: number;                    // Tính tự động: service.price × quantity
   status: OrderStatus;
+  paymentMethod?: 'cod' | 'bank_transfer' | 'cash' | 'vnpay' | 'vietqr';
+  paymentStatus?: 'unpaid' | 'paid' | 'refunded';
   pickupAddress: string;
   deliveryAddress: string;
   scheduledPickupTime?: string | null;   // ISO 8601
@@ -121,6 +123,7 @@ export interface CreateOrderPayload {
   deliveryAddress: string;     // Địa chỉ giao đồ (bắt buộc)
   scheduledPickupTime?: string;// ISO 8601 — thời gian lấy đồ mong muốn
   note?: string;               // Ghi chú của khách
+  paymentMethod?: 'cod' | 'bank_transfer' | 'cash' | 'vnpay' | 'vietqr';
 }
 
 /** Query params khi lấy danh sách đơn hàng */

@@ -468,7 +468,11 @@ export const OrderTracking: React.FC = () => {
                                 }`}>
                                   {step.label}
                                 </h4>
-                                <p className="text-xs text-[#756458] leading-relaxed">{step.desc}</p>
+                                <p className="text-xs text-[#756458] leading-relaxed">
+                                  {step.key === 'received' && (order.paymentMethod === 'bank_transfer' || order.paymentMethod === 'vietqr') && order.paymentStatus !== 'paid'
+                                    ? 'Đơn hàng đã được tạo. Vui lòng thanh toán VietQR để hệ thống tự động ghi nhận và phân công nhân viên lấy đồ.'
+                                    : step.desc}
+                                </p>
                                 
                                 {historyItem && historyItem.note && (
                                   <div className="mt-2 text-[11px] text-[#5A4B40] bg-[#FAF6F0] border border-[#EBE3D5] rounded-lg p-2.5 italic">

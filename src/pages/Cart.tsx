@@ -269,6 +269,7 @@ export const Cart: React.FC = () => {
             pickupAddress:       data.address,
             deliveryAddress:     data.address,
             scheduledPickupTime: data.bookingDate ? new Date(data.bookingDate).toISOString() : undefined,
+            paymentMethod:       data.paymentMethod === 'cod' ? 'cod' : 'bank_transfer',
             note: [
               `Dịch vụ KH chọn: ${item.product.name}`,
               `Khách hàng: ${data.fullName}`,
