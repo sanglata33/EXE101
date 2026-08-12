@@ -323,14 +323,31 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
                                 🛵 Chờ Shipper lấy
                               </span>
                             )}
-                            {order.status === 'picked_up' && (
-                              <button
-                                onClick={() => onOpenDetail(order._id)}
-                                className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 rounded-lg text-[11px] font-black shadow-2xs transition-all cursor-pointer"
-                              >
-                                ⚖️ Cân kg & Báo giá
-                              </button>
-                            )}
+                            {order.status === 'picked_up' && (() => {
+                              const isKg = order.service?.priceType === 'per_kg' || order.service?.unit === 'kg' || order.service?.name?.toLowerCase().includes('tieu chuan');
+                              return isKg ? (
+                                <button
+                                  onClick={() => onOpenDetail(order._id)}
+                                  className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 rounded-lg text-[11px] font-black shadow-2xs transition-all cursor-pointer"
+                                >
+                                  ⚖️ Cân kg & Báo giá
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() =>
+                                    onConfirmStatus({
+                                      orderId: order._id,
+                                      orderCode: order.orderCode,
+                                      currentStatus: order.status,
+                                      newStatus: 'washing',
+                                    })
+                                  }
+                                  className="px-2.5 py-1 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 rounded-lg text-[11px] font-black shadow-2xs transition-all cursor-pointer"
+                                >
+                                  🫧 Bắt đầu giặt
+                                </button>
+                              );
+                            })()}
                             {order.status === 'weighed' && (
                               <button
                                 onClick={() =>

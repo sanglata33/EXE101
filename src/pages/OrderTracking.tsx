@@ -27,7 +27,7 @@ import { useAuth } from '../context/AuthContext';
 export interface OrderImage {
   _id: string;
   imageUrl: string;
-  imageType: 'pickup' | 'delivery';
+  imageType: 'pickup' | 'delivery' | 'process';
 }
 
 import { VietQRModal } from '../components/ui/VietQRModal';
@@ -478,15 +478,15 @@ export const OrderTracking: React.FC = () => {
                                 )}
 
                                 {/* HIỂN THỊ ẢNH XÁC THỰC TRỰC TIẾP DƯỚI TỪNG BƯỚC */}
-                                {step.key === 'picked_up' && images.filter(img => img.imageType === 'pickup').length > 0 && (
+                                {(step.key === 'picked_up' || step.key === 'received') && images.filter(img => img.imageType === 'pickup').length > 0 && (
                                   <div className="mt-3 space-y-2">
-                                    <span className="text-[10px] font-bold text-[#1E4DB7] uppercase tracking-wider block">📸 Ảnh Shipper đã đến lấy đồ:</span>
+                                    <span className="text-[10px] font-bold text-[#1E4DB7] uppercase tracking-wider block">📸 Ảnh lấy đồ:</span>
                                     <div className="grid grid-cols-2 gap-2">
                                       {images.filter(img => img.imageType === 'pickup').map(img => (
                                         <button
                                           key={img._id}
                                           type="button"
-                                          onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption('📸 Ảnh Shipper lấy đồ'); }}
+                                          onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption('📸 Ảnh nhận đồ từ khách'); }}
                                           className="block text-left relative rounded-xl overflow-hidden border border-blue-200 shadow-sm group cursor-pointer"
                                         >
                                           <img src={getImageUrl(img.imageUrl)} alt="Lấy đồ" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
@@ -506,6 +506,24 @@ export const OrderTracking: React.FC = () => {
                                     >
                                       <img src={getImageUrl(order.weightImageUrl)} alt="Cân kg" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
                                     </button>
+                                  </div>
+                                )}
+
+                                {(step.key === 'washing' || step.key === 'drying') && images.filter(img => img.imageType === 'process').length > 0 && (
+                                  <div className="mt-3 space-y-2">
+                                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider block">🫧 Ảnh quy trình giặt / sấy / ủi tại tiệm:</span>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {images.filter(img => img.imageType === 'process').map(img => (
+                                        <button
+                                          key={img._id}
+                                          type="button"
+                                          onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption('🫧 Ảnh quy trình giặt/sấy tại tiệm'); }}
+                                          className="block text-left relative rounded-xl overflow-hidden border border-indigo-200 shadow-sm group cursor-pointer"
+                                        >
+                                          <img src={getImageUrl(img.imageUrl)} alt="Quy trình giặt" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
+                                        </button>
+                                      ))}
+                                    </div>
                                   </div>
                                 )}
 
@@ -535,23 +553,36 @@ export const OrderTracking: React.FC = () => {
                   </div>
 
                   {/* Uploaded Images Gallery */}
-                  {images.length > 0 && (
-                    <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-xs">
-                      <h3 className="text-base font-bold text-slate-900 mb-4">📸 Bộ Ảnh Xác Thực Giao Nhận</h3>
-                      <div className="grid grid-cols-2 gap-4">
+                  {(images.length > 0 || order.weightImageUrl) && (
+                    <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-xs space-y-4">
+                      <h3 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                        📸 Bộ Ảnh Xác Thực Đồ Giặt & Quy Trình ({images.length + (order.weightImageUrl ? 1 : 0)})
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {order.weightImageUrl && (
+                          <div
+                            onClick={() => { setLightboxUrl(order.weightImageUrl!); setLightboxCaption('⚖️ Ảnh chụp số kg trên cân tại tiệm'); }}
+                            className="relative rounded-2xl overflow-hidden border border-amber-300 bg-amber-50 group cursor-pointer"
+                          >
+                            <img src={getImageUrl(order.weightImageUrl)} alt="Cân kg" className="w-full h-36 object-cover group-hover:scale-105 transition-transform" />
+                            <div className="absolute bottom-0 inset-x-0 bg-amber-900/80 text-amber-200 text-[10px] font-bold text-center py-1">
+                              ⚖️ Ảnh chụp cân kg
+                            </div>
+                          </div>
+                        )}
                         {images.map((img) => (
                           <div 
                             key={img._id}
-                            onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption(img.imageType === 'pickup' ? '📸 Ảnh lấy đồ từ nhà khách' : '📸 Ảnh giao trả đồ sạch'); }}
+                            onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption(img.imageType === 'pickup' ? '📸 Ảnh lấy đồ' : img.imageType === 'process' ? '🫧 Ảnh giặt sấy' : '🚚 Ảnh giao trả đồ'); }}
                             className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white group cursor-pointer"
                           >
                             <img 
                               src={getImageUrl(img.imageUrl)} 
                               alt="Verification" 
-                              className="w-full h-40 object-cover group-hover:scale-105 transition-transform"
+                              className="w-full h-36 object-cover group-hover:scale-105 transition-transform"
                             />
-                            <div className="absolute bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-xs p-2 text-center text-[10px] font-bold text-white">
-                              {img.imageType === 'pickup' ? '📸 Ảnh lấy đồ từ nhà khách' : '📸 Ảnh giao trả đồ sạch'}
+                            <div className="absolute bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-xs p-1 text-center text-[10px] font-bold text-white">
+                              {img.imageType === 'pickup' ? '📸 Ảnh lấy đồ' : img.imageType === 'process' ? '🫧 Ảnh giặt/sấy' : '🚚 Ảnh trả đồ sạch'}
                             </div>
                           </div>
                         ))}
