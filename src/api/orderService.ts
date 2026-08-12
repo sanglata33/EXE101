@@ -131,6 +131,9 @@ export const getImageUrl = (url?: string): string => {
   // Clean backslashes nếu có từ Windows path
   let cleanUrl = url.replace(/\\/g, '/');
 
+  // Trả về ngay nếu là chuỗi Base64 Data URI
+  if (cleanUrl.startsWith('data:')) return cleanUrl;
+
   // Nếu url chứa '/uploads/', lấy phần tương đối từ '/uploads/' trở đi
   const uploadsIdx = cleanUrl.indexOf('/uploads/');
   if (uploadsIdx !== -1) {
@@ -341,14 +344,14 @@ export const assignStaff = async (orderId: string, staffId: string): Promise<Ord
 export const uploadOrderImages = async (
   orderId: string,
   files: File[],
-  imageType: 'pickup' | 'delivery' = 'pickup'
-): Promise<Array<{ _id: string; imageUrl: string; imageType: 'pickup' | 'delivery' }>> => {
+  imageType: 'pickup' | 'delivery' | 'process' = 'process'
+): Promise<Array<{ _id: string; imageUrl: string; imageType: 'pickup' | 'delivery' | 'process' }>> => {
   const formData = new FormData();
   formData.append('imageType', imageType);
   files.forEach((file) => formData.append('images', file));
 
   const response = await apiClient.post<ApiResponse<{
-    images: Array<{ _id: string; imageUrl: string; imageType: 'pickup' | 'delivery' }>;
+    images: Array<{ _id: string; imageUrl: string; imageType: 'pickup' | 'delivery' | 'process' }>;
   }>>(`/orders/${orderId}/images`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });

@@ -127,6 +127,8 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
   const [previewUrl, setPreviewUrl] = React.useState<string>('');
   const [isSubmittingWeight, setIsSubmittingWeight] = React.useState(false);
 
+  const [uploadImageType, setUploadImageType] = React.useState<'pickup' | 'process' | 'delivery'>('process');
+
   React.useEffect(() => {
     if (detail) {
       setActualWeightInput(detail.actualWeight ? String(detail.actualWeight) : detail.quantity ? String(detail.quantity) : '');
@@ -214,7 +216,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 250 }}
-            className="fixed top-0 right-0 h-full w-full max-w-[480px] bg-white border-l border-slate-200 shadow-2xl z-50 flex flex-col overflow-hidden"
+            className="fixed top-0 right-0 h-full w-full max-w-2xl sm:max-w-3xl lg:max-w-4xl bg-white border-l border-slate-200 shadow-2xl z-50 flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="px-5 py-4 border-b border-slate-100 bg-white flex items-center justify-between flex-shrink-0">
@@ -319,65 +321,90 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                           </div>
                         )}
 
-                        {/* FORM NHẬP SỐ KG VÀ BẤM CHỌN ẢNH CÂN ĐỒ NẾU ĐÃ LẤY ĐỒ */}
-                        {detail.status === 'picked_up' && (
-                          <form onSubmit={handleWeightSubmit} className="bg-white/10 p-3.5 rounded-xl space-y-3 border border-amber-400/40">
-                            <div className="flex items-center gap-2 text-xs text-amber-300 font-bold">
-                              <Scale className="w-4 h-4 text-amber-400" />
-                              <span>Cân đồ & Báo giá VietQR</span>
-                            </div>
+                        {/* FORM NHẬP SỐ KG HOẶC NÚT CHUYỂN BƯỚC NẾU LÀ DỊCH VỤ THEO MÓN */}
+                        {detail.status === 'picked_up' && (() => {
+                          const isKg = detail.service?.priceType === 'per_kg' || detail.service?.unit === 'kg' || detail.service?.name?.toLowerCase().includes('tieu chuan');
+                          return isKg ? (
+                            <form onSubmit={handleWeightSubmit} className="bg-white/10 p-3.5 rounded-xl space-y-3 border border-amber-400/40">
+                              <div className="flex items-center gap-2 text-xs text-amber-300 font-bold">
+                                <Scale className="w-4 h-4 text-amber-400" />
+                                <span>Cân đồ & Báo giá VietQR</span>
+                              </div>
 
-                            <div>
-                              <label className="text-[10px] text-slate-300 font-bold block mb-1">
-                                1. Số kg thực tế cân tại tiệm (*)
-                              </label>
-                              <input
-                                type="number"
-                                step="0.1"
-                                placeholder="Nhập số kg (Vd: 4.5)"
-                                value={actualWeightInput}
-                                onChange={(e) => setActualWeightInput(e.target.value)}
-                                className="w-full px-3 py-2 bg-white text-slate-900 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400"
-                                required
-                              />
-                            </div>
-
-                            <div>
-                              <label className="text-[10px] text-slate-300 font-bold block mb-1">
-                                2. Chọn ảnh chụp khối lượng trên cân (*)
-                              </label>
-                              <label className="flex items-center justify-center gap-2 py-2 px-3 bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/50 rounded-lg text-amber-200 text-xs font-bold cursor-pointer transition-all">
-                                <Camera className="w-4 h-4 text-amber-300 shrink-0" />
-                                <span className="truncate">{selectedFile ? selectedFile.name : 'Chụp / Chọn file ảnh từ máy'}</span>
+                              <div>
+                                <label className="text-[10px] text-slate-300 font-bold block mb-1">
+                                  1. Số kg thực tế cân tại tiệm (*)
+                                </label>
                                 <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleFileChange}
-                                  className="hidden"
+                                  type="number"
+                                  step="0.1"
+                                  placeholder="Nhập số kg (Vd: 4.5)"
+                                  value={actualWeightInput}
+                                  onChange={(e) => setActualWeightInput(e.target.value)}
+                                  className="w-full px-3 py-2 bg-white text-slate-900 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                  required
                                 />
-                              </label>
+                              </div>
 
-                              {/* Instant image preview */}
-                              {previewUrl && (
-                                <div className="mt-2 relative rounded-lg overflow-hidden border border-amber-400/40 bg-slate-950/60">
-                                  <img src={previewUrl} alt="Scale Preview" className="w-full h-32 object-cover" />
-                                  <span className="absolute bottom-1.5 right-1.5 text-[9px] font-bold bg-slate-950/90 text-amber-300 px-2 py-0.5 rounded border border-amber-400/30">
-                                    📸 Ảnh xem trước trên cân
-                                  </span>
-                                </div>
-                              )}
+                              <div>
+                                <label className="text-[10px] text-slate-300 font-bold block mb-1">
+                                  2. Chọn ảnh chụp khối lượng trên cân (*)
+                                </label>
+                                <label className="flex items-center justify-center gap-2 py-2 px-3 bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/50 rounded-lg text-amber-200 text-xs font-bold cursor-pointer transition-all">
+                                  <Camera className="w-4 h-4 text-amber-300 shrink-0" />
+                                  <span className="truncate">{selectedFile ? selectedFile.name : 'Chụp / Chọn file ảnh từ máy'}</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                  />
+                                </label>
+
+                                {previewUrl && (
+                                  <div className="mt-2 relative rounded-lg overflow-hidden border border-amber-400/40 bg-slate-950/60">
+                                    <img src={previewUrl} alt="Scale Preview" className="w-full h-32 object-cover" />
+                                    <span className="absolute bottom-1.5 right-1.5 text-[9px] font-bold bg-slate-950/90 text-amber-300 px-2 py-0.5 rounded border border-amber-400/30">
+                                      📸 Ảnh xem trước trên cân
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <button
+                                type="submit"
+                                disabled={isSubmittingWeight}
+                                className="w-full py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50 mt-1"
+                              >
+                                {isSubmittingWeight ? <Loader className="w-4 h-4 animate-spin" /> : <Scale className="w-4 h-4" />}
+                                <span>⚖️ Cập Nhật Số Kg & Gửi VietQR Cho Khách</span>
+                              </button>
+                            </form>
+                          ) : (
+                            <div className="bg-white/10 p-3.5 rounded-xl space-y-2.5 border border-cyan-400/40 text-center">
+                              <span className="text-xs font-bold text-cyan-300 flex items-center justify-center gap-1.5">
+                                🏷️ Dịch vụ tính theo món (Giá đã cố định: {(detail.totalPrice || detail.totalAmount || 0).toLocaleString('vi-VN')}đ)
+                              </span>
+                              <p className="text-[10px] text-slate-300">
+                                Đơn hàng này tính giá cố định theo món. Bấm nút bên dưới để chuyển sang trạng thái Giặt!
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  onConfirmStatus({
+                                    orderId: detail._id,
+                                    orderCode: detail.orderCode,
+                                    currentStatus: detail.status,
+                                    newStatus: 'washing',
+                                  })
+                                }
+                                className="w-full py-2.5 bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 text-slate-950 font-black rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer"
+                              >
+                                <span>🫧 Đã Nhận Đồ ➔ Bắt Đầu Giặt / Sấy 🫧</span>
+                              </button>
                             </div>
-
-                            <button
-                              type="submit"
-                              disabled={isSubmittingWeight}
-                              className="w-full py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50 mt-1"
-                            >
-                              {isSubmittingWeight ? <Loader className="w-4 h-4 animate-spin" /> : <Scale className="w-4 h-4" />}
-                              <span>⚖️ Cập Nhật Số Kg & Gửi VietQR Cho Khách</span>
-                            </button>
-                          </form>
-                        )}
+                          );
+                        })()}
 
                         {detail.status === 'weighed' && (
                           <button
@@ -629,44 +656,72 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
 
                   {/* Section 5: Images */}
                   <div className="border-t border-slate-100 pt-4 space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
                         <ImageIcon className="w-3.5 h-3.5" />
-                        Hình ảnh xác thực đồ giặt ({images.length})
+                        Hình ảnh xác thực đồ giặt & quy trình ({images.length})
                       </p>
-                      <label className="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg cursor-pointer flex items-center gap-1 transition-colors">
-                        <Upload className="w-3 h-3 text-slate-600" />
-                        <span>Tải ảnh mới</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={async (e) => {
-                            if (e.target.files && e.target.files.length > 0 && detail) {
-                              try {
-                                const filesArr = Array.from(e.target.files);
-                                await uploadOrderImages(detail._id, filesArr, 'pickup');
-                                alert('Đã tải ảnh lên thành công!');
-                                onRefresh();
-                              } catch (err: any) {
-                                alert(err?.response?.data?.message || 'Lỗi tải ảnh');
+
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={uploadImageType}
+                          onChange={(e) => setUploadImageType(e.target.value as any)}
+                          className="text-[10px] font-bold bg-slate-100 border border-slate-200 rounded-lg px-2 py-1.5 text-slate-700 cursor-pointer"
+                        >
+                          <option value="process">🫧 Ảnh quy trình giặt/sấy</option>
+                          <option value="pickup">📸 Ảnh nhận đồ từ khách</option>
+                          <option value="delivery">🚚 Ảnh giao trả đồ sạch</option>
+                        </select>
+
+                        <label className="text-[10px] font-bold bg-cyan-600 hover:bg-cyan-500 text-white px-3 py-1.5 rounded-lg cursor-pointer flex items-center gap-1 shadow-xs transition-colors">
+                          <Upload className="w-3 h-3 text-white" />
+                          <span>+ Tải ảnh quy trình mới</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={async (e) => {
+                              if (e.target.files && e.target.files.length > 0 && detail) {
+                                try {
+                                  const filesArr = Array.from(e.target.files);
+                                  await uploadOrderImages(detail._id, filesArr, uploadImageType);
+                                  alert('Đã tải ảnh quy trình lên thành công!');
+                                  onRefresh();
+                                } catch (err: any) {
+                                  alert(err?.response?.data?.message || 'Lỗi tải ảnh');
+                                }
                               }
-                            }
-                          }}
-                          className="hidden"
-                        />
-                      </label>
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
                     </div>
-                    {images.length === 0 ? (
+
+                    {images.length === 0 && !detail.weightImageUrl ? (
                       <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center">
-                        <p className="text-xs text-slate-400">Chưa có ảnh nào được tải lên</p>
+                        <p className="text-xs text-slate-400">Chưa có ảnh quy trình nào được tải lên</p>
                       </div>
                     ) : (
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        {detail.weightImageUrl && (
+                          <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-amber-300 bg-amber-50 group">
+                            <a href={getImageUrl(detail.weightImageUrl)} target="_blank" rel="noopener noreferrer">
+                              <img
+                                src={getImageUrl(detail.weightImageUrl)}
+                                alt="Scale"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                            </a>
+                            <span className="absolute bottom-0 inset-x-0 bg-amber-900/80 text-amber-200 text-[8px] font-bold text-center py-0.5">
+                              ⚖️ Ảnh cân kg
+                            </span>
+                          </div>
+                        )}
                         {images.map((img) => (
                           <div
                             key={img._id}
-                            className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group"
+                            className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-900 group"
                           >
                             <a href={getImageUrl(img.imageUrl || (img as any).url)} target="_blank" rel="noopener noreferrer">
                               <img
@@ -675,6 +730,9 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                               />
                             </a>
+                            <span className="absolute bottom-0 inset-x-0 bg-slate-900/80 text-white text-[8px] font-bold text-center py-0.5">
+                              {img.imageType === 'pickup' ? '📸 Ảnh nhận đồ' : img.imageType === 'process' ? '🫧 Ảnh giặt/sấy' : '🚚 Ảnh giao trả'}
+                            </span>
                           </div>
                         ))}
                       </div>

@@ -79,6 +79,7 @@ export interface OrderDetail extends Order {
     priceType: 'per_kg' | 'per_item';  // khớp với Service.model.js
     price: number;
     estimatedHours?: number;
+    unit?: string;
   };
 }
 
@@ -86,7 +87,7 @@ export interface OrderImage {
   _id: string;
   order: string;
   imageUrl: string;          // khớp với OrderImage.model.js (field là imageUrl, không phải url)
-  imageType: 'pickup' | 'delivery';
+  imageType: 'pickup' | 'delivery' | 'process';
   uploadedBy?: {
     _id: string;
     name: string;
