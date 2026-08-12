@@ -31,6 +31,7 @@ export interface OrderImage {
 }
 
 import { VietQRModal } from '../components/ui/VietQRModal';
+import { ImageLightboxModal } from '../components/ui/ImageLightboxModal';
 import { Scale, QrCode } from 'lucide-react';
 
 /* ─── STEPS TIMELINE ─────────────────────────────────────────────── */
@@ -55,6 +56,8 @@ export const OrderTracking: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
+  const [lightboxCaption, setLightboxCaption] = useState<string>('');
 
   /* User's own orders list if logged in */
   const [myOrders, setMyOrders] = useState<Order[]>([]);
@@ -480,9 +483,14 @@ export const OrderTracking: React.FC = () => {
                                     <span className="text-[10px] font-bold text-[#1E4DB7] uppercase tracking-wider block">📸 Ảnh Shipper đã đến lấy đồ:</span>
                                     <div className="grid grid-cols-2 gap-2">
                                       {images.filter(img => img.imageType === 'pickup').map(img => (
-                                        <a key={img._id} href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer" className="block relative rounded-xl overflow-hidden border border-blue-200 shadow-sm group">
+                                        <button
+                                          key={img._id}
+                                          type="button"
+                                          onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption('📸 Ảnh Shipper lấy đồ'); }}
+                                          className="block text-left relative rounded-xl overflow-hidden border border-blue-200 shadow-sm group cursor-pointer"
+                                        >
                                           <img src={getImageUrl(img.imageUrl)} alt="Lấy đồ" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
-                                        </a>
+                                        </button>
                                       ))}
                                     </div>
                                   </div>
@@ -491,9 +499,13 @@ export const OrderTracking: React.FC = () => {
                                 {step.key === 'weighed' && order.weightImageUrl && (
                                   <div className="mt-3 space-y-2">
                                     <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">⚖️ Ảnh chụp khối lượng trên cân tại tiệm:</span>
-                                    <a href={getImageUrl(order.weightImageUrl)} target="_blank" rel="noopener noreferrer" className="block relative rounded-xl overflow-hidden border border-amber-200 shadow-sm max-w-xs group">
+                                    <button
+                                      type="button"
+                                      onClick={() => { setLightboxUrl(order.weightImageUrl!); setLightboxCaption('⚖️ Ảnh chụp số kg trên cân tại tiệm'); }}
+                                      className="block text-left relative rounded-xl overflow-hidden border border-amber-200 shadow-sm max-w-xs group cursor-pointer"
+                                    >
                                       <img src={getImageUrl(order.weightImageUrl)} alt="Cân kg" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
-                                    </a>
+                                    </button>
                                   </div>
                                 )}
 
@@ -502,9 +514,14 @@ export const OrderTracking: React.FC = () => {
                                     <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">📸 Ảnh Shipper đã giao trả đồ sạch:</span>
                                     <div className="grid grid-cols-2 gap-2">
                                       {images.filter(img => img.imageType === 'delivery').map(img => (
-                                        <a key={img._id} href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer" className="block relative rounded-xl overflow-hidden border border-emerald-200 shadow-sm group">
+                                        <button
+                                          key={img._id}
+                                          type="button"
+                                          onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption('📸 Ảnh Shipper giao trả đồ sạch'); }}
+                                          className="block text-left relative rounded-xl overflow-hidden border border-emerald-200 shadow-sm group cursor-pointer"
+                                        >
                                           <img src={getImageUrl(img.imageUrl)} alt="Giao đồ" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
-                                        </a>
+                                        </button>
                                       ))}
                                     </div>
                                   </div>
@@ -523,14 +540,16 @@ export const OrderTracking: React.FC = () => {
                       <h3 className="text-base font-bold text-slate-900 mb-4">📸 Bộ Ảnh Xác Thực Giao Nhận</h3>
                       <div className="grid grid-cols-2 gap-4">
                         {images.map((img) => (
-                          <div key={img._id} className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white group">
-                            <a href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer">
-                              <img 
-                                src={getImageUrl(img.imageUrl)} 
-                                alt="Verification" 
-                                className="w-full h-40 object-cover group-hover:scale-105 transition-transform"
-                              />
-                            </a>
+                          <div 
+                            key={img._id}
+                            onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption(img.imageType === 'pickup' ? '📸 Ảnh lấy đồ từ nhà khách' : '📸 Ảnh giao trả đồ sạch'); }}
+                            className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white group cursor-pointer"
+                          >
+                            <img 
+                              src={getImageUrl(img.imageUrl)} 
+                              alt="Verification" 
+                              className="w-full h-40 object-cover group-hover:scale-105 transition-transform"
+                            />
                             <div className="absolute bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-xs p-2 text-center text-[10px] font-bold text-white">
                               {img.imageType === 'pickup' ? '📸 Ảnh lấy đồ từ nhà khách' : '📸 Ảnh giao trả đồ sạch'}
                             </div>
@@ -571,6 +590,12 @@ export const OrderTracking: React.FC = () => {
           />
         )}
 
+        {/* Image Lightbox Modal */}
+        <ImageLightboxModal
+          imageUrl={lightboxUrl}
+          caption={lightboxCaption}
+          onClose={() => setLightboxUrl(null)}
+        />
       </div>
     </div>
   );

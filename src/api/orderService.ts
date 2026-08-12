@@ -124,15 +124,60 @@ export interface Order {
   updatedAt: string;
 }
 
-/** Helper giúp chuyển đổi các đường dẫn ảnh tương đối thành URL tuyệt đối chuẩn */
+/** Helper giúp chuyển đổi các đường dẫn ảnh tương đối / local / Cloudinary thành URL tuyệt đối chuẩn */
 export const getImageUrl = (url?: string): string => {
   if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
-    return url;
+
+  // Clean backslashes nếu có từ Windows path
+  let cleanUrl = url.replace(/\\/g, '/');
+
+  // Nếu url chứa '/uploads/', lấy phần tương đối từ '/uploads/' trở đi
+  const uploadsIdx = cleanUrl.indexOf('/uploads/');
+  if (uploadsIdx !== -1) {
+    cleanUrl = cleanUrl.substring(uploadsIdx);
+  } else if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://') || cleanUrl.startsWith('blob:')) {
+    // Nếu URL cũ lỡ chứa localhost:5000 nhưng đang xem trên Vercel/Production
+    if (
+      typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      (cleanUrl.includes('localhost') || cleanUrl.includes('127.0.0.1'))
+    ) {
+      const idx = cleanUrl.indexOf('/uploads/');
+      if (idx !== -1) {
+        cleanUrl = cleanUrl.substring(idx);
+      } else {
+        return cleanUrl;
+      }
+    } else {
+      return cleanUrl;
+    }
   }
-  const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
-  const cleanPath = url.startsWith('/') ? url : `/${url}`;
-  return `${apiBase}${cleanPath}`;
+
+  // Xác định domain Backend chuẩn
+  let backendOrigin = '';
+
+  const envApiUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+  if (envApiUrl && typeof envApiUrl === 'string') {
+    backendOrigin = envApiUrl.replace(/\/api\/?$/, '');
+  }
+
+  if (!backendOrigin && apiClient.defaults.baseURL) {
+    backendOrigin = apiClient.defaults.baseURL.replace(/\/api\/?$/, '');
+  }
+
+  // Nếu đang xem trên Vercel / domain online mà backendOrigin là localhost/rỗng → fallback sang BE Render
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    if (!backendOrigin || backendOrigin.includes('localhost')) {
+      backendOrigin = 'https://laundryskillup-be.onrender.com';
+    }
+  }
+
+  if (!backendOrigin) {
+    backendOrigin = 'http://localhost:5000';
+  }
+
+  const pathWithLeadingSlash = cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`;
+  return `${backendOrigin}${pathWithLeadingSlash}`;
 };
 
 /** Payload để tạo đơn hàng mới — khớp với CreateOrderRequest trong Swagger */
