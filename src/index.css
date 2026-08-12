@@ -4,34 +4,35 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy-950: #FCFBF9;
-  --color-navy-900: #FAF6F0;
-  --color-navy-800: #F3EEE6;
-  --color-navy-700: #EBE3D5;
-  --color-navy-600: #DFD3C3;
-  --color-navy-500: #C5A880;
-  --color-navy-400: #BCA374;
-  --color-navy-300: #8E7A58;
-  --color-navy-200: #6B5B42;
-  --color-navy-100: #4B402E;
-  --color-navy-50: #2A2520;
+  /* Blue-white theme inspired by Skill Up logo */
+  --color-navy-950: #FFFFFF;
+  --color-navy-900: #F0F6FF;
+  --color-navy-800: #E0EDFF;
+  --color-navy-700: #C5DCFF;
+  --color-navy-600: #93BFFF;
+  --color-navy-500: #1E4DB7;
+  --color-navy-400: #1A42A0;
+  --color-navy-300: #153380;
+  --color-navy-200: #0F2560;
+  --color-navy-100: #0A1A45;
+  --color-navy-50: #060F28;
 
-  --color-cyan-950: #4B402E;
-  --color-cyan-900: #6B5B42;
-  --color-cyan-800: #8E7A58;
-  --color-cyan-700: #A89068;
-  --color-cyan-600: #BCA374;
-  --color-cyan-500: #C5A880;
-  --color-cyan-400: #DFD3C3;
-  --color-cyan-300: #EBE3D5;
-  --color-cyan-200: #F3EEE6;
-  --color-cyan-100: #FAF8F5;
-  --color-cyan-5: #FCFBF9;
+  --color-cyan-950: #0A1A45;
+  --color-cyan-900: #0F2560;
+  --color-cyan-800: #153380;
+  --color-cyan-700: #1A42A0;
+  --color-cyan-600: #1E4DB7;
+  --color-cyan-500: #2E62D4;
+  --color-cyan-400: #93BFFF;
+  --color-cyan-300: #C5DCFF;
+  --color-cyan-200: #E0EDFF;
+  --color-cyan-100: #F0F6FF;
+  --color-cyan-5: #FFFFFF;
 
-  --color-gold-500: #D4AF37;
-  --color-gold-400: #E9DCC4;
-  --color-gold-300: #F3EBDD;
-  --color-gold-600: #B99470;
+  --color-gold-500: #2E62D4;
+  --color-gold-400: #93BFFF;
+  --color-gold-300: #C5DCFF;
+  --color-gold-600: #1A42A0;
 
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-display: 'Outfit', 'Inter', system-ui, sans-serif;
@@ -61,8 +62,8 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background-color: #FCFBF9;
-  color: #2A2520;
+  background-color: #FFFFFF;
+  color: #060F28;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -75,14 +76,14 @@ body {
   width: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF6F0;
+  background: #F0F6FF;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #D4AF37, #C5A880);
+  background: linear-gradient(to bottom, #2E62D4, #1E4DB7);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #B99470;
+  background: #1A42A0;
 }
 
 /* ─── Glass morphism ──────────────────────────────────────────────────────── */
@@ -90,27 +91,27 @@ body {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(197, 168, 128, 0.2);
+  border: 1px solid rgba(30, 77, 183, 0.2);
 }
 
 .glass-dark {
   background: rgba(255, 255, 255, 0.90);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(197, 168, 128, 0.15);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 20px rgba(197, 168, 128, 0.05);
+  border-bottom: 1px solid rgba(30, 77, 183, 0.15);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 20px rgba(30, 77, 183, 0.05);
 }
 
 /* ─── Gradient text ───────────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #BCA374 0%, #D4AF37 100%);
+  background: linear-gradient(135deg, #1E4DB7 0%, #2E62D4 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-cyan {
-  background: linear-gradient(135deg, #C5A880, #D4AF37);
+  background: linear-gradient(135deg, #2E62D4, #1E4DB7);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -118,22 +119,22 @@ body {
 
 /* ─── Glow effects ────────────────────────────────────────────────────────── */
 .glow-cyan {
-  box-shadow: 0 0 30px rgba(197, 168, 128, 0.15);
+  box-shadow: 0 0 30px rgba(30, 77, 183, 0.15);
 }
 .glow-gold {
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 30px rgba(46, 98, 212, 0.15);
 }
 
 /* ─── Background patterns ─────────────────────────────────────────────────── */
 .bg-grid {
   background-image: 
-    linear-gradient(rgba(197, 168, 128, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(197, 168, 128, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(30, 77, 183, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 77, 183, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
 .bg-dots {
-  background-image: radial-gradient(rgba(197, 168, 128, 0.06) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(30, 77, 183, 0.06) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
@@ -141,17 +142,17 @@ body {
 .gradient-border {
   position: relative;
   background: linear-gradient(#ffffff, #ffffff) padding-box,
-              linear-gradient(135deg, #C5A880, #D4AF37) border-box;
+              linear-gradient(135deg, #1E4DB7, #2E62D4) border-box;
   border: 1.5px solid transparent;
 }
 
 /* ─── Hero gradient ───────────────────────────────────────────────────────── */
 .hero-gradient {
   background:
-    radial-gradient(ellipse at 10% 40%, rgba(197, 168, 128, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 90% 10%, rgba(212, 175, 55, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 100%, rgba(188, 163, 116, 0.04) 0%, transparent 45%),
-    linear-gradient(165deg, #FCFBF9 0%, #FAF6F0 60%, #F5EFEB 100%);
+    radial-gradient(ellipse at 10% 40%, rgba(30, 77, 183, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 10%, rgba(46, 98, 212, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(30, 77, 183, 0.04) 0%, transparent 45%),
+    linear-gradient(165deg, #FFFFFF 0%, #F0F6FF 60%, #E0EDFF 100%);
 }
 
 /* ─── Card hover ──────────────────────────────────────────────────────────── */
@@ -160,7 +161,7 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 60px rgba(197, 168, 128, 0.08);
+  box-shadow: 0 20px 60px rgba(30, 77, 183, 0.08);
 }
 
 /* ─── Shimmer loading ─────────────────────────────────────────────────────── */

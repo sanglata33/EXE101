@@ -19,12 +19,13 @@ import {
   X,
   Plus,
   Minus,
-  Sparkle
+  Camera
 } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { getAllServices, type LaundryService } from '../../api/serviceService';
 import { createOrder, type Order } from '../../api/orderService';
+import { CareLabelScannerModal } from '../ui/CareLabelScannerModal';
 
 /* ─── 1. Zod Validation Schema chống spam thông tin rác & bắt buộc chọn dịch vụ ─── */
 export const orderSchema = z.object({
@@ -97,6 +98,35 @@ export const BookingFormSection: React.FC = () => {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+
+  // Xử lý khi áp dụng ghi chú từ scanner
+  const handleApplyScannerNote = (noteText: string) => {
+    const currentNote = watch('note') || '';
+    const newNote = currentNote ? `${currentNote}\n${noteText}` : noteText;
+    setValue('note', newNote, { shouldValidate: true });
+  };
+
+  // Xử lý khi chọn gói dịch vụ đề xuất từ AI scanner
+  const handleSelectScannerPackage = (packageName: string, adviceText: string) => {
+    if (services.length > 0) {
+      const matchedService = services.find(s => 
+        s.name.toLowerCase().includes(packageName.toLowerCase()) || 
+        packageName.toLowerCase().includes(s.name.toLowerCase())
+      ) || services[0];
+
+      if (matchedService) {
+        setValue('serviceId', matchedService._id, { shouldValidate: true });
+      }
+    }
+
+    handleApplyScannerNote(adviceText);
+
+    const elem = document.getElementById('quick-booking');
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // Tính ngày hôm nay format YYYY-MM-DD cho min attribute của date input
   const todayStr = new Date().toISOString().split('T')[0];
@@ -234,27 +264,27 @@ export const BookingFormSection: React.FC = () => {
         <div className="relative rounded-[2rem] overflow-hidden bg-white border border-slate-100 shadow-xl shadow-slate-100/60">
           
           {/* Top accent line */}
-          <div className="h-1.5 w-full bg-gradient-to-r from-cyan-500 via-cyan-400 to-amber-400" />
+          <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400" />
 
           {/* Background ambient blobs */}
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-cyan-50/60 rounded-full filter blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-amber-50/50 rounded-full filter blur-[80px] pointer-events-none" />
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-50/60 rounded-full filter blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-100/50 rounded-full filter blur-[80px] pointer-events-none" />
 
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-0">
             
             {/* ── Left Column: Intro & Steps (5 cols) ────────────────────── */}
-            <div className="lg:col-span-5 p-8 sm:p-12 lg:p-14 flex flex-col justify-center space-y-8 bg-gradient-to-br from-white to-[#FAF6F0]/30">
+            <div className="lg:col-span-5 p-8 sm:p-12 lg:p-14 flex flex-col justify-center space-y-8 bg-gradient-to-br from-white to-blue-50/40">
               <div>
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#C5A880]/10 text-[#8E7A58] border border-[#EBE3D5] rounded-full text-xs font-semibold uppercase tracking-wider mb-5">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-50 text-[#1E4DB7] border border-blue-200 rounded-full text-xs font-bold uppercase tracking-wider mb-5 shadow-xs">
                   <PackageCheck className="w-3.5 h-3.5" /> Đặt lịch siêu tốc
                 </span>
-                <h2 className="font-display font-black text-3xl sm:text-4xl text-[#2A2520] leading-tight">
+                <h2 className="font-display font-black text-3xl sm:text-4xl text-slate-900 leading-tight">
                   Nhận đồ tại nhà
                   <br />
                   <span className="gradient-text">chỉ 1 phút đăng ký</span>
                 </h2>
-                <p className="mt-4 text-[#756458] text-sm leading-relaxed">
-                  Shipper Skill-Up đến lấy đồ tận cửa theo khung giờ bạn chọn. Báo giá minh bạch, giao đồ thơm tho tận nhà.
+                <p className="mt-4 text-slate-600 text-sm leading-relaxed">
+                  Shipper Skill Up đến lấy đồ tận cửa theo khung giờ bạn chọn. Báo giá minh bạch, giao đồ thơm tho tận nhà.
                 </p>
               </div>
 
@@ -265,13 +295,13 @@ export const BookingFormSection: React.FC = () => {
                   { icon: <Calculator className="w-4 h-4" />, step: '02', label: 'Báo giá & cân đo tận mắt' },
                   { icon: <Sparkles className="w-4 h-4" />, step: '03', label: 'Nhận đồ sạch thơm tận cửa' },
                 ].map((item) => (
-                  <div key={item.step} className="flex items-center gap-4 p-3 rounded-2xl bg-white border border-[#EBE3D5]/40 shadow-xs">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-[#C5A880]/10 text-[#C5A880] border border-[#C5A880]/20">
+                  <div key={item.step} className="flex items-center gap-4 p-3 rounded-2xl bg-white border border-blue-100 shadow-xs">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-blue-50 text-[#1E4DB7] border border-blue-200">
                       {item.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] text-[#8F7E71] font-bold uppercase tracking-widest">Bước {item.step}</p>
-                      <p className="text-sm font-semibold text-[#2A2520] truncate">{item.label}</p>
+                      <p className="text-[10px] text-[#1E4DB7] font-bold uppercase tracking-widest">Bước {item.step}</p>
+                      <p className="text-sm font-semibold text-slate-900 truncate">{item.label}</p>
                     </div>
                   </div>
                 ))}
@@ -288,6 +318,27 @@ export const BookingFormSection: React.FC = () => {
                   <p className="text-slate-500 text-xs mt-1">
                     Vui lòng điền đúng thông tin chính xác để nhân viên giao nhận hỗ trợ nhanh nhất.
                   </p>
+                </div>
+
+                {/* ── AI Care Label Scanner Callout Banner ── */}
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-[#0F2560] via-[#1E4DB7] to-[#2E62D4] text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white flex-shrink-0">
+                      <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-xs sm:text-sm text-white">✨ Chưa biết chọn gói giặt nào?</h4>
+                      <p className="text-[11px] text-blue-100 mt-0.5">Quét nhãn mác quần áo bằng AI để tự động phân tích chất liệu vải & gợi ý gói phù hợp!</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsScannerOpen(true)}
+                    className="flex-shrink-0 px-4 py-2 bg-white text-[#1E4DB7] hover:bg-blue-50 text-xs font-extrabold rounded-xl shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Camera className="w-4 h-4 text-[#1E4DB7]" />
+                    Quét Nhãn Mác AI
+                  </button>
                 </div>
 
                 {apiError && (
@@ -314,7 +365,7 @@ export const BookingFormSection: React.FC = () => {
                         className={`w-full pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
                           errors.fullName
                             ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                            : 'border-slate-200 focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/20'
+                            : 'border-slate-200 focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/20'
                         }`}
                       />
                     </div>
@@ -342,7 +393,7 @@ export const BookingFormSection: React.FC = () => {
                         className={`w-full pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
                           errors.phone
                             ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                            : 'border-slate-200 focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/20'
+                            : 'border-slate-200 focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/20'
                         }`}
                       />
                     </div>
@@ -364,7 +415,7 @@ export const BookingFormSection: React.FC = () => {
                     <select
                       {...register('serviceId')}
                       disabled={servicesLoading}
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/20 transition-all cursor-pointer disabled:bg-slate-100"
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/20 transition-all cursor-pointer disabled:bg-slate-100"
                     >
                       {servicesLoading ? (
                         <option>Đang tải danh sách dịch vụ...</option>
@@ -429,7 +480,7 @@ export const BookingFormSection: React.FC = () => {
                       className={`w-full pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none transition-all ${
                         errors.address
                           ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                          : 'border-slate-200 focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/20'
+                          : 'border-slate-200 focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/20'
                       }`}
                     />
                   </div>
@@ -458,7 +509,7 @@ export const BookingFormSection: React.FC = () => {
                         className={`w-full pr-4 py-2.5 bg-white border rounded-xl text-sm text-slate-800 focus:outline-none transition-all cursor-pointer ${
                           errors.bookingDate
                             ? 'border-rose-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                            : 'border-slate-200 focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/20'
+                            : 'border-slate-200 focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/20'
                         }`}
                       />
                     </div>
@@ -480,7 +531,7 @@ export const BookingFormSection: React.FC = () => {
                       <select
                         {...register('bookingTime')}
                         style={{ paddingLeft: '2.75rem' }}
-                        className="w-full pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/20 transition-all cursor-pointer"
+                        className="w-full pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/20 transition-all cursor-pointer"
                       >
                         <option value="08:00 - 10:00">08:00 – 10:00 (Sáng)</option>
                         <option value="10:00 - 12:00">10:00 – 12:00 (Trưa)</option>
@@ -504,7 +555,7 @@ export const BookingFormSection: React.FC = () => {
                       rows={2}
                       placeholder="Ví dụ: Đồ mỏng giặt nhẹ, gọi trước 15 phút..."
                       style={{ paddingLeft: '2.75rem' }}
-                      className="w-full pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/20 transition-all resize-none"
+                      className="w-full pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/20 transition-all resize-none"
                     />
                   </div>
                   {errors.note && (
@@ -514,12 +565,12 @@ export const BookingFormSection: React.FC = () => {
 
                 {/* Hiển thị Tổng Tiền Tạm Tính */}
                 {estimatedPrice > 0 && (
-                  <div className="p-3 bg-[#C5A880]/5 border border-[#C5A880]/15 rounded-2xl flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#756458] flex items-center gap-1">
-                      <Sparkle className="w-3.5 h-3.5 text-[#C5A880] animate-spin-slow" />
+                  <div className="p-3.5 bg-blue-50/80 border border-blue-100 rounded-2xl flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-[#1E4DB7]" />
                       Chi phí tạm tính:
                     </span>
-                    <strong className="text-base font-black text-[#C5A880]">
+                    <strong className="text-lg font-black text-[#1E4DB7]">
                       {estimatedPrice.toLocaleString('vi-VN')}đ
                     </strong>
                   </div>
@@ -532,7 +583,7 @@ export const BookingFormSection: React.FC = () => {
                     variant="primary"
                     fullWidth
                     disabled={isSubmitting}
-                    className="py-3.5 text-white bg-gradient-to-r from-[#BCA374] to-[#C5A880] hover:from-[#C5A880] hover:to-[#D4AF37] shadow-md shadow-gold-500/10 hover:shadow-gold-500/20 rounded-xl font-bold transition-all duration-300 disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
+                    className="py-3.5 text-white bg-gradient-to-r from-[#1A42A0] to-[#1E4DB7] hover:from-[#1E4DB7] hover:to-[#2E62D4] shadow-md shadow-blue-500/20 rounded-xl font-bold transition-all duration-300 disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <>
@@ -549,7 +600,7 @@ export const BookingFormSection: React.FC = () => {
                     variant="primary"
                     fullWidth
                     onClick={() => navigate('/login')}
-                    className="py-3.5 text-white bg-gradient-to-r from-slate-850 to-slate-750 hover:from-slate-750 hover:to-slate-650 shadow-md rounded-xl font-bold transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
+                    className="py-3.5 text-white bg-gradient-to-r from-[#1A42A0] to-[#1E4DB7] hover:from-[#1E4DB7] hover:to-[#2E62D4] shadow-md shadow-blue-500/20 rounded-xl font-bold transition-all duration-300 cursor-pointer flex items-center justify-center gap-2"
                   >
                     <span>Đăng nhập để đặt lịch dịch vụ</span>
                   </Button>
@@ -587,7 +638,7 @@ export const BookingFormSection: React.FC = () => {
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2 text-xs">
               <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
                 <span className="text-slate-500">Mã đơn hàng:</span>
-                <span className="font-mono font-bold text-[#C5A880] text-sm select-all">
+                <span className="font-mono font-bold text-[#1E4DB7] text-sm select-all">
                   {createdOrder.orderCode}
                 </span>
               </div>
@@ -605,7 +656,7 @@ export const BookingFormSection: React.FC = () => {
               </div>
               <div className="flex justify-between border-b border-slate-200/60 pb-1.5">
                 <span className="text-slate-500">Thành tiền:</span>
-                <span className="font-bold text-emerald-600">
+                <span className="font-bold text-blue-600">
                   {createdOrder.totalPrice.toLocaleString('vi-VN')}đ
                 </span>
               </div>
@@ -633,7 +684,7 @@ export const BookingFormSection: React.FC = () => {
                 variant="primary"
                 fullWidth
                 onClick={() => setIsSuccessModalOpen(false)}
-                className="py-3 bg-[#C5A880] hover:bg-[#BCA374] text-white font-bold rounded-xl shadow-md"
+                className="py-3 bg-[#1E4DB7] hover:bg-[#1A42A0] text-white font-bold rounded-xl shadow-md"
               >
                 Hoàn tất
               </Button>
@@ -641,6 +692,14 @@ export const BookingFormSection: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* ── Modal AI Care Label Scanner ─────────────────────── */}
+      <CareLabelScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onApplyNote={handleApplyScannerNote}
+        onSelectPackage={handleSelectScannerPackage}
+      />
     </section>
   );
 };

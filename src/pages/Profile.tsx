@@ -129,22 +129,17 @@ export const Profile: React.FC = () => {
   /* ── Loading skeleton ── */
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FCFBF9]">
-        <Loader2 className="w-8 h-8 text-[#C5A880] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="w-8 h-8 text-[#1E4DB7] animate-spin" />
       </div>
     );
   }
 
-  /* ═══════════════════════════════════════════════════════════════
-      NOTE: App.tsx → MainLayout already applies pt-20 to <main>.
-      So Profile page content starts exactly below the fixed navbar.
-      We do NOT add extra margin/padding here.
-  ═══════════════════════════════════════════════════════════════ */
   return (
-    <div className="min-h-screen bg-[#FCFBF9]">
+    <div className="min-h-screen bg-white">
 
-      {/* ── BANNER (full-width, flush — pt-20 already handled by MainLayout) ── */}
-      <div className="w-full bg-gradient-to-r from-[#7A6545] via-[#BCA374] to-[#C5A880] relative overflow-hidden">
+      {/* ── BANNER (full-width, flush) ── */}
+      <div className="w-full bg-gradient-to-r from-[#0F2560] via-[#1E4DB7] to-[#2E62D4] relative overflow-hidden">
         {/* decorative blobs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-20 -right-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
@@ -201,27 +196,27 @@ export const Profile: React.FC = () => {
           <div className="lg:col-span-4 space-y-5">
 
             {/* Membership tier card — data-driven, not hardcoded */}
-            <div className="bg-white border border-[#EBE3D5]/60 rounded-2xl p-5 shadow-sm">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#EBE3D5]/40">
-                <h3 className="text-xs font-bold text-[#8F7E71] uppercase tracking-wider">Hạng Thành Viên</h3>
-                <Award className="w-4 h-4 text-[#C5A880]" />
+            <div className="bg-white border border-blue-100/60 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-blue-50">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Hạng Thành Viên</h3>
+                <Award className="w-4 h-4 text-[#1E4DB7]" />
               </div>
 
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Tổng chi tiêu</p>
-              <p className="text-2xl font-black text-[#C5A880] mt-0.5 mb-1">
+              <p className="text-2xl font-black text-[#1E4DB7] mt-0.5 mb-1">
                 {totalSpent.toLocaleString('vi-VN')}đ
               </p>
-              <p className="text-xs font-semibold text-[#8E7A58] mb-4">{tier.label}</p>
+              <p className="text-xs font-semibold text-slate-600 mb-4">{tier.label}</p>
 
               {tier.next && (
                 <div className="space-y-1.5">
-                  <div className="flex justify-between text-[10px] font-semibold text-[#8F7E71]">
+                  <div className="flex justify-between text-[10px] font-semibold text-slate-500">
                     <span>{tier.label}</span>
                     <span>{tier.nextLabel} ({tier.next.toLocaleString('vi-VN')}đ)</span>
                   </div>
                   <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#BCA374] to-[#C5A880] rounded-full transition-all"
+                      className="h-full bg-gradient-to-r from-[#1E4DB7] to-[#2E62D4] rounded-full transition-all"
                       style={{ width: `${Math.min(tier.pct, 100)}%` }}
                     />
                   </div>
@@ -237,9 +232,9 @@ export const Profile: React.FC = () => {
             </div>
 
             {/* Profile completion */}
-            <div className="bg-white border border-[#EBE3D5]/60 rounded-2xl p-5 shadow-sm">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#EBE3D5]/40">
-                <h3 className="flex items-center gap-1.5 text-xs font-bold text-[#8F7E71] uppercase tracking-wider">
+            <div className="bg-white border border-blue-100/60 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-blue-50">
+                <h3 className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" /> Độ Hoàn Thiện Hồ Sơ
                 </h3>
                 <span className="text-xs font-bold text-emerald-600">{completionPct}%</span>
@@ -271,12 +266,12 @@ export const Profile: React.FC = () => {
           <div className="lg:col-span-8 space-y-5">
 
             {/* ── Personal info ── */}
-            <div className="bg-white border border-[#EBE3D5]/60 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between pb-4 mb-5 border-b border-[#EBE3D5]/40">
+            <div className="bg-white border border-blue-100/60 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between pb-4 mb-5 border-b border-blue-50">
                 <h2 className="font-bold text-base text-[#2A2520]">Thông tin cá nhân</h2>
                 {!isEditing && (
                   <button onClick={() => setIsEditing(true)}
-                    className="flex items-center gap-1 text-xs text-[#C5A880] hover:text-[#BCA374] font-bold cursor-pointer transition-colors">
+                    className="flex items-center gap-1 text-xs text-[#1E4DB7] hover:text-[#1A42A0] font-bold cursor-pointer transition-colors">
                     <Edit3 className="w-3.5 h-3.5" /> Chỉnh sửa
                   </button>
                 )}
@@ -294,20 +289,20 @@ export const Profile: React.FC = () => {
                     <label className="block space-y-1">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Họ và Tên</span>
                       <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} disabled={updateLoading}
-                        className="w-full px-3.5 py-2.5 border border-[#EBE3D5] focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/15 rounded-xl text-sm text-[#2A2520] outline-none"
+                        className="w-full px-3.5 py-2.5 border border-blue-100 focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/15 rounded-xl text-sm text-[#2A2520] outline-none"
                         placeholder="Họ và Tên" />
                     </label>
                     <label className="block space-y-1">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Số điện thoại</span>
                       <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} disabled={updateLoading}
-                        className="w-full px-3.5 py-2.5 border border-[#EBE3D5] focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/15 rounded-xl text-sm text-[#2A2520] outline-none"
+                        className="w-full px-3.5 py-2.5 border border-blue-100 focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/15 rounded-xl text-sm text-[#2A2520] outline-none"
                         placeholder="0912 345 678" />
                     </label>
                   </div>
                   <label className="block space-y-1">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Địa chỉ lấy & giao trả đồ</span>
                     <textarea value={address} onChange={e => setAddress(e.target.value)} disabled={updateLoading} rows={2}
-                      className="w-full px-3.5 py-2.5 border border-[#EBE3D5] focus:border-[#C5A880] focus:ring-2 focus:ring-[#C5A880]/15 rounded-xl text-sm text-[#2A2520] outline-none resize-none"
+                      className="w-full px-3.5 py-2.5 border border-blue-100 focus:border-[#1E4DB7] focus:ring-2 focus:ring-[#1E4DB7]/15 rounded-xl text-sm text-[#2A2520] outline-none resize-none"
                       placeholder="Số nhà, đường, phường/xã..." />
                   </label>
                   <div className="flex justify-end gap-2 pt-1">
@@ -316,7 +311,7 @@ export const Profile: React.FC = () => {
                       <X className="w-3.5 h-3.5" /> Hủy
                     </button>
                     <button type="submit" disabled={updateLoading}
-                      className="flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-[#BCA374] to-[#C5A880] hover:from-[#C5A880] hover:to-[#D4AF37] text-white text-xs font-bold rounded-xl shadow-md cursor-pointer">
+                      className="flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-[#1E4DB7] to-[#2E62D4] hover:from-[#1A42A0] hover:to-[#1E4DB7] text-white text-xs font-bold rounded-xl shadow-md cursor-pointer">
                       {updateLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><Save className="w-3.5 h-3.5" /> Lưu thay đổi</>}
                     </button>
                   </div>
@@ -324,21 +319,21 @@ export const Profile: React.FC = () => {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="flex items-start gap-3">
-                    <Mail className="w-4 h-4 text-[#C5A880] mt-0.5 flex-shrink-0" />
+                    <Mail className="w-4 h-4 text-[#1E4DB7] mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Email</p>
                       <p className="text-sm font-semibold text-[#2A2520] break-all">{user.email || '—'}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <Phone className="w-4 h-4 text-[#C5A880] mt-0.5 flex-shrink-0" />
+                    <Phone className="w-4 h-4 text-[#1E4DB7] mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Số điện thoại</p>
                       <p className="text-sm font-semibold text-[#2A2520]">{user.phone || 'Chưa cập nhật'}</p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 sm:col-span-2 pt-4 border-t border-[#EBE3D5]/30">
-                    <MapPin className="w-4 h-4 text-[#C5A880] mt-0.5 flex-shrink-0" />
+                  <div className="flex items-start gap-3 sm:col-span-2 pt-4 border-t border-blue-50">
+                    <MapPin className="w-4 h-4 text-[#1E4DB7] mt-0.5 flex-shrink-0" />
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Địa chỉ lấy & giao trả đồ</p>
                       <p className="text-sm font-semibold text-[#2A2520] leading-relaxed">{user.address || 'Chưa cập nhật'}</p>
@@ -349,11 +344,11 @@ export const Profile: React.FC = () => {
             </div>
 
             {/* ── Orders ── */}
-            <div className="bg-white border border-[#EBE3D5]/60 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between pb-4 mb-5 border-b border-[#EBE3D5]/40">
+            <div className="bg-white border border-blue-100/60 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between pb-4 mb-5 border-b border-blue-50">
                 <h2 className="font-bold text-base text-[#2A2520]">Lịch sử đơn hàng của tôi</h2>
                 {!ordersLoading && (
-                  <span className="text-[10px] bg-[#C5A880]/10 border border-[#C5A880]/20 text-[#8E7A58] px-2.5 py-0.5 rounded-full font-bold">
+                  <span className="text-[10px] bg-blue-50 border border-blue-200 text-[#1E4DB7] px-2.5 py-0.5 rounded-full font-bold">
                     {orders.length} đơn hàng
                   </span>
                 )}
@@ -361,7 +356,7 @@ export const Profile: React.FC = () => {
 
               {ordersLoading ? (
                 <div className="py-14 flex flex-col items-center gap-2 text-slate-400">
-                  <Loader2 className="w-7 h-7 text-[#C5A880] animate-spin" />
+                  <Loader2 className="w-7 h-7 text-[#1E4DB7] animate-spin" />
                   <span className="text-xs">Đang tải danh sách đơn...</span>
                 </div>
               ) : ordersError ? (
@@ -371,13 +366,13 @@ export const Profile: React.FC = () => {
                 </div>
               ) : orders.length === 0 ? (
                 <div className="py-14 text-center space-y-4">
-                  <Package className="w-12 h-12 text-[#EBE3D5] mx-auto" />
+                  <Package className="w-12 h-12 text-slate-200 mx-auto" />
                   <div>
                     <p className="font-bold text-[#2A2520] text-sm">Bạn chưa có đơn hàng nào</p>
                     <p className="text-slate-400 text-xs mt-1">Đặt lịch giặt ủi ngay để trải nghiệm dịch vụ!</p>
                   </div>
                   <Link to="/products"
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-[#BCA374] to-[#C5A880] text-white rounded-xl text-xs font-bold shadow-md">
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-[#1E4DB7] to-[#2E62D4] text-white rounded-xl text-xs font-bold shadow-md">
                     <ShoppingBag className="w-3.5 h-3.5" /> Đặt lịch dịch vụ
                   </Link>
                 </div>
@@ -393,12 +388,12 @@ export const Profile: React.FC = () => {
                       <button
                         key={ord._id}
                         onClick={() => setSelectedOrderId(ord._id)}
-                        className="w-full text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-[#EBE3D5]/50 hover:border-[#C5A880]/60 hover:bg-[#FAF6F0]/40 rounded-xl transition-all duration-200 cursor-pointer group"
+                        className="w-full text-left flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 border border-blue-50 hover:border-[#1E4DB7]/60 hover:bg-blue-50/40 rounded-xl transition-all duration-200 cursor-pointer group"
                       >
                         {/* Left */}
                         <div className="space-y-1.5 min-w-0">
                           <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-mono font-bold text-xs text-[#2A2520] bg-[#FAF6F0] border border-[#EBE3D5] px-2 py-0.5 rounded-lg">
+                            <span className="font-mono font-bold text-xs text-[#2A2520] bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-lg">
                               {ord.orderCode}
                             </span>
                             <span className={`text-[10px] font-bold border rounded px-1.5 py-0.5 ${badgeCls}`}>
@@ -406,12 +401,12 @@ export const Profile: React.FC = () => {
                             </span>
                           </div>
                           <p className="text-sm font-bold text-[#2A2520] truncate">
-                            {svcName} <span className="text-[#8F7E71] font-semibold">• {ord.quantity} {unit}</span>
+                            {svcName} <span className="text-slate-400 font-semibold">• {ord.quantity} {unit}</span>
                           </p>
                           <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400">
                             <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{new Date(ord.createdAt).toLocaleDateString('vi-VN')}</span>
                             {ord.scheduledPickupTime && (
-                              <span className="flex items-center gap-1 text-[#8F7E71]">
+                              <span className="flex items-center gap-1 text-slate-500">
                                 <Clock className="w-3 h-3" />
                                 Hẹn lấy: {new Date(ord.scheduledPickupTime).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})} · {new Date(ord.scheduledPickupTime).toLocaleDateString('vi-VN')}
                               </span>

@@ -69,7 +69,7 @@ function App() {
       <CartProvider>
         <Router>
           <ScrollToTop />
-          <div className="flex flex-col min-h-screen bg-[#FCFBF9] text-[#2A2520] selection:bg-[#C5A880]/30 selection:text-[#2A2520] font-sans antialiased">
+          <div className="flex flex-col min-h-screen bg-white text-slate-900 selection:bg-blue-100 selection:text-blue-900 font-sans antialiased">
             <Routes>
 
               {/* Admin Dashboard — bảo vệ bởi AdminRoute, không có Navbar/Footer */}

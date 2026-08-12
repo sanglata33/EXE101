@@ -400,11 +400,11 @@ export const Cart: React.FC = () => {
 
           {/* List mã đơn hàng */}
           {createdOrderCodes.length > 0 && (
-            <div className="p-4 rounded-2xl bg-[#C5A880]/10 border border-[#EBE3D5] text-left space-y-2">
-              <p className="text-xs font-bold text-[#8E7A58] uppercase tracking-wider">Mã đơn hàng của bạn:</p>
+            <div className="p-4 rounded-2xl bg-blue-50 border border-blue-100 text-left space-y-2">
+              <p className="text-xs font-bold text-[#1E4DB7] uppercase tracking-wider">Mã đơn hàng của bạn:</p>
               <div className="flex flex-wrap gap-2">
                 {createdOrderCodes.map((code) => (
-                  <span key={code} className="px-3 py-1 bg-white border border-[#EBE3D5] rounded-lg text-xs font-mono font-bold text-[#8E7A58] shadow-xs">
+                  <span key={code} className="px-3 py-1 bg-white border border-blue-100 rounded-lg text-xs font-mono font-bold text-[#1E4DB7] shadow-xs">
                     #{code}
                   </span>
                 ))}
@@ -425,7 +425,7 @@ export const Cart: React.FC = () => {
             ))}
             <div className="pt-2 flex justify-between items-center font-bold text-slate-900 text-base">
               <span>Tổng thanh toán</span>
-              <span className="text-cyan-600 font-display font-black">{formatPrice(orderTotal)}</span>
+              <span className="text-[#1E4DB7] font-display font-black">{formatPrice(orderTotal)}</span>
             </div>
           </div>
 
@@ -436,9 +436,9 @@ export const Cart: React.FC = () => {
                 variant="outline"
                 fullWidth
                 onClick={() => setQrModalOpen(true)}
-                className="border-cyan-600 text-cyan-700 bg-cyan-50 hover:bg-cyan-100 font-bold gap-2"
+                className="border-[#1E4DB7] text-[#1E4DB7] bg-blue-50 hover:bg-blue-100 font-bold gap-2"
               >
-                <CreditCard className="w-4 h-4 text-cyan-600" />
+                <CreditCard className="w-4 h-4 text-[#1E4DB7]" />
                 Mở lại Mã QR Thanh Toán VietQR
               </Button>
             </div>
@@ -457,7 +457,7 @@ export const Cart: React.FC = () => {
               variant="primary"
               fullWidth
               onClick={() => navigate('/orders')}
-              className="bg-cyan-600 hover:bg-cyan-500 text-white"
+              className="bg-[#1E4DB7] hover:bg-[#1A42A0] text-white"
             >
               Theo Dõi Đơn Hàng
             </Button>
@@ -495,15 +495,15 @@ export const Cart: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-6 max-w-md mx-4 p-8 bg-white rounded-3xl border border-slate-200 shadow-xl"
         >
-          <div className="w-20 h-20 bg-[#C5A880]/10 rounded-full flex items-center justify-center mx-auto text-[#C5A880]">
+          <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto text-[#1E4DB7]">
             <ShoppingBag className="w-10 h-10" />
           </div>
           <div className="space-y-2">
             <h2 className="font-display font-bold text-2xl text-slate-900">Giỏ Hàng Trống</h2>
-            <p className="text-slate-500 text-sm">Bạn chưa thêm dịch vụ nào vào giỏ hàng. Hãy khám phá các dịch vụ giặt ủi cao cấp của Skill-Up!</p>
+            <p className="text-slate-500 text-sm">Bạn chưa thêm dịch vụ nào vào giỏ hàng. Hãy khám phá các dịch vụ giặt ủi cao cấp của Skill Up!</p>
           </div>
           <Link to="/products" className="inline-flex">
-            <Button variant="primary" className="px-8 py-3.5 gap-2 text-white bg-gradient-to-r from-[#BCA374] to-[#C5A880] hover:from-[#C5A880] hover:to-[#D4AF37] shadow-md shadow-gold-500/10">
+            <Button variant="primary" className="px-8 py-3.5 gap-2 text-white bg-gradient-to-r from-[#1A42A0] to-[#1E4DB7] hover:from-[#1E4DB7] hover:to-[#2E62D4] shadow-md shadow-blue-500/20">
               Khám Phá Dịch Vụ <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>

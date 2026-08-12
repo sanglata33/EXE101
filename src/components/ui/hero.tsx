@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 export default function ShaderHero() {
   return (
     <div
-      className="relative min-h-screen overflow-hidden bg-[#FCFBF9]"
+      className="relative min-h-screen overflow-hidden bg-white"
       style={{ isolation: "isolate" }}
     >
       {/* ── SVG Filters & Gradients ───────────────────── */}
@@ -49,9 +49,9 @@ export default function ShaderHero() {
             </feMerge>
           </filter>
           <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#C5A880" />
-            <stop offset="50%" stopColor="#2A2520" />
-            <stop offset="100%" stopColor="#D4AF37" />
+            <stop offset="0%" stopColor="#1E4DB7" />
+            <stop offset="50%" stopColor="#1A42A0" />
+            <stop offset="100%" stopColor="#2E62D4" />
           </linearGradient>
         </defs>
       </svg>
@@ -59,17 +59,17 @@ export default function ShaderHero() {
       {/* ── Mesh Gradient Background ──────────────────── */}
       <MeshGradient
         className="absolute inset-0 w-full h-full"
-        colors={["#FCFBF9", "#FAF6F0", "#F3EEE6", "#EBE3D5", "#C5A880"]}
+        colors={["#FFFFFF", "#F0F6FF", "#E0EDFF", "#C5DCFF", "#1E4DB7"]}
         speed={0.15}
       />
       {/* Wireframe overlay layer */}
       <MeshGradient
-        className="absolute inset-0 w-full h-full opacity-20"
-        colors={["#ffffff", "#FCFBF9", "#C5A880", "#D4AF37"]}
+        className="absolute inset-0 w-full h-full opacity-30"
+        colors={["#ffffff", "#F0F6FF", "#93BFFF", "#2E62D4"]}
         speed={0.10}
       />
-      {/* Dark overlay to ensure readability */}
-      <div className="absolute inset-0 bg-white/10" />
+      {/* Soft overlay to ensure readability */}
+      <div className="absolute inset-0 bg-white/20" />
 
       {/* ── Centered Container for absolute positioned elements on wide screens ── */}
       <div className="absolute inset-0 w-full max-w-7xl 2xl:max-w-[1536px] 4xl:max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 pointer-events-none z-20">
@@ -78,60 +78,45 @@ export default function ShaderHero() {
           <main className="absolute bottom-10 left-0 pointer-events-auto max-w-2xl">
             {/* Badge */}
             <motion.div
-              className="inline-flex items-center px-4 py-2 rounded-full bg-[#C5A880]/10 backdrop-blur-sm mb-7 relative border border-[#C5A880]/20"
-              style={{ filter: "url(#glass-effect)" }}
+              className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50/80 backdrop-blur-sm mb-7 relative border border-blue-200/60 shadow-sm"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <div className="absolute top-0 left-2 right-2 h-px bg-gradient-to-r from-transparent via-[#C5A880]/30 to-transparent rounded-full" />
-              <span className="text-[#4E453E] text-xs sm:text-sm font-medium tracking-wide">
+              <div className="absolute top-0 left-2 right-2 h-px bg-gradient-to-r from-transparent via-blue-400/30 to-transparent rounded-full" />
+              <span className="text-blue-900 text-xs sm:text-sm font-semibold tracking-wide">
                 ✨ Dịch vụ giặt ủi premium — TP.HCM
               </span>
             </motion.div>
 
             {/* Headline */}
             <motion.h1
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-[#2A2520] mb-6 leading-none tracking-tight"
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 leading-none tracking-tight"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
             >
-              <motion.span
-                className="block font-light text-3xl sm:text-4xl mb-2 tracking-wider"
-                style={{
-                  background: "linear-gradient(135deg, #2A2520 0%, #BCA374 50%, #D4AF37 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                  filter: "url(#text-glow)",
-                }}
-              >
+              <motion.span className="block font-light text-3xl sm:text-4xl mb-2 tracking-wider bg-gradient-to-r from-[#0F2560] via-[#1E4DB7] to-[#2E62D4] bg-clip-text text-transparent">
                 Sạch sẽ · Tiện lợi
               </motion.span>
-              <span className="block font-black text-[#2A2520] drop-shadow-sm">
-                Skill-<span style={{
-                  background: "linear-gradient(90deg,#C5A880,#D4AF37)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}>Up</span>
+              <span className="block font-black text-[#1E4DB7] drop-shadow-sm">
+                Skill <span className="inline-block bg-gradient-to-r from-[#1E4DB7] to-[#2E62D4] bg-clip-text text-transparent">Up</span>
               </span>
-              <span className="block font-light text-[#756458] italic text-3xl sm:text-4xl mt-1">
+              <span className="block font-light text-slate-600 italic text-3xl sm:text-4xl mt-1">
                 Tận tâm chăm sóc
               </span>
             </motion.h1>
 
             {/* Sub-description */}
             <motion.p
-              className="text-sm sm:text-base font-light text-[#5A4B40] mb-8 leading-relaxed max-w-lg"
+              className="text-sm sm:text-base font-medium text-slate-600 mb-8 leading-relaxed max-w-lg"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.8 }}
             >
               Giặt riêng từng khách · Nước giặt hữu cơ nhập khẩu · Diệt khuẩn chuyên sâu
               <br />
-              <span className="text-[#8F7E71] text-xs">Giao nhận tận nhà · 4 giờ hoặc 24 giờ</span>
+              <span className="text-slate-500 text-xs font-normal">Giao nhận tận nhà · 4 giờ hoặc 24 giờ</span>
             </motion.p>
 
             {/* CTA Buttons */}
@@ -143,7 +128,7 @@ export default function ShaderHero() {
             >
               <a href="#quick-booking">
                 <motion.button
-                  className="px-8 py-3.5 rounded-full bg-[#C5A880]/15 backdrop-blur-sm border border-[#C5A880]/30 text-[#2A2520] font-medium text-sm transition-all duration-300 hover:bg-[#C5A880]/25 hover:border-[#D4AF37] cursor-pointer"
+                  className="px-8 py-3.5 rounded-full bg-blue-50 border border-blue-200 text-[#1E4DB7] font-semibold text-sm transition-all duration-300 hover:bg-blue-100 hover:border-blue-300 cursor-pointer shadow-sm"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -152,7 +137,7 @@ export default function ShaderHero() {
               </a>
               <Link to="/products">
                 <motion.button
-                  className="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#BCA374] to-[#D4AF37] text-white font-semibold text-sm transition-all duration-300 hover:from-[#C5A880] hover:to-[#D4AF37] cursor-pointer shadow-lg shadow-gold-500/10 hover:shadow-xl hover:shadow-gold-500/20 flex items-center gap-2"
+                  className="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#1A42A0] to-[#1E4DB7] text-white font-semibold text-sm transition-all duration-300 hover:from-[#1E4DB7] hover:to-[#2E62D4] cursor-pointer shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 flex items-center gap-2"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -167,7 +152,7 @@ export default function ShaderHero() {
           <div className="absolute bottom-8 right-0 pointer-events-auto">
             <div className="relative w-20 h-20 flex items-center justify-center">
               <PulsingBorder
-                colors={["#C5A880", "#BCA374", "#D4AF37", "#EBE3D5", "#ffffff"]}
+                colors={["#1E4DB7", "#1A42A0", "#2E62D4", "#C5DCFF", "#ffffff"]}
                 colorBack="#00000000"
                 speed={1.5}
                 roundness={1}
@@ -184,7 +169,7 @@ export default function ShaderHero() {
                 frame={9161408}
                 style={{ width: "60px", height: "60px", borderRadius: "50%" }}
               />
-              {/* Rotating circular text — Skill-Up branding */}
+              {/* Rotating circular text — Skill Up branding */}
               <motion.svg
                 className="absolute inset-0 w-full h-full"
                 viewBox="0 0 100 100"
@@ -195,9 +180,9 @@ export default function ShaderHero() {
                 <defs>
                   <path id="fw-circle" d="M 50,50 m -38,0 a 38,38 0 1,1 76,0 a 38,38 0 1,1 -76,0" />
                 </defs>
-                <text className="text-sm fill-[#5A4B40]/70 font-medium" fontSize="9">
+                <text className="text-sm fill-[#1E4DB7] font-semibold" fontSize="9">
                   <textPath href="#fw-circle" startOffset="0%">
-                    Skill-Up • Giặt Sấy Tiện Lợi • Tận Tâm Chăm Sóc •
+                    Skill Up • Giặt Sấy Tiện Lợi • Tận Tâm Chăm Sóc •
                   </textPath>
                 </text>
               </motion.svg>
@@ -213,9 +198,9 @@ export default function ShaderHero() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.8 }}
       >
-        <span className="text-[#2A2520]/40 text-[10px] uppercase tracking-widest font-semibold">Cuộn xuống</span>
+        <span className="text-[#1E4DB7]/60 text-[10px] uppercase tracking-widest font-semibold">Cuộn xuống</span>
         <motion.div
-          className="w-px h-10 bg-gradient-to-b from-[#2A2520]/40 to-transparent"
+          className="w-px h-10 bg-gradient-to-b from-[#1E4DB7]/40 to-transparent"
           animate={{ scaleY: [1, 0.5, 1] }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
         />

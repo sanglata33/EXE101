@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, ArrowRight, Wind, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import logoImg from '../assets/logo.png';
 
 /* ── Password input with show/hide toggle ─────────────────────────── */
 const PasswordInput: React.FC<{
@@ -13,8 +14,8 @@ const PasswordInput: React.FC<{
 }> = ({ placeholder, value, onChange, disabled }) => {
   const [show, setShow] = useState(false);
   return (
-    <div className="relative flex items-center border-b border-white/25 focus-within:border-cyan-400 transition-colors duration-200 pb-2 group">
-      <Lock className="w-4 h-4 text-white/40 group-focus-within:text-cyan-400 transition-colors mr-3 flex-shrink-0" />
+    <div className="relative flex items-center border-b border-white/25 focus-within:border-blue-400 transition-colors duration-200 pb-2 group">
+      <Lock className="w-4 h-4 text-white/40 group-focus-within:text-blue-400 transition-colors mr-3 flex-shrink-0" />
       <input
         required
         type={show ? 'text' : 'password'}
@@ -45,8 +46,8 @@ const TextInput: React.FC<{
   icon: React.ReactNode;
   disabled?: boolean;
 }> = ({ type = 'text', placeholder, value, onChange, icon, disabled }) => (
-  <div className="flex items-center border-b border-white/25 focus-within:border-cyan-400 transition-colors duration-200 pb-2 group">
-    <span className="text-white/40 group-focus-within:text-cyan-400 transition-colors mr-3 flex-shrink-0">
+  <div className="flex items-center border-b border-white/25 focus-within:border-blue-400 transition-colors duration-200 pb-2 group">
+    <span className="text-white/40 group-focus-within:text-blue-400 transition-colors mr-3 flex-shrink-0">
       {icon}
     </span>
     <input
@@ -104,16 +105,14 @@ export const Login: React.FC = () => {
     }
   };
 
-
-
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#060c18]">
 
       {/* ── Background blobs ─────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-cyan-600/20 filter blur-[120px]" />
-        <div className="absolute bottom-[-15%] right-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-800/25 filter blur-[100px]" />
-        <div className="absolute top-[40%] left-[55%] w-[300px] h-[300px] rounded-full bg-amber-500/8 filter blur-[90px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-blue-600/20 filter blur-[120px]" />
+        <div className="absolute bottom-[-15%] right-[-10%] w-[500px] h-[500px] rounded-full bg-blue-800/25 filter blur-[100px]" />
+        <div className="absolute top-[40%] left-[55%] w-[300px] h-[300px] rounded-full bg-indigo-500/10 filter blur-[90px]" />
       </div>
 
       {/* ── Card ─────────────────────────────────────────── */}
@@ -126,8 +125,8 @@ export const Login: React.FC = () => {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-amber-500 flex items-center justify-center shadow-lg shadow-cyan-500/30 mb-4">
-            <Wind className="w-6 h-6 text-white stroke-[2.5]" />
+          <div className="w-16 h-16 rounded-2xl bg-white p-2.5 flex items-center justify-center shadow-lg shadow-blue-500/20 mb-4 border border-blue-100">
+            <img src={logoImg} alt="Skill Up Logo" className="w-full h-full object-contain" />
           </div>
           <AnimatePresence mode="wait">
             <motion.div
@@ -159,7 +158,7 @@ export const Login: React.FC = () => {
               onClick={() => switchMode(m)}
               disabled={loading}
               className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer ${mode === m
-                  ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/30'
+                  ? 'bg-[#1E4DB7] text-white shadow-md shadow-blue-500/30'
                   : 'text-white/40 hover:text-white/70'
                 }`}
             >
@@ -206,7 +205,7 @@ export const Login: React.FC = () => {
                   disabled={loading}
                 />
                 <div className="flex justify-end">
-                  <a href="#" className="text-xs text-white/40 hover:text-cyan-400 transition-colors">
+                  <a href="#" className="text-xs text-white/40 hover:text-blue-400 transition-colors">
                     Quên mật khẩu?
                   </a>
                 </div>
@@ -252,7 +251,7 @@ export const Login: React.FC = () => {
             disabled={loading}
             whileHover={{ scale: loading ? 1 : 1.02 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
-            className="mt-8 w-full h-12 rounded-2xl bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            className="mt-8 w-full h-12 rounded-2xl bg-gradient-to-r from-[#1A42A0] to-[#1E4DB7] hover:from-[#1E4DB7] hover:to-[#2E62D4] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading
               ? <><Loader2 className="w-4 h-4 animate-spin" /> Đang xử lý...</>
@@ -289,7 +288,7 @@ export const Login: React.FC = () => {
           <button
             type="button"
             onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
-            className="text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer transition-colors"
+            className="text-blue-400 hover:text-blue-300 font-semibold cursor-pointer transition-colors"
           >
             {mode === 'login' ? 'Đăng ký ngay' : 'Đăng nhập'}
           </button>

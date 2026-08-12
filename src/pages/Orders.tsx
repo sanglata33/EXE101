@@ -180,29 +180,29 @@ export const Orders: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FCFBF9]">
-        <Loader2 className="w-8 h-8 text-[#C5A880] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader2 className="w-8 h-8 text-[#1E4DB7] animate-spin" />
       </div>
     );
   }
 
   /* ══════════════════ RENDER ══════════════════ */
   return (
-    <div className="min-h-screen bg-[#FCFBF9] pb-20">
+    <div className="min-h-screen bg-white pb-20">
 
       {/* ── Page header ── */}
-      <div className="bg-white border-b border-[#EBE3D5]/60 sticky top-20 z-30">
+      <div className="bg-white border-b border-blue-100 sticky top-20 z-30">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row sm:items-center gap-2">
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <Package className="w-5 h-5 text-[#C5A880]" />
-              <h1 className="text-xl font-black text-[#2A2520] tracking-tight">Đơn hàng của tôi</h1>
+              <Package className="w-5 h-5 text-[#1E4DB7]" />
+              <h1 className="text-xl font-black text-slate-900 tracking-tight">Đơn hàng của tôi</h1>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">Quản lý lịch sử giặt ủi và theo dõi tiến trình đơn hàng.</p>
           </div>
           <Link
             to="/profile"
-            className="flex items-center gap-1.5 text-xs font-semibold text-[#C5A880] hover:text-[#BCA374] transition-colors"
+            className="flex items-center gap-1.5 text-xs font-semibold text-[#1E4DB7] hover:text-[#1A42A0] transition-colors"
           >
             ← Về hồ sơ
           </Link>
@@ -221,14 +221,14 @@ export const Orders: React.FC = () => {
                   className={`
                     flex-shrink-0 px-4 py-3 text-xs font-bold border-b-2 transition-all cursor-pointer whitespace-nowrap
                     ${isActive
-                      ? 'border-[#C5A880] text-[#C5A880]'
-                      : 'border-transparent text-slate-400 hover:text-[#2A2520]'}
+                      ? 'border-[#1E4DB7] text-[#1E4DB7]'
+                      : 'border-transparent text-slate-400 hover:text-slate-900'}
                   `}
                 >
                   {tab.label}
                   {count > 0 && (
                     <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-[9px] font-black
-                      ${isActive ? 'bg-[#C5A880]/15 text-[#C5A880]' : 'bg-slate-100 text-slate-400'}`}>
+                      ${isActive ? 'bg-blue-50 text-[#1E4DB7]' : 'bg-slate-100 text-slate-400'}`}>
                       {count}
                     </span>
                   )}
@@ -244,7 +244,7 @@ export const Orders: React.FC = () => {
 
         {ordersLoading ? (
           <div className="py-20 flex flex-col items-center gap-3">
-            <Loader2 className="w-8 h-8 text-[#C5A880] animate-spin" />
+            <Loader2 className="w-8 h-8 text-[#1E4DB7] animate-spin" />
             <p className="text-sm text-slate-400">Đang tải đơn hàng...</p>
           </div>
 
@@ -256,15 +256,15 @@ export const Orders: React.FC = () => {
 
         ) : filteredOrders.length === 0 ? (
           <div className="py-20 text-center space-y-4">
-            <Package className="w-14 h-14 text-[#EBE3D5] mx-auto" />
+            <Package className="w-14 h-14 text-slate-200 mx-auto" />
             <div>
-              <p className="font-bold text-[#2A2520]">
+              <p className="font-bold text-slate-900">
                 {activeTab === 'all' ? 'Bạn chưa có đơn hàng nào' : 'Không có đơn nào trong mục này'}
               </p>
               <p className="text-slate-400 text-xs mt-1">Đặt lịch giặt ủi ngay để trải nghiệm dịch vụ!</p>
             </div>
             <Link to="/products"
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#BCA374] to-[#C5A880] text-white rounded-xl text-sm font-bold shadow-md">
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#1A42A0] to-[#1E4DB7] text-white rounded-xl text-sm font-bold shadow-md">
               <ShoppingBag className="w-4 h-4" /> Đặt lịch ngay
             </Link>
           </div>
@@ -277,17 +277,17 @@ export const Orders: React.FC = () => {
                 <div
                   key={ord._id}
                   onClick={() => setSelectedOrderId(ord._id)}
-                  className="bg-white border border-[#EBE3D5]/60 hover:border-[#C5A880]/50 hover:shadow-md rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4 cursor-pointer group transition-all duration-200"
+                  className="bg-white border border-blue-100 hover:border-[#1E4DB7]/50 hover:shadow-md rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4 cursor-pointer group transition-all duration-200"
                 >
                   {/* Icon */}
-                  <div className="w-12 h-12 rounded-xl bg-[#FAF6F0] border border-[#EBE3D5]/60 flex items-center justify-center flex-shrink-0">
-                    <Package className="w-6 h-6 text-[#C5A880]" />
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0">
+                    <Package className="w-6 h-6 text-[#1E4DB7]" />
                   </div>
 
                   {/* Details */}
                   <div className="flex-1 min-w-0 space-y-1.5">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono font-bold text-sm text-[#2A2520] bg-[#FAF6F0] border border-[#EBE3D5] px-2 py-0.5 rounded-lg">
+                      <span className="font-mono font-bold text-sm text-slate-900 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-lg">
                         {ord.orderCode}
                       </span>
                       <span className={`text-[10px] font-bold border rounded-md px-2 py-0.5 ${badge}`}>
@@ -337,7 +337,7 @@ export const Orders: React.FC = () => {
                   <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-end gap-2 flex-shrink-0">
                     <div className="text-right">
                       <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Thành tiền</p>
-                      <p className="text-lg font-black text-[#C5A880]">{ord.totalPrice.toLocaleString('vi-VN')}đ</p>
+                      <p className="text-lg font-black text-[#1E4DB7]">{ord.totalPrice.toLocaleString('vi-VN')}đ</p>
                     </div>
                     <div className="flex items-center gap-2">
                       {ord.paymentStatus !== 'paid' && (ord.paymentMethod === 'bank_transfer' || ord.paymentMethod === 'vietqr') && ord.status !== 'cancelled' && (
@@ -347,12 +347,12 @@ export const Orders: React.FC = () => {
                             setSelectedOrderId(ord._id);
                             handleOpenVietQR(ord);
                           }}
-                          className="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+                          className="px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm cursor-pointer"
                         >
                           <QrCode className="w-3.5 h-3.5" /> Quét VietQR
                         </button>
                       )}
-                      <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border border-[#EBE3D5] group-hover:border-[#C5A880] group-hover:bg-[#FAF6F0] text-slate-400 group-hover:text-[#C5A880] transition-all">
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-xl border border-blue-100 group-hover:border-[#1E4DB7] group-hover:bg-blue-50 text-slate-400 group-hover:text-[#1E4DB7] transition-all">
                         <Eye className="w-3.5 h-3.5" /> Chi tiết
                         <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                       </span>
@@ -373,19 +373,19 @@ export const Orders: React.FC = () => {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
           onClick={e => { if (e.target === e.currentTarget) setSelectedOrderId(null); }}
         >
-          <div className="bg-white rounded-2xl border border-[#EBE3D5] w-full max-w-2xl flex flex-col max-h-[88vh] shadow-2xl">
+          <div className="bg-white rounded-2xl border border-blue-100 w-full max-w-2xl flex flex-col max-h-[88vh] shadow-2xl">
 
             {/* Header */}
-            <div className="flex items-center justify-between p-5 border-b border-[#EBE3D5]/50 bg-[#FAF6F0]/60 rounded-t-2xl flex-shrink-0">
+            <div className="flex items-center justify-between p-5 border-b border-blue-100 bg-blue-50/50 rounded-t-2xl flex-shrink-0">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Theo dõi tiến trình đơn hàng</p>
-                <h3 className="font-mono font-bold text-lg text-[#C5A880] leading-tight">
+                <h3 className="font-mono font-bold text-lg text-[#1E4DB7] leading-tight">
                   {selectedOrder ? selectedOrder.orderCode : '—'}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedOrderId(null)}
-                className="p-2 rounded-xl text-slate-400 hover:text-[#2A2520] hover:bg-slate-100 transition-all cursor-pointer"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -395,7 +395,7 @@ export const Orders: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-5 space-y-5">
               {detailLoading ? (
                 <div className="py-20 flex flex-col items-center gap-2">
-                  <Loader2 className="w-8 h-8 text-[#C5A880] animate-spin" />
+                  <Loader2 className="w-8 h-8 text-[#1E4DB7] animate-spin" />
                   <span className="text-xs text-slate-400 font-semibold">Đang tải thông tin đơn...</span>
                 </div>
 
@@ -408,15 +408,15 @@ export const Orders: React.FC = () => {
               ) : selectedOrder ? (
                 <>
                   {/* Summary */}
-                  <div className="bg-[#FAF6F0]/50 border border-[#EBE3D5]/60 rounded-xl p-4 space-y-3">
-                    <div className="flex justify-between items-start pb-3 border-b border-[#EBE3D5]/30">
+                  <div className="bg-blue-50/40 border border-blue-100 rounded-xl p-4 space-y-3">
+                    <div className="flex justify-between items-start pb-3 border-b border-blue-100/60">
                       <div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Dịch vụ</p>
-                        <p className="font-bold text-[#2A2520] text-sm">{svcName(selectedOrder)}</p>
+                        <p className="font-bold text-slate-900 text-sm">{svcName(selectedOrder)}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Số lượng</p>
-                        <p className="font-bold text-[#2A2520] text-sm">
+                        <p className="font-bold text-slate-900 text-sm">
                           {selectedOrder.quantity} {svcUnit(selectedOrder)}
                         </p>
                       </div>
@@ -424,7 +424,7 @@ export const Orders: React.FC = () => {
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Tổng thanh toán</p>
-                        <p className="font-black text-[#C5A880] text-base">{selectedOrder.totalPrice.toLocaleString('vi-VN')} VNĐ</p>
+                        <p className="font-black text-[#1E4DB7] text-base">{selectedOrder.totalPrice.toLocaleString('vi-VN')} VNĐ</p>
                       </div>
                       <div className="flex items-center gap-2">
                         {paymentInfo?.status === 'paid' ? (
@@ -444,10 +444,10 @@ export const Orders: React.FC = () => {
 
                     {/* QR Payment button if not paid */}
                     {paymentInfo?.status !== 'paid' && selectedOrder.status !== 'cancelled' && (
-                      <div className="pt-2 border-t border-[#EBE3D5]/30 flex justify-end">
+                      <div className="pt-2 border-t border-blue-100/60 flex justify-end">
                         <button
                           onClick={() => handleOpenVietQR()}
-                          className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-1.5"
+                          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-1.5"
                         >
                           <QrCode className="w-4 h-4" /> Thanh toán VietQR ngay
                         </button>
@@ -455,7 +455,7 @@ export const Orders: React.FC = () => {
                     )}
 
                     {selectedOrder.pickupAddress && (
-                      <div className="pt-3 border-t border-[#EBE3D5]/30 flex items-start gap-2 text-xs text-[#5A4B40]">
+                      <div className="pt-3 border-t border-blue-100/60 flex items-start gap-2 text-xs text-slate-600">
                         <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
                         <div>
                           <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Địa chỉ giao nhận</p>
@@ -467,8 +467,8 @@ export const Orders: React.FC = () => {
 
                   {/* Timeline — driven by real admin-set status */}
                   <div>
-                    <h4 className="font-bold text-sm text-[#2A2520] flex items-center gap-2 mb-4">
-                      <Clock className="w-4 h-4 text-[#C5A880]" /> Tiến trình đơn hàng
+                    <h4 className="font-bold text-sm text-slate-900 flex items-center gap-2 mb-4">
+                      <Clock className="w-4 h-4 text-[#1E4DB7]" /> Tiến trình đơn hàng
                     </h4>
 
                     {selectedOrder.status === 'cancelled' ? (
@@ -489,25 +489,25 @@ export const Orders: React.FC = () => {
                             <div key={step.key} className="relative">
                               {/* dot */}
                               <div className={`absolute -left-[calc(1.5rem+2px)] top-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center text-[8px] font-black transition-all
-                                ${isCurrent   ? 'bg-[#C5A880] border-[#C5A880] text-white scale-125 shadow-md'
-                                  : isCompleted ? 'bg-white border-[#C5A880]'
+                                ${isCurrent   ? 'bg-[#1E4DB7] border-[#1E4DB7] text-white scale-125 shadow-md'
+                                  : isCompleted ? 'bg-white border-[#1E4DB7]'
                                   : 'bg-white border-slate-200'}`}>
-                                {isCompleted && !isCurrent && <Check className="w-2.5 h-2.5 text-[#C5A880] stroke-[3]" />}
+                                {isCompleted && !isCurrent && <Check className="w-2.5 h-2.5 text-[#1E4DB7] stroke-[3]" />}
                                 {isCurrent && <span className="text-white text-[7px] font-black">●</span>}
                               </div>
 
                               <h5 className={`font-bold text-sm leading-tight
-                                ${isCurrent ? 'text-[#C5A880]' : isCompleted ? 'text-[#2A2520]' : 'text-slate-300'}`}>
+                                ${isCurrent ? 'text-[#1E4DB7]' : isCompleted ? 'text-slate-900' : 'text-slate-300'}`}>
                                 {step.label}
                               </h5>
                               <p className={`text-[11px] mt-0.5 leading-relaxed
-                                ${isCompleted ? 'text-[#756458]' : 'text-slate-300'}`}>
+                                ${isCompleted ? 'text-slate-600' : 'text-slate-300'}`}>
                                 {step.key === 'received' && (selectedOrder.paymentMethod === 'bank_transfer' || selectedOrder.paymentMethod === 'vietqr') && paymentInfo?.status !== 'paid' && selectedOrder.paymentStatus !== 'paid'
                                   ? 'Đơn hàng đã được tạo. Vui lòng thanh toán VietQR để hệ thống tự động ghi nhận và phân công nhân viên lấy đồ.'
                                   : step.desc}
                               </p>
                               {hist?.note && (
-                                <p className="mt-1.5 text-[10px] text-[#5A4B40] bg-[#FAF6F0] border border-[#EBE3D5] rounded-lg px-2.5 py-1.5 italic">
+                                <p className="mt-1.5 text-[10px] text-slate-700 bg-blue-50/60 border border-blue-100 rounded-lg px-2.5 py-1.5 italic">
                                   "{hist.note}"
                                 </p>
                               )}
@@ -526,7 +526,7 @@ export const Orders: React.FC = () => {
                   {/* Verification photos */}
                   {selectedImages.length > 0 && (
                     <div>
-                      <h4 className="font-bold text-sm text-[#2A2520] mb-3">Ảnh xác thực giao nhận</h4>
+                      <h4 className="font-bold text-sm text-slate-900 mb-3">Ảnh xác thực giao nhận</h4>
                       <div className="grid grid-cols-2 gap-3">
                         {selectedImages.map(img => (
                           <div key={img._id} className="relative rounded-xl overflow-hidden border border-slate-100">
@@ -544,10 +544,10 @@ export const Orders: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-[#EBE3D5]/40 bg-[#FAF6F0]/30 rounded-b-2xl flex justify-end flex-shrink-0">
+            <div className="p-4 border-t border-blue-100 bg-blue-50/30 rounded-b-2xl flex justify-end flex-shrink-0">
               <button
                 onClick={() => setSelectedOrderId(null)}
-                className="px-5 py-2 bg-[#C5A880] hover:bg-[#BCA374] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md"
+                className="px-5 py-2 bg-[#1E4DB7] hover:bg-[#1A42A0] text-white rounded-xl text-xs font-bold transition-all cursor-pointer shadow-md"
               >
                 Đóng
               </button>

@@ -19,7 +19,7 @@ export const Home: React.FC = () => {
       {/* ── Bảng giá từ API ──────────────────────── */}
       <PricingSection />
 
-      {/* ── Tại sao chọn FreshWash ───────────────── */}
+      {/* ── Tại sao chọn Skill Up ───────────────── */}
       <FeaturesSection />
 
       {/* ── Booking CTA Form với Zod Validation ────── */}
