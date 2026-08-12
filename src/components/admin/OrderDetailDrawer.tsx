@@ -139,6 +139,15 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
     onStaffNoteChange(newStaffNote ? `${newStaffNote} ${aiAdvice}` : aiAdvice);
   };
 
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -160,15 +169,18 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
       setIsSubmittingWeight(true);
       let uploadedUrl = previewUrl;
 
-      // Nếu có chọn file mới, upload file lên server/Cloudinary trước
+      // Nếu có chọn file mới, upload file lên server trước
       if (selectedFile) {
         try {
           const uploadedImages = await uploadOrderImages(detail._id, [selectedFile], 'pickup');
           if (uploadedImages && uploadedImages.length > 0) {
             uploadedUrl = uploadedImages[0].imageUrl;
+          } else {
+            uploadedUrl = await fileToBase64(selectedFile);
           }
         } catch (uploadErr) {
-          console.warn('File upload fallback:', uploadErr);
+          console.warn('File upload fallback sang base64:', uploadErr);
+          uploadedUrl = await fileToBase64(selectedFile);
         }
       }
 
