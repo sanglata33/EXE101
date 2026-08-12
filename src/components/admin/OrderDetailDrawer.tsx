@@ -297,19 +297,14 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                     {detail.status !== 'completed' && detail.status !== 'cancelled' && (
                       <div className="pt-2 border-t border-white/10 space-y-2">
                         {detail.status === 'received' && (
-                          <button
-                            onClick={() =>
-                              onConfirmStatus({
-                                orderId: detail._id,
-                                orderCode: detail.orderCode,
-                                currentStatus: detail.status,
-                                newStatus: 'picked_up',
-                              })
-                            }
-                            className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                          >
-                            <span>📦 Xác Nhận Đã Đến Nhà Nhận Đồ 🛵</span>
-                          </button>
+                          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center space-y-1">
+                            <p className="text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5">
+                              <span>🛵 Đang chờ Shipper tới nhà lấy đồ</span>
+                            </p>
+                            <p className="text-[10px] text-slate-300 leading-normal">
+                              Shipper sẽ thao tác lấy đồ và chụp ảnh xác thực trên Cổng Giao Nhận Shipper.
+                            </p>
+                          </div>
                         )}
 
                         {/* FORM NHẬP SỐ KG VÀ BẤM CHỌN ẢNH CÂN ĐỒ NẾU ĐÃ LẤY ĐỒ */}
@@ -384,7 +379,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             }
                             className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
                           >
-                            <span>🫧 Đã Báo Giá ➔ Chuyển Sang Đang Giặt 🫧</span>
+                            <span>🫧 Đã Báo Giá ➔ Bắt Đầu Giặt 🫧</span>
                           </button>
                         )}
 
@@ -400,7 +395,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             }
                             className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
                           >
-                            <span>🫧 Đã Giặt Xong → Chuyển Sang Đang Sấy/Ủi 🌬️</span>
+                            <span>🫧 Đã Giặt Xong → Chuyển Sang Sấy/Ủi 🌬️</span>
                           </button>
                         )}
                         {detail.status === 'drying' && (
@@ -415,23 +410,18 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             }
                             className="w-full py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
                           >
-                            <span>🌬️ Đã Sấy/Ủi Xong → Đóng Gói & Chuyển Giao 🚚</span>
+                            <span>🌬️ Đã Sấy/Ủi Xong → Chuyển Cho Shipper Đi Giao 🚚</span>
                           </button>
                         )}
                         {detail.status === 'delivering' && (
-                          <button
-                            onClick={() =>
-                              onConfirmStatus({
-                                orderId: detail._id,
-                                orderCode: detail.orderCode,
-                                currentStatus: detail.status,
-                                newStatus: 'completed',
-                              })
-                            }
-                            className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                          >
-                            <span>🚚 Xác Nhận Đã Giao Đồ & Hoàn Thành ✅</span>
-                          </button>
+                          <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-center space-y-1">
+                            <p className="text-xs font-bold text-purple-300 flex items-center justify-center gap-1.5">
+                              <span>🚚 Shipper đang trên đường giao đồ sạch</span>
+                            </p>
+                            <p className="text-[10px] text-slate-300 leading-normal">
+                              Shipper sẽ chụp ảnh giao trả hàng & xác nhận hoàn thành trên Cổng Giao Nhận Shipper.
+                            </p>
+                          </div>
                         )}
                       </div>
                     )}
