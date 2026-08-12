@@ -5,7 +5,6 @@ import {
   Search, 
   Package, 
   MapPin, 
-  Calendar, 
   Clock, 
   AlertCircle, 
   Loader2, 
@@ -30,13 +29,18 @@ export interface OrderImage {
   imageType: 'pickup' | 'delivery';
 }
 
+import { VietQRModal } from '../components/ui/VietQRModal';
+import { Scale, QrCode } from 'lucide-react';
+
 /* ─── STEPS TIMELINE ─────────────────────────────────────────────── */
 const STEPS = [
-  { key: 'received',   label: '📦 Đã nhận đơn',  desc: 'Hệ thống đã ghi nhận và đang phân công nhân viên lấy đồ.' },
-  { key: 'washing',    label: '🫧 Đang giặt',     desc: 'Đồ giặt đang được phân loại và giặt sạch bằng công nghệ Skill Up.' },
-  { key: 'drying',     label: '🌬️ Đang sấy/ủi',  desc: 'Quần áo đang được sấy khô thơm và là phẳng tươm tất.' },
-  { key: 'delivering', label: '🚚 Đang giao',     desc: 'Shipper đang trên đường giao trả đồ sạch tận nhà.' },
-  { key: 'completed',  label: '✅ Hoàn thành',    desc: 'Đơn hàng đã được giao nhận thành công. Hẹn gặp lại bạn!' },
+  { key: 'received',   label: '📦 Đã nhận đơn',          desc: 'Hệ thống đã tiếp nhận đơn hàng. Nhân viên đang chuẩn bị tới địa chỉ để nhận đồ.' },
+  { key: 'picked_up',  label: '🛵 Đã lấy đồ',           desc: 'Nhân viên đã đến nhận đồ từ bạn và đang vận chuyển đồ về tiệm giặt.' },
+  { key: 'weighed',    label: '⚖️ Đã cân đồ & Báo giá', desc: 'Đồ đã về tới tiệm. Nhân viên đã cân khối lượng thực tế và tải ảnh xác thực.' },
+  { key: 'washing',    label: '🫧 Đang giặt',             desc: 'Đồ giặt đang được phân loại và giặt sạch bằng công nghệ Skill Up.' },
+  { key: 'drying',     label: '🌬️ Đang sấy/ủi',          desc: 'Quần áo đang được sấy khô thơm và là phẳng tươm tất.' },
+  { key: 'delivering', label: '🚚 Đang giao',             desc: 'Shipper đang trên đường giao trả đồ sạch tận nhà.' },
+  { key: 'completed',  label: '✅ Hoàn thành',            desc: 'Đơn hàng đã được giao nhận thành công. Hẹn gặp lại bạn!' },
 ];
 
 export const OrderTracking: React.FC = () => {
@@ -49,6 +53,7 @@ export const OrderTracking: React.FC = () => {
   const [images, setImages] = useState<OrderImage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
 
   /* User's own orders list if logged in */
   const [myOrders, setMyOrders] = useState<Order[]>([]);
@@ -104,6 +109,14 @@ export const OrderTracking: React.FC = () => {
 
   const currentStepIdx = getCurrentStepIndex();
 
+  // Tạo URL VietQR chuẩn
+  const bankId      = import.meta.env.VITE_VIETQR_BANK_ID      || 'BIDV';
+  const accountNo   = import.meta.env.VITE_VIETQR_ACCOUNT_NO   || '9624787LVG';
+  const accountName = import.meta.env.VITE_VIETQR_ACCOUNT_NAME || 'NGUYEN VAN SANG';
+  const template    = import.meta.env.VITE_VIETQR_TEMPLATE    || 'compact2';
+  
+  const qrCodeUrl = order ? `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${order.totalPrice}&addInfo=${encodeURIComponent(order.orderCode)}&accountName=${encodeURIComponent(accountName)}` : '';
+
   return (
     <div className="min-h-screen bg-white text-slate-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8 pt-10">
@@ -124,10 +137,10 @@ export const OrderTracking: React.FC = () => {
         {/* Layout Grid: 2 Columns if Logged In */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* CỘT TRÁI: DÀNH CHO USER ĐÃ LOGGED IN (Chiếm 4/12 cols) HOẶC FORM TRA CỨU */}
+          {/* CỘT TRÁI */}
           <div className="lg:col-span-5 space-y-6">
             
-            {/* Form Tra Cứu (Luôn hiển thị trên cùng để tìm nhanh) */}
+            {/* Form Tra Cứu */}
             <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-xs relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-full filter blur-xl pointer-events-none" />
               <h2 className="text-lg font-bold text-slate-900 mb-1">Tra cứu bằng Order ID</h2>
@@ -219,7 +232,6 @@ export const OrderTracking: React.FC = () => {
                 )}
               </div>
             ) : (
-              /* Alert gợi ý đăng nhập để tiện theo dõi */
               <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-xs space-y-4">
                 <div className="w-12 h-12 bg-blue-50 border border-blue-200 text-[#1E4DB7] rounded-2xl flex items-center justify-center">
                   <UserCheck className="w-6 h-6" />
@@ -240,7 +252,7 @@ export const OrderTracking: React.FC = () => {
             )}
           </div>
 
-          {/* CỘT PHẢI: HIỂN THỊ TIẾN TRÌNH THEO DÕI ĐƠN HÀNG (Chiếm 7/12 cols) */}
+          {/* CỘT PHẢI: HIỂN THỊ TIẾN TRÌNH THEO DÕI ĐƠN HÀNG */}
           <div className="lg:col-span-7">
             
             <AnimatePresence mode="wait">
@@ -327,9 +339,9 @@ export const OrderTracking: React.FC = () => {
                         </strong>
                       </div>
                       <div>
-                        <span className="text-slate-500 block mb-1">Tổng tiền thanh toán</span>
+                        <span className="text-slate-500 block mb-1">Khối lượng & Tổng tiền</span>
                         <strong className="text-[#1E4DB7] text-sm">
-                          {order.totalPrice.toLocaleString('vi-VN')} VNĐ
+                          {order.actualWeight ? `${order.actualWeight} kg · ` : ''}{order.totalPrice.toLocaleString('vi-VN')} VNĐ
                         </strong>
                       </div>
                       <div className="sm:col-span-2 border-t border-slate-100 pt-3 flex gap-2">
@@ -339,34 +351,73 @@ export const OrderTracking: React.FC = () => {
                           <p className="text-slate-700 leading-relaxed">{order.pickupAddress}</p>
                         </div>
                       </div>
-                      {order.scheduledPickupTime && (
-                        <div className="sm:col-span-2 border-t border-slate-100 pt-3 flex gap-2">
-                          <Calendar className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                          <div>
-                            <span className="text-slate-500 block mb-0.5">Hẹn thời gian lấy đồ</span>
-                            <p className="text-slate-700">
-                              {new Date(order.scheduledPickupTime).toLocaleString('vi-VN', {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                      {order.note && (
-                        <div className="sm:col-span-2 border-t border-slate-100 pt-3">
-                          <span className="text-slate-500 block mb-1">Ghi chú của khách hàng</span>
-                          <p className="p-3 bg-blue-50/50 rounded-xl border border-blue-100 text-slate-700 italic">
-                            "{order.note}"
-                          </p>
-                        </div>
-                      )}
                     </div>
                   </div>
+
+                  {/* KHUNG XÁC THỰC CÂN ĐỒ & THANH TOÁN VIETQR (KHI ĐÃ CÂN HOẶC CHƯA THANH TOÁN) */}
+                  {(order.status === 'weighed' || order.actualWeight != null || order.weightImageUrl) && (
+                    <div className="bg-gradient-to-br from-[#004B87] to-[#0077C8] text-white rounded-3xl p-6 shadow-xl space-y-4 relative overflow-hidden">
+                      <div className="flex items-center justify-between border-b border-white/20 pb-3">
+                        <div className="flex items-center gap-2">
+                          <Scale className="w-5 h-5 text-amber-300 animate-bounce" />
+                          <h3 className="font-bold text-base text-white">Xác Nhận Số Kg & Thanh Toán VietQR</h3>
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full text-amber-200">
+                          {order.paymentStatus === 'paid' ? '✅ Đã thanh toán' : '⏳ Chờ thanh toán'}
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                        {/* Cột trái: Thông số kg & ảnh cân */}
+                        <div className="space-y-3">
+                          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/20">
+                            <span className="text-[10px] text-sky-200 font-bold uppercase tracking-widest block">Khối lượng thực tế</span>
+                            <div className="text-2xl font-black text-amber-300 mt-0.5">
+                              {order.actualWeight || order.quantity} <span className="text-sm font-normal text-white">kg</span>
+                            </div>
+                            <span className="text-[11px] text-sky-100 block mt-1">
+                              Đã cân chính xác tại tiệm giặt Skill Up
+                            </span>
+                          </div>
+
+                          {/* Ảnh chụp trên cân */}
+                          {order.weightImageUrl && (
+                            <div className="space-y-1">
+                              <span className="text-[10px] text-sky-200 font-bold uppercase tracking-widest block">📸 Ảnh chụp thực tế trên cân</span>
+                              <a href={order.weightImageUrl} target="_blank" rel="noopener noreferrer" className="block relative rounded-2xl overflow-hidden border-2 border-amber-300/60 shadow-lg group">
+                                <img src={order.weightImageUrl} alt="Ảnh cân đồ" className="w-full h-36 object-cover transition-transform group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold text-white">
+                                  Phóng to ảnh
+                                </div>
+                              </a>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Cột phải: Mã QR VietQR & Nút Thanh Toán */}
+                        <div className="bg-white text-slate-900 rounded-2xl p-4 shadow-lg text-center space-y-3">
+                          <div className="flex items-center justify-between text-xs border-b border-slate-100 pb-2">
+                            <span className="text-slate-500">Thành tiền:</span>
+                            <span className="font-black text-lg text-[#004B87]">{order.totalPrice.toLocaleString('vi-VN')}đ</span>
+                          </div>
+
+                          {qrCodeUrl && (
+                            <div className="relative mx-auto w-36 h-36 border-2 border-[#004B87]/20 rounded-xl p-1 bg-white shadow-inner">
+                              <img src={qrCodeUrl} alt="VietQR Code" className="w-full h-full object-contain" />
+                            </div>
+                          )}
+
+                          <button
+                            onClick={() => setQrModalOpen(true)}
+                            className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+                          >
+                            <QrCode className="w-4 h-4" />
+                            <span>Mở Mã VietQR Thanh Toán</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Progress Timeline */}
                   <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-xs">
@@ -380,24 +431,16 @@ export const OrderTracking: React.FC = () => {
                         <p className="text-xs text-slate-600 leading-relaxed">
                           Đơn hàng đã được đánh dấu hủy trên hệ thống. Xin lỗi vì sự bất tiện này.
                         </p>
-                        {order.statusHistory.length > 0 && order.statusHistory[order.statusHistory.length - 1]?.note && (
-                          <div className="text-xs font-semibold text-rose-700 pt-2 border-t border-rose-100">
-                            Lý do hủy: "{order.statusHistory[order.statusHistory.length - 1].note}"
-                          </div>
-                        )}
                       </div>
                     ) : (
                       <div className="relative pl-8 border-l-2 border-slate-100 ml-4 py-2 space-y-8">
                         {STEPS.map((step, idx) => {
                           const isCompleted = idx <= currentStepIdx;
                           const isCurrent = idx === currentStepIdx;
-                          
                           const historyItem = order.statusHistory?.find(h => h.status === step.key);
 
                           return (
                             <div key={step.key} className="relative text-left">
-                              
-                              {/* Dot indicator */}
                               <div className={`absolute -left-[42px] top-1 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black border transition-all duration-300 ${
                                 isCurrent
                                   ? 'bg-[#1E4DB7] text-white border-[#1E4DB7] shadow-md shadow-blue-500/20 scale-110'
@@ -408,7 +451,6 @@ export const OrderTracking: React.FC = () => {
                                 {idx + 1}
                               </div>
 
-                              {/* Step description */}
                               <div className="space-y-1">
                                 <h4 className={`text-sm font-bold ${
                                   isCurrent ? 'text-[#1E4DB7]' : isCompleted ? 'text-slate-900' : 'text-slate-400'
@@ -416,9 +458,7 @@ export const OrderTracking: React.FC = () => {
                                   {step.label}
                                 </h4>
                                 <p className="text-xs text-slate-600 leading-relaxed">
-                                  {step.key === 'received' && (order.paymentMethod === 'bank_transfer' || order.paymentMethod === 'vietqr') && order.paymentStatus !== 'paid'
-                                    ? 'Đơn hàng đã được tạo. Vui lòng thanh toán VietQR để hệ thống tự động ghi nhận và phân công nhân viên lấy đồ.'
-                                    : step.desc}
+                                  {step.desc}
                                 </p>
                                 
                                 {historyItem && historyItem.note && (
@@ -468,6 +508,29 @@ export const OrderTracking: React.FC = () => {
           </div>
 
         </div>
+
+        {/* VietQR Modal */}
+        {order && (
+          <VietQRModal
+            isOpen={qrModalOpen}
+            onClose={() => setQrModalOpen(false)}
+            orderId={order._id}
+            orderCode={order.orderCode}
+            amount={order.totalPrice}
+            qrCodeUrl={qrCodeUrl}
+            bankInfo={{
+              bankId,
+              accountNo,
+              accountName,
+              amount: order.totalPrice,
+              transferContent: order.orderCode,
+            }}
+            onPaymentSuccess={() => {
+              setQrModalOpen(false);
+              getOrderById(order._id).then(res => setOrder(res.order));
+            }}
+          />
+        )}
 
       </div>
     </div>

@@ -43,6 +43,8 @@ import { OrderDetailDrawer } from '../components/admin/OrderDetailDrawer';
 // ── Status config (shared label mapping) ────────────────────────────────────
 const STATUS_CONFIG: Record<OrderStatus, { label: string }> = {
   received:   { label: 'Đã nhận đơn' },
+  picked_up:  { label: 'Đã lấy đồ'   },
+  weighed:    { label: 'Đã cân đồ & Báo giá' },
   washing:    { label: 'Đang giặt'   },
   drying:     { label: 'Đang sấy'    },
   delivering: { label: 'Đang giao'   },

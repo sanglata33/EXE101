@@ -17,7 +17,9 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import type { OrderDetail, OrderImage, OrderStatus, Staff } from '../../api/adminService';
+import { updateOrderWeight } from '../../api/orderService';
 import { CareLabelScannerModal } from '../ui/CareLabelScannerModal';
+import { Scale } from 'lucide-react';
 
 
 // ─── Status config ──────────────────────────────────────────────────────────
@@ -26,6 +28,8 @@ const STATUS_CONFIG: Record<
   { label: string; badge: string; dot: string; text: string }
 > = {
   received:   { label: 'Đã nhận đơn', badge: 'bg-amber-50 text-amber-700 border border-amber-200',    dot: 'bg-amber-500',   text: 'text-amber-700'   },
+  picked_up:  { label: 'Đã lấy đồ',   badge: 'bg-sky-50 text-sky-700 border border-sky-200',          dot: 'bg-sky-500',      text: 'text-sky-700'     },
+  weighed:    { label: 'Đã cân đồ & báo giá', badge: 'bg-blue-50 text-blue-700 border border-blue-200', dot: 'bg-blue-600', text: 'text-blue-700' },
   washing:    { label: 'Đang giặt',   badge: 'bg-cyan-50 text-cyan-700 border border-cyan-200',       dot: 'bg-cyan-500',    text: 'text-cyan-700'    },
   drying:     { label: 'Đang sấy',    badge: 'bg-orange-50 text-orange-700 border border-orange-200', dot: 'bg-orange-500',  text: 'text-orange-700'  },
   delivering: { label: 'Đang giao',   badge: 'bg-purple-50 text-purple-700 border border-purple-200', dot: 'bg-purple-500',  text: 'text-purple-700'  },
@@ -118,9 +122,40 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
   onConfirmStatus,
 }) => {
   const [isScannerOpen, setIsScannerOpen] = React.useState(false);
+  const [actualWeightInput, setActualWeightInput] = React.useState<string>('');
+  const [weightImageUrlInput, setWeightImageUrlInput] = React.useState<string>('');
+  const [isSubmittingWeight, setIsSubmittingWeight] = React.useState(false);
+
+  React.useEffect(() => {
+    if (detail) {
+      setActualWeightInput(detail.actualWeight ? String(detail.actualWeight) : detail.quantity ? String(detail.quantity) : '');
+      setWeightImageUrlInput(detail.weightImageUrl || '');
+    }
+  }, [detail]);
 
   const handleApplyAINote = (aiAdvice: string) => {
     onStaffNoteChange(newStaffNote ? `${newStaffNote} ${aiAdvice}` : aiAdvice);
+  };
+
+  const handleWeightSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!detail) return;
+    const weightNum = parseFloat(actualWeightInput);
+    if (isNaN(weightNum) || weightNum <= 0) {
+      alert('Vui lòng nhập số kg hợp lệ!');
+      return;
+    }
+
+    try {
+      setIsSubmittingWeight(true);
+      await updateOrderWeight(detail._id, weightNum, weightImageUrlInput.trim(), 'Staff đã cân đồ và tạo báo giá VietQR');
+      alert('Đã cập nhật số kg và chuyển trạng thái sang "Đã cân đồ & Báo giá" thành công!');
+      onRefresh();
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Lỗi cập nhật số kg!');
+    } finally {
+      setIsSubmittingWeight(false);
+    }
   };
 
   return (
@@ -186,23 +221,25 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                   <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-cyan-400">
-                        ⚡ Quy trình xử lý đơn hàng
+                        ⚡ Quy trình xử lý đơn hàng (7 Bước)
                       </span>
                       <span className="text-xs font-mono font-bold bg-white/10 px-2 py-0.5 rounded text-white">
                         #{detail.orderCode}
                       </span>
                     </div>
 
-                    {/* 5 Step Progress Dots */}
-                    <div className="grid grid-cols-5 gap-1 pt-1 text-center">
+                    {/* 7 Step Progress Dots */}
+                    <div className="grid grid-cols-7 gap-1 pt-1 text-center">
                       {[
-                        { key: 'received', label: 'Nhận đơn', emoji: '📦' },
-                        { key: 'washing', label: 'Đang giặt', emoji: '🫧' },
-                        { key: 'drying', label: 'Đang sấy', emoji: '🌬️' },
-                        { key: 'delivering', label: 'Đang giao', emoji: '🚚' },
-                        { key: 'completed', label: 'Hoàn thành', emoji: '✅' },
+                        { key: 'received', label: 'Nhận', emoji: '📦' },
+                        { key: 'picked_up', label: 'Lấy đồ', emoji: '🛵' },
+                        { key: 'weighed', label: 'Cân kg', emoji: '⚖️' },
+                        { key: 'washing', label: 'Giặt', emoji: '🫧' },
+                        { key: 'drying', label: 'Sấy', emoji: '🌬️' },
+                        { key: 'delivering', label: 'Giao', emoji: '🚚' },
+                        { key: 'completed', label: 'Xong', emoji: '✅' },
                       ].map((st, idx) => {
-                        const orderStages: OrderStatus[] = ['received', 'washing', 'drying', 'delivering', 'completed'];
+                        const orderStages: OrderStatus[] = ['received', 'picked_up', 'weighed', 'washing', 'drying', 'delivering', 'completed'];
                         const currentIdx = orderStages.indexOf(detail.status);
                         const isDone = currentIdx >= idx && detail.status !== 'cancelled';
                         const isCurrent = detail.status === st.key;
@@ -210,7 +247,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                         return (
                           <div key={st.key} className="flex flex-col items-center gap-1">
                             <div
-                              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all ${
+                              className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] transition-all ${
                                 isCurrent
                                   ? 'bg-cyan-400 text-slate-900 font-bold ring-4 ring-cyan-400/30 scale-110'
                                   : isDone
@@ -221,7 +258,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                               {st.emoji}
                             </div>
                             <span
-                              className={`text-[9px] font-bold tracking-tight truncate w-full ${
+                              className={`text-[8px] font-bold tracking-tight truncate w-full ${
                                 isCurrent ? 'text-cyan-300 font-extrabold' : isDone ? 'text-slate-200' : 'text-white/40'
                               }`}
                             >
@@ -234,8 +271,66 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
 
                     {/* Nút 1-Click chuyển bước tiếp theo */}
                     {detail.status !== 'completed' && detail.status !== 'cancelled' && (
-                      <div className="pt-2 border-t border-white/10">
+                      <div className="pt-2 border-t border-white/10 space-y-2">
                         {detail.status === 'received' && (
+                          <button
+                            onClick={() =>
+                              onConfirmStatus({
+                                orderId: detail._id,
+                                orderCode: detail.orderCode,
+                                currentStatus: detail.status,
+                                newStatus: 'picked_up',
+                              })
+                            }
+                            className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                          >
+                            <span>📦 Xác Nhận Đã Đến Nhà Nhận Đồ 🛵</span>
+                          </button>
+                        )}
+
+                        {/* FORM NHẬP SỐ KG VÀ ẢNH CÂN ĐỒ NẾU ĐÃ LẤY ĐỒ */}
+                        {detail.status === 'picked_up' && (
+                          <form onSubmit={handleWeightSubmit} className="bg-white/10 p-3 rounded-xl space-y-2 border border-cyan-400/30">
+                            <div className="flex items-center gap-2 text-xs text-amber-300 font-bold">
+                              <Scale className="w-4 h-4" />
+                              <span>Cân đồ & Báo giá VietQR</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="text-[9px] text-slate-300 font-bold block mb-0.5">Số kg thực tế (*)</label>
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  placeholder="Vd: 4.5"
+                                  value={actualWeightInput}
+                                  onChange={(e) => setActualWeightInput(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-white text-slate-900 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                  required
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[9px] text-slate-300 font-bold block mb-0.5">URL Ảnh chụp trên cân</label>
+                                <input
+                                  type="text"
+                                  placeholder="Link ảnh chụp..."
+                                  value={weightImageUrlInput}
+                                  onChange={(e) => setWeightImageUrlInput(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 bg-white text-slate-900 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                />
+                              </div>
+                            </div>
+                            <button
+                              type="submit"
+                              disabled={isSubmittingWeight}
+                              className="w-full py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50"
+                            >
+                              {isSubmittingWeight ? <Loader className="w-3.5 h-3.5 animate-spin" /> : <Scale className="w-3.5 h-3.5" />}
+                              <span>⚖️ Cập Nhật Số Kg & Gửi VietQR Cho Khách</span>
+                            </button>
+                          </form>
+                        )}
+
+                        {detail.status === 'weighed' && (
                           <button
                             onClick={() =>
                               onConfirmStatus({
@@ -247,9 +342,10 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             }
                             className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
                           >
-                            <span>📦 Xác Nhận Đơn & Chuyển Sang Đang Giặt 🫧</span>
+                            <span>🫧 Đã Báo Giá ➔ Chuyển Sang Đang Giặt 🫧</span>
                           </button>
                         )}
+
                         {detail.status === 'washing' && (
                           <button
                             onClick={() =>
