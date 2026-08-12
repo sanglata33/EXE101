@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   getMyOrders,
   getOrderById,
+  getImageUrl,
   type Order,
   ORDER_STATUS_LABELS,
 } from '../api/orderService';
@@ -522,6 +523,42 @@ export const Orders: React.FC = () => {
                                   {new Date(hist.timestamp).toLocaleString('vi-VN')}
                                 </p>
                               )}
+
+                              {/* Ảnh xác thực cho từng bước */}
+                              {step.key === 'picked_up' && selectedImages.filter(img => img.imageType === 'pickup').length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  <span className="text-[10px] font-bold text-[#1E4DB7] uppercase tracking-wider block">📸 Ảnh lấy đồ:</span>
+                                  <div className="grid grid-cols-2 gap-1.5">
+                                    {selectedImages.filter(img => img.imageType === 'pickup').map(img => (
+                                      <a key={img._id} href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-blue-100">
+                                        <img src={getImageUrl(img.imageUrl)} alt="Lấy đồ" className="w-full h-24 object-cover" />
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {step.key === 'weighed' && selectedOrder.weightImageUrl && (
+                                <div className="mt-2 space-y-1">
+                                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">⚖️ Ảnh chụp trên cân:</span>
+                                  <a href={getImageUrl(selectedOrder.weightImageUrl)} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-amber-200 max-w-[200px]">
+                                    <img src={getImageUrl(selectedOrder.weightImageUrl)} alt="Cân đồ" className="w-full h-24 object-cover" />
+                                  </a>
+                                </div>
+                              )}
+
+                              {(step.key === 'delivering' || step.key === 'completed') && selectedImages.filter(img => img.imageType === 'delivery').length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">📸 Ảnh giao đồ:</span>
+                                  <div className="grid grid-cols-2 gap-1.5">
+                                    {selectedImages.filter(img => img.imageType === 'delivery').map(img => (
+                                      <a key={img._id} href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer" className="block rounded-lg overflow-hidden border border-emerald-100">
+                                        <img src={getImageUrl(img.imageUrl)} alt="Giao đồ" className="w-full h-24 object-cover" />
+                                      </a>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
@@ -532,12 +569,14 @@ export const Orders: React.FC = () => {
                   {/* Verification photos */}
                   {selectedImages.length > 0 && (
                     <div>
-                      <h4 className="font-bold text-sm text-slate-900 mb-3">Ảnh xác thực giao nhận</h4>
+                      <h4 className="font-bold text-sm text-slate-900 mb-3">📸 Bộ Ảnh Xác Thực Giao Nhận</h4>
                       <div className="grid grid-cols-2 gap-3">
                         {selectedImages.map(img => (
-                          <div key={img._id} className="relative rounded-xl overflow-hidden border border-slate-100">
-                            <img src={img.imageUrl} alt="Verification" className="w-full h-36 object-cover" />
-                            <div className="absolute bottom-0 inset-x-0 bg-black/40 text-white text-[9px] font-bold text-center py-1.5">
+                          <div key={img._id} className="relative rounded-xl overflow-hidden border border-slate-200 group">
+                            <a href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer">
+                              <img src={getImageUrl(img.imageUrl)} alt="Verification" className="w-full h-36 object-cover group-hover:scale-105 transition-transform" />
+                            </a>
+                            <div className="absolute bottom-0 inset-x-0 bg-slate-900/80 text-white text-[9px] font-bold text-center py-1.5">
                               {img.imageType === 'pickup' ? '📸 Ảnh lúc nhận đồ' : '📸 Ảnh giao hàng sạch'}
                             </div>
                           </div>

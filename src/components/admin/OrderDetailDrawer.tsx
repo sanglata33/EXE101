@@ -17,7 +17,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import type { OrderDetail, OrderImage, OrderStatus, Staff } from '../../api/adminService';
-import { updateOrderWeight, uploadOrderImages } from '../../api/orderService';
+import { updateOrderWeight, uploadOrderImages, getImageUrl } from '../../api/orderService';
 import { CareLabelScannerModal } from '../ui/CareLabelScannerModal';
 import { Scale, Upload, Camera } from 'lucide-react';
 
@@ -656,11 +656,13 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             key={img._id}
                             className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group"
                           >
-                            <img
-                              src={img.imageUrl || (img as any).url}
-                              alt="Laundry"
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                            />
+                            <a href={getImageUrl(img.imageUrl || (img as any).url)} target="_blank" rel="noopener noreferrer">
+                              <img
+                                src={getImageUrl(img.imageUrl || (img as any).url)}
+                                alt="Laundry"
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                              />
+                            </a>
                           </div>
                         ))}
                       </div>

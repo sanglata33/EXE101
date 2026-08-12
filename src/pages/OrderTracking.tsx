@@ -18,6 +18,7 @@ import {
 import { 
   getOrderById, 
   getMyOrders, 
+  getImageUrl,
   type Order, 
   ORDER_STATUS_LABELS 
 } from '../api/orderService';
@@ -384,8 +385,8 @@ export const OrderTracking: React.FC = () => {
                           {order.weightImageUrl && (
                             <div className="space-y-1">
                               <span className="text-[10px] text-sky-200 font-bold uppercase tracking-widest block">📸 Ảnh chụp thực tế trên cân</span>
-                              <a href={order.weightImageUrl} target="_blank" rel="noopener noreferrer" className="block relative rounded-2xl overflow-hidden border-2 border-amber-300/60 shadow-lg group">
-                                <img src={order.weightImageUrl} alt="Ảnh cân đồ" className="w-full h-36 object-cover transition-transform group-hover:scale-105" />
+                              <a href={getImageUrl(order.weightImageUrl)} target="_blank" rel="noopener noreferrer" className="block relative rounded-2xl overflow-hidden border-2 border-amber-300/60 shadow-lg group">
+                                <img src={getImageUrl(order.weightImageUrl)} alt="Ảnh cân đồ" className="w-full h-36 object-cover transition-transform group-hover:scale-105" />
                                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold text-white">
                                   Phóng to ảnh
                                 </div>
@@ -472,6 +473,42 @@ export const OrderTracking: React.FC = () => {
                                     Cập nhật: {new Date(historyItem.timestamp).toLocaleString('vi-VN')}
                                   </span>
                                 )}
+
+                                {/* HIỂN THỊ ẢNH XÁC THỰC TRỰC TIẾP DƯỚI TỪNG BƯỚC */}
+                                {step.key === 'picked_up' && images.filter(img => img.imageType === 'pickup').length > 0 && (
+                                  <div className="mt-3 space-y-2">
+                                    <span className="text-[10px] font-bold text-[#1E4DB7] uppercase tracking-wider block">📸 Ảnh Shipper đã đến lấy đồ:</span>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {images.filter(img => img.imageType === 'pickup').map(img => (
+                                        <a key={img._id} href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer" className="block relative rounded-xl overflow-hidden border border-blue-200 shadow-sm group">
+                                          <img src={getImageUrl(img.imageUrl)} alt="Lấy đồ" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
+                                        </a>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {step.key === 'weighed' && order.weightImageUrl && (
+                                  <div className="mt-3 space-y-2">
+                                    <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">⚖️ Ảnh chụp khối lượng trên cân tại tiệm:</span>
+                                    <a href={getImageUrl(order.weightImageUrl)} target="_blank" rel="noopener noreferrer" className="block relative rounded-xl overflow-hidden border border-amber-200 shadow-sm max-w-xs group">
+                                      <img src={getImageUrl(order.weightImageUrl)} alt="Cân kg" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
+                                    </a>
+                                  </div>
+                                )}
+
+                                {(step.key === 'delivering' || step.key === 'completed') && images.filter(img => img.imageType === 'delivery').length > 0 && (
+                                  <div className="mt-3 space-y-2">
+                                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">📸 Ảnh Shipper đã giao trả đồ sạch:</span>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {images.filter(img => img.imageType === 'delivery').map(img => (
+                                        <a key={img._id} href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer" className="block relative rounded-xl overflow-hidden border border-emerald-200 shadow-sm group">
+                                          <img src={getImageUrl(img.imageUrl)} alt="Giao đồ" className="w-full h-32 object-cover group-hover:scale-105 transition-transform" />
+                                        </a>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
@@ -480,20 +517,22 @@ export const OrderTracking: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Uploaded Images */}
+                  {/* Uploaded Images Gallery */}
                   {images.length > 0 && (
                     <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-xs">
-                      <h3 className="text-base font-bold text-slate-900 mb-4">Ảnh xác thực giao nhận</h3>
+                      <h3 className="text-base font-bold text-slate-900 mb-4">📸 Bộ Ảnh Xác Thực Giao Nhận</h3>
                       <div className="grid grid-cols-2 gap-4">
                         {images.map((img) => (
-                          <div key={img._id} className="relative rounded-2xl overflow-hidden border border-slate-100 bg-white">
-                            <img 
-                              src={img.imageUrl} 
-                              alt="Verification" 
-                              className="w-full h-40 object-cover"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xs p-2 text-center text-[10px] font-bold text-slate-900">
-                              {img.imageType === 'pickup' ? '📸 Ảnh nhận đồ' : '📸 Ảnh trả đồ sạch'}
+                          <div key={img._id} className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white group">
+                            <a href={getImageUrl(img.imageUrl)} target="_blank" rel="noopener noreferrer">
+                              <img 
+                                src={getImageUrl(img.imageUrl)} 
+                                alt="Verification" 
+                                className="w-full h-40 object-cover group-hover:scale-105 transition-transform"
+                              />
+                            </a>
+                            <div className="absolute bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-xs p-2 text-center text-[10px] font-bold text-white">
+                              {img.imageType === 'pickup' ? '📸 Ảnh lấy đồ từ nhà khách' : '📸 Ảnh giao trả đồ sạch'}
                             </div>
                           </div>
                         ))}
