@@ -6,8 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Trash2, ShoppingBag, ArrowRight, CheckCircle2, ChevronRight,
-  MapPin, Phone, User, Calendar, CreditCard, AlertCircle, Loader2,
-  RefreshCw, ServerCrash, Clock,
+  MapPin, Phone, User, Calendar, AlertCircle, Loader2,
+  RefreshCw, ServerCrash, Clock, FileText,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -65,7 +65,7 @@ const cartOrderSchema = z.object({
       { message: 'Ngày hẹn không được chọn ngày trong quá khứ' }
     ),
 
-  paymentMethod: z.enum(['cod', 'transfer', 'bank_transfer']),
+  note: z.string().optional(),
 });
 
 type CartOrderFormData = z.infer<typeof cartOrderSchema>;
@@ -141,7 +141,6 @@ const findService = (
 export const Cart: React.FC = () => {
   const {
     cartItems,
-    updateQuantity,
     removeFromCart,
     clearCart,
     shippingFee,
@@ -163,7 +162,6 @@ export const Cart: React.FC = () => {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting: isFormSubmitting },
   } = useForm<CartOrderFormData>({
     resolver: zodResolver(cartOrderSchema),
@@ -172,11 +170,9 @@ export const Cart: React.FC = () => {
       phone: '',
       address: '',
       bookingDate: todayStr,
-      paymentMethod: 'cod',
+      note: '',
     },
   });
-
-  const selectedPaymentMethod = watch('paymentMethod');
 
   // ── Order state ───────────────────────────────────────────────────────────
   const [isOrdered, setIsOrdered]         = useState(false);
@@ -250,19 +246,20 @@ export const Cart: React.FC = () => {
           continue;
         }
         try {
+          const userNote = data.note ? data.note.trim() : '';
           const order = await createOrder({
             serviceId:           svc._id,
             quantity:            item.quantity,
             pickupAddress:       data.address,
             deliveryAddress:     data.address,
             scheduledPickupTime: data.bookingDate ? new Date(data.bookingDate).toISOString() : undefined,
-            paymentMethod:       data.paymentMethod === 'cod' ? 'cod' : 'bank_transfer',
+            paymentMethod:       'bank_transfer',
             note: [
-              `Dịch vụ KH chọn: ${item.product.name}`,
+              `Dịch vụ: ${item.product.name}`,
               `Khách hàng: ${data.fullName}`,
               `SĐT: ${data.phone}`,
-              `Thanh toán: ${data.paymentMethod === 'cod' ? 'Khi giao nhận' : 'Chuyển khoản VietQR'}`,
-            ].join(' | '),
+              userNote ? `Ghi chú KH: ${userNote}` : '',
+            ].filter(Boolean).join(' | '),
           });
           if (order.orderCode) orderCodes.push(order.orderCode);
           if (order._id) createdOrderIds.push(order._id);
@@ -282,7 +279,7 @@ export const Cart: React.FC = () => {
       setOrderedItems([...cartItems]);
       setOrderTotal(finalTotalAmount);
       setCreatedOrderCodes(orderCodes);
-      setIsPaymentConfirmed(data.paymentMethod === 'cod');
+      setIsPaymentConfirmed(true);
 
       clearCart();
 
@@ -508,23 +505,6 @@ export const Cart: React.FC = () => {
                       </p>
                     </div>
 
-                    {/* Quantity controls */}
-                    <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
-                      <button
-                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                        className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors font-bold"
-                      >
-                        -
-                      </button>
-                      <span className="w-8 text-center text-xs font-bold text-slate-800">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                        className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors font-bold"
-                      >
-                        +
-                      </button>
-                    </div>
-
                     {/* Weighed later indicator */}
                     <div className="text-right shrink-0 min-w-[110px]">
                       <span className="inline-block px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold rounded-lg shadow-2xs">
@@ -682,31 +662,20 @@ export const Cart: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Payment */}
-                  <div className="pt-1">
-                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block mb-2">
-                      Hình thức thanh toán
+                  {/* Note / Special Instructions */}
+                  <div className="space-y-1 pt-1">
+                    <label className="text-[10px] text-slate-500 uppercase font-bold tracking-wider block mb-1">
+                      Ghi chú đặt lịch (không bắt buộc)
                     </label>
-                    <div className="grid grid-cols-2 gap-3">
-                      {[
-                        { value: 'cod', label: 'Khi giao nhận' },
-                        { value: 'transfer', label: 'Chuyển khoản' }
-                      ].map((opt) => (
-                        <label key={opt.value} className={`flex items-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${
-                          selectedPaymentMethod === opt.value
-                            ? 'border-cyan-500 bg-cyan-50 text-cyan-600 font-bold'
-                            : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-800'
-                        }`}>
-                          <input
-                            {...register('paymentMethod')}
-                            type="radio"
-                            value={opt.value}
-                            className="sr-only"
-                          />
-                          <CreditCard className="w-4 h-4 shrink-0" />
-                          <span className="text-xs">{opt.label}</span>
-                        </label>
-                      ))}
+                    <div className="relative">
+                      <FileText className="absolute left-3.5 top-3 w-4 h-4 text-slate-400 pointer-events-none z-10" />
+                      <textarea
+                        {...register('note')}
+                        rows={2}
+                        placeholder="Ví dụ: Giặt riêng áo trắng, có chuông cửa, hẹn lấy đồ sau 5h chiều..."
+                        style={{ paddingLeft: '2.75rem' }}
+                        className="fw-input has-icon text-xs py-2.5 resize-none w-full border border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
+                      />
                     </div>
                   </div>
                 </div>
