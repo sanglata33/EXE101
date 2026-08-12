@@ -7,7 +7,7 @@ import { z } from 'zod';
 import {
   Trash2, ShoppingBag, ArrowRight, CheckCircle2, ChevronRight,
   MapPin, Phone, User, Calendar, AlertCircle, Loader2,
-  RefreshCw, ServerCrash, Clock, FileText,
+  RefreshCw, ServerCrash, Clock, FileText, Plus, Minus,
 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -142,10 +142,25 @@ export const Cart: React.FC = () => {
   const {
     cartItems,
     removeFromCart,
+    updateQuantity,
     clearCart,
-    shippingFee,
-    cartTotal,
   } = useCart();
+
+  const isKgService = (unit?: string, id?: string) => {
+    if (!unit && !id) return false;
+    return unit?.toLowerCase() === 'kg' || id === 'giat-say-tieu-chuan';
+  };
+
+  const fixedItemsSubtotal = cartItems.reduce((sum, item) => {
+    if (isKgService(item.product.unit, item.product.id)) return sum;
+    return sum + item.product.price * item.quantity;
+  }, 0);
+
+  const hasKgItems = cartItems.some((item) => isKgService(item.product.unit, item.product.id));
+  const hasFixedItems = cartItems.some((item) => !isKgService(item.product.unit, item.product.id));
+
+  const calcShippingFee = fixedItemsSubtotal >= 200000 || cartItems.length === 0 ? 0 : 30000;
+  const totalPayableNow = fixedItemsSubtotal + (hasFixedItems ? calcShippingFee : 0);
 
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -275,7 +290,7 @@ export const Cart: React.FC = () => {
         return;
       }
 
-      const finalTotalAmount = cartTotal;
+      const finalTotalAmount = totalPayableNow;
       setOrderedItems([...cartItems]);
       setOrderTotal(finalTotalAmount);
       setCreatedOrderCodes(orderCodes);
@@ -489,36 +504,69 @@ export const Cart: React.FC = () => {
               </h2>
 
               <div className="divide-y divide-slate-100">
-                {cartItems.map((item) => (
-                  <div key={item.product.id} className="py-4 flex gap-4 items-center">
-                    <img
-                      src={item.product.image}
-                      alt={item.product.name}
-                      className="w-16 h-16 object-cover rounded-xl border border-slate-100 shrink-0"
-                    />
+                {cartItems.map((item) => {
+                  const isKg = isKgService(item.product.unit, item.product.id);
+                  return (
+                    <div key={item.product.id} className="py-4 flex gap-4 items-center">
+                      <img
+                        src={item.product.image}
+                        alt={item.product.name}
+                        className="w-16 h-16 object-cover rounded-xl border border-slate-100 shrink-0"
+                      />
 
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-slate-800 text-sm truncate">{item.product.name}</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">{item.product.category}</p>
-                      <p className="text-xs font-semibold text-slate-500 mt-1">
-                        Đơn giá tham khảo: <span className="font-bold text-[#004B87]">{formatPrice(item.product.price)} / {item.product.unit}</span>
-                      </p>
-                    </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-slate-800 text-sm truncate">{item.product.name}</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">{item.product.categoryLabel || item.product.category}</p>
+                        <p className="text-xs font-semibold text-slate-500 mt-1">
+                          Đơn giá: <span className="font-bold text-[#004B87]">{formatPrice(item.product.price)} / {item.product.unit}</span>
+                        </p>
+                      </div>
 
-                    {/* Weighed later indicator */}
-                    <div className="text-right shrink-0 min-w-[110px]">
-                      <span className="inline-block px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold rounded-lg shadow-2xs">
-                        ⚖️ Cân kg báo giá sau
-                      </span>
-                      <button
-                        onClick={() => removeFromCart(item.product.id)}
-                        className="block text-xs text-rose-400 hover:text-rose-600 mt-1.5 transition-colors ml-auto cursor-pointer"
-                      >
-                        Xóa
-                      </button>
+                      {/* Controls / Indicators */}
+                      <div className="text-right shrink-0 flex flex-col items-end gap-1.5 min-w-[120px]">
+                        {isKg ? (
+                          <span className="inline-block px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold rounded-lg shadow-2xs">
+                            ⚖️ Cân kg báo giá sau
+                          </span>
+                        ) : (
+                          <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                              className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                              title="Giảm số lượng"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="w-8 text-center text-xs font-bold text-slate-800">{item.quantity}</span>
+                            <button
+                              type="button"
+                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                              className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                              title="Tăng số lượng"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+
+                        {!isKg && (
+                          <span className="text-xs font-black text-[#004B87]">
+                            {formatPrice(item.product.price * item.quantity)}
+                          </span>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(item.product.id)}
+                          className="text-[11px] font-semibold text-rose-400 hover:text-rose-600 transition-colors cursor-pointer"
+                        >
+                          Xóa
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -533,30 +581,51 @@ export const Cart: React.FC = () => {
               </h3>
 
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center text-slate-600">
-                  <span>Tạm tính tiền giặt</span>
-                  <span className="font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 text-xs">
-                    ⚖️ Báo giá sau khi cân kg
-                  </span>
-                </div>
+                {hasFixedItems && (
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span>Tạm tính dịch vụ ({cartItems.filter(i => !isKgService(i.product.unit, i.product.id)).length} dịch vụ)</span>
+                    <span className="font-bold text-slate-800">{formatPrice(fixedItemsSubtotal)}</span>
+                  </div>
+                )}
+
+                {hasKgItems && (
+                  <div className="flex justify-between items-center text-slate-600">
+                    <span>Tạm tính dịch vụ giặt cân kg</span>
+                    <span className="font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 text-xs">
+                      ⚖️ Báo giá sau khi cân kg
+                    </span>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center text-slate-600">
                   <span>Phí giao nhận tận nơi</span>
-                  {shippingFee === 0
+                  {calcShippingFee === 0
                     ? <span className="text-emerald-600 font-bold">Miễn phí</span>
-                    : <span className="font-semibold text-slate-800">{formatPrice(shippingFee)}</span>}
+                    : <span className="font-semibold text-slate-800">{formatPrice(calcShippingFee)}</span>}
                 </div>
-                {shippingFee > 0 && (
+                {calcShippingFee > 0 && (
                   <p className="text-[10px] text-slate-400 italic">
                     * Miễn phí giao nhận cho đơn từ {formatPrice(200_000)}
                   </p>
                 )}
+
                 <div className="pt-4 border-t border-slate-100 flex flex-col gap-1.5">
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-slate-700">Thanh toán lúc đặt</span>
-                    <span className="font-display font-black text-xl text-[#004B87]">0 VNĐ (Chưa thu tiền)</span>
+                    <span className="font-display font-black text-xl text-[#004B87]">
+                      {totalPayableNow > 0 ? formatPrice(totalPayableNow) : '0 VNĐ (Chưa thu tiền)'}
+                    </span>
                   </div>
                   <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-[11px] text-slate-600 leading-relaxed italic">
-                    💡 Đơn hàng của bạn sẽ được nhân viên tới tận nơi nhận đồ ➔ Về tiệm cân số kg thực tế ➔ Báo giá chính xác & gửi mã VietQR thanh toán cho bạn sau.
+                    {hasKgItems ? (
+                      <>
+                        💡 <strong>Lưu ý:</strong> Dịch vụ giặt quần áo cân kg sẽ được nhân viên tới nhận ➔ Về tiệm cân kg thực tế ➔ Báo giá chính xác & gửi mã VietQR thanh toán cho bạn sau.
+                      </>
+                    ) : (
+                      <>
+                        💳 <strong>Thanh toán trực tuyến:</strong> Chuyển khoản ngân hàng qua mã VietQR tự động sau khi bấm đặt lịch.
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
