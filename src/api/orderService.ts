@@ -118,10 +118,22 @@ export interface Order {
   staffNotes: StaffNote[];
   adminNote?: string | null;
   statusHistory: StatusHistoryItem[];
+  images?: Array<{ _id: string; imageUrl: string; imageType: 'pickup' | 'delivery' | 'process'; createdAt?: string }>;
   completedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
+
+/** Helper giúp chuyển đổi các đường dẫn ảnh tương đối thành URL tuyệt đối chuẩn */
+export const getImageUrl = (url?: string): string => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('blob:')) {
+    return url;
+  }
+  const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
+  const cleanPath = url.startsWith('/') ? url : `/${url}`;
+  return `${apiBase}${cleanPath}`;
+};
 
 /** Payload để tạo đơn hàng mới — khớp với CreateOrderRequest trong Swagger */
 export interface CreateOrderPayload {
