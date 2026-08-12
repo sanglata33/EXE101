@@ -144,7 +144,6 @@ export const Cart: React.FC = () => {
     updateQuantity,
     removeFromCart,
     clearCart,
-    cartSubtotal,
     shippingFee,
     cartTotal,
   } = useCart();
@@ -504,8 +503,8 @@ export const Cart: React.FC = () => {
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-slate-800 text-sm truncate">{item.product.name}</h3>
                       <p className="text-xs text-slate-400 mt-0.5">{item.product.category}</p>
-                      <p className="text-sm font-bold text-cyan-600 mt-1">
-                        {formatPrice(item.product.price)} / {item.product.unit}
+                      <p className="text-xs font-semibold text-slate-500 mt-1">
+                        Đơn giá tham khảo: <span className="font-bold text-[#004B87]">{formatPrice(item.product.price)} / {item.product.unit}</span>
                       </p>
                     </div>
 
@@ -526,14 +525,14 @@ export const Cart: React.FC = () => {
                       </button>
                     </div>
 
-                    {/* Total item price */}
-                    <div className="text-right shrink-0 min-w-[80px]">
-                      <p className="font-bold text-slate-900 text-sm">
-                        {formatPrice(item.product.price * item.quantity)}
-                      </p>
+                    {/* Weighed later indicator */}
+                    <div className="text-right shrink-0 min-w-[110px]">
+                      <span className="inline-block px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold rounded-lg shadow-2xs">
+                        ⚖️ Cân kg báo giá sau
+                      </span>
                       <button
                         onClick={() => removeFromCart(item.product.id)}
-                        className="text-xs text-rose-400 hover:text-rose-600 mt-1 transition-colors"
+                        className="block text-xs text-rose-400 hover:text-rose-600 mt-1.5 transition-colors ml-auto cursor-pointer"
                       >
                         Xóa
                       </button>
@@ -553,13 +552,15 @@ export const Cart: React.FC = () => {
                 Tóm Tắt Đơn Hàng
               </h3>
 
-              <div className="space-y-2.5 text-sm">
-                <div className="flex justify-between text-slate-600">
-                  <span>Tạm tính</span>
-                  <span className="font-semibold text-slate-800">{formatPrice(cartSubtotal)}</span>
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between items-center text-slate-600">
+                  <span>Tạm tính tiền giặt</span>
+                  <span className="font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 text-xs">
+                    ⚖️ Báo giá sau khi cân kg
+                  </span>
                 </div>
-                <div className="flex justify-between text-slate-600">
-                  <span>Phí giao nhận</span>
+                <div className="flex justify-between items-center text-slate-600">
+                  <span>Phí giao nhận tận nơi</span>
                   {shippingFee === 0
                     ? <span className="text-emerald-600 font-bold">Miễn phí</span>
                     : <span className="font-semibold text-slate-800">{formatPrice(shippingFee)}</span>}
@@ -569,9 +570,14 @@ export const Cart: React.FC = () => {
                     * Miễn phí giao nhận cho đơn từ {formatPrice(200_000)}
                   </p>
                 )}
-                <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
-                  <span className="font-bold text-slate-700">Tổng cộng</span>
-                  <span className="font-display font-black text-2xl text-cyan-600">{formatPrice(cartTotal)}</span>
+                <div className="pt-4 border-t border-slate-100 flex flex-col gap-1.5">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-slate-700">Thanh toán lúc đặt</span>
+                    <span className="font-display font-black text-xl text-[#004B87]">0 VNĐ (Chưa thu tiền)</span>
+                  </div>
+                  <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-[11px] text-slate-600 leading-relaxed italic">
+                    💡 Đơn hàng của bạn sẽ được nhân viên tới tận nơi nhận đồ ➔ Về tiệm cân số kg thực tế ➔ Báo giá chính xác & gửi mã VietQR thanh toán cho bạn sau.
+                  </div>
                 </div>
               </div>
             </div>
