@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
 import {
   X,
   Copy,
@@ -91,31 +90,33 @@ export const VietQRModal: React.FC<VietQRModalProps> = ({
     };
   }, [isOpen, isPaid, orderId]);
 
-  // Real-time Socket.io listener
+  // Real-time listener (fallback qua window.io nếu có)
   useEffect(() => {
     if (!isOpen || isPaid) return;
 
     const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    let socket: Socket | null = null;
+    let socket: any = null;
 
     try {
-      socket = io(socketUrl, {
-        transports: ['websocket', 'polling'],
-        withCredentials: true,
-      });
+      if (typeof (window as any).io === 'function') {
+        socket = (window as any).io(socketUrl, {
+          transports: ['websocket', 'polling'],
+          withCredentials: true,
+        });
 
-      socket.on('payment_success', (data: any) => {
-        if (data.orderId === orderId || data.orderCode === orderCode) {
-          setIsPaid(true);
-          setIsPolling(false);
-        }
-      });
+        socket.on('payment_success', (data: any) => {
+          if (data.orderId === orderId || data.orderCode === orderCode) {
+            setIsPaid(true);
+            setIsPolling(false);
+          }
+        });
+      }
     } catch (err) {
       console.warn('Socket connection warning:', err);
     }
 
     return () => {
-      if (socket) socket.disconnect();
+      if (socket && typeof socket.disconnect === 'function') socket.disconnect();
     };
   }, [isOpen, isPaid, orderId, orderCode]);
 
