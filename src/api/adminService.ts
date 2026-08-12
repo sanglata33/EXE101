@@ -322,7 +322,7 @@ export const adminService = {
    * Query: ?role=customer|staff|admin&search=...&page=1&limit=20
    */
   getAllUsers: async (params?: {
-    role?: 'customer' | 'staff' | 'admin';
+    role?: 'customer' | 'staff' | 'shipper' | 'admin';
     search?: string;
     page?: number;
     limit?: number;
@@ -344,7 +344,7 @@ export const adminService = {
    * Cập nhật vai trò người dùng (cấp/thu hồi quyền).
    * Không thể tự thay đổi quyền của chính mình.
    */
-  updateUserRole: async (userId: string, role: 'customer' | 'staff' | 'admin'): Promise<AppUser> => {
+  updateUserRole: async (userId: string, role: 'customer' | 'staff' | 'shipper' | 'admin'): Promise<AppUser> => {
     const response = await apiClient.patch<{ success: boolean; data: { user: AppUser } }>(
       `/admin/users/${userId}/role`,
       { role }
@@ -372,7 +372,7 @@ export interface AppUser {
   name: string;
   email?: string;
   phone?: string;
-  role: 'customer' | 'staff' | 'admin';
+  role: 'customer' | 'staff' | 'shipper' | 'admin';
   isActive: boolean;
   isPhoneVerified?: boolean;
   createdAt: string;

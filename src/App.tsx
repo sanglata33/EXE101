@@ -11,6 +11,7 @@ import { ProductDetail } from './pages/ProductDetail';
 import { Cart } from './pages/Cart';
 import { Login } from './pages/Login';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { ShipperDashboard } from './pages/ShipperDashboard';
 import { OrderTracking } from './pages/OrderTracking';
 import { Profile } from './pages/Profile';
 import { Orders } from './pages/Orders';
@@ -38,11 +39,27 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
+// ─── Route guard: Shipper/Staff/Admin được vào /shipper ────────────────────
+const ShipperRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  if (user?.role !== 'admin' && user?.role !== 'staff' && user?.role !== 'shipper') {
+    return <Navigate to="/" replace />;
+  }
+  return <>{children}</>;
+};
+
 // ─── Route: Nếu đã login thì redirect, không cho vào /login nữa ─────────────
 const PublicOnlyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
 
   if (isAuthenticated && user) {
+    if (user.role === 'shipper') {
+      return <Navigate to="/shipper" replace />;
+    }
     // Admin/Staff → dashboard
     if (user.role === 'admin' || user.role === 'staff') {
       return <Navigate to="/admin" replace />;
@@ -72,13 +89,23 @@ function App() {
           <div className="flex flex-col min-h-screen bg-white text-slate-900 selection:bg-blue-100 selection:text-blue-900 font-sans antialiased">
             <Routes>
 
-              {/* Admin Dashboard — bảo vệ bởi AdminRoute, không có Navbar/Footer */}
+              {/* Admin Dashboard — bảo vệ bởi AdminRoute */}
               <Route
                 path="/admin"
                 element={
                   <AdminRoute>
                     <AdminDashboard />
                   </AdminRoute>
+                }
+              />
+
+              {/* Shipper Portal — bảo vệ bởi ShipperRoute */}
+              <Route
+                path="/shipper"
+                element={
+                  <ShipperRoute>
+                    <ShipperDashboard />
+                  </ShipperRoute>
                 }
               />
 

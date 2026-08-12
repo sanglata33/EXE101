@@ -26,7 +26,7 @@ export interface AuthUser {
   email?: string;        // Optional: chỉ có với luồng email+password
   phone?: string;        // Optional: chỉ có với luồng OTP
   address?: string;
-  role: 'customer' | 'staff' | 'admin';
+  role: 'customer' | 'staff' | 'shipper' | 'admin';
   isActive: boolean;
   isPhoneVerified: boolean;
   createdAt?: string;
