@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Menu, X, User, LogOut, Shield, Sparkles } from 'lucide-react';
+import { ShoppingCart, Menu, X, User, LogOut, Shield, Sparkles, Truck } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import logoImg from '../../assets/logo.png';
@@ -108,6 +108,16 @@ export const Navbar: React.FC = () => {
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     {user?.name || 'Khách hàng'}
                   </Link>
+                  {(user?.role === 'admin' || user?.role === 'staff' || user?.role === 'shipper') && (
+                    <Link
+                      to="/shipper"
+                      className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 rounded-xl text-xs font-bold transition-all shadow-2xs"
+                      title="Giao Nhận Shipper"
+                    >
+                      <Truck className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Giao Nhận</span>
+                    </Link>
+                  )}
                   {(user?.role === 'admin' || user?.role === 'staff') && (
                     <Link
                       to="/admin"

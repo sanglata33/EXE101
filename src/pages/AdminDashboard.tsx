@@ -54,11 +54,12 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string }> = {
 
 const ROLE_CONFIG = {
   admin:    { label: 'Quản trị viên', badge: 'bg-violet-50 text-violet-700 border border-violet-200', icon: '👑' },
-  staff:    { label: 'Nhân viên',     badge: 'bg-sky-50 text-sky-700 border border-sky-200',          icon: '🧺' },
+  staff:    { label: 'Nhân viên tiệm', badge: 'bg-sky-50 text-sky-700 border border-sky-200',          icon: '🧺' },
+  shipper:  { label: 'Shipper Giao Nhận', badge: 'bg-amber-50 text-amber-700 border border-amber-200', icon: '🛵' },
   customer: { label: 'Khách hàng',    badge: 'bg-slate-100 text-slate-600 border border-slate-200',   icon: '👤' },
 } as const;
 
-type UserRole = 'customer' | 'staff' | 'admin';
+type UserRole = 'customer' | 'staff' | 'shipper' | 'admin';
 
 // ── Auth Guard ───────────────────────────────────────────────────────────────
 const useAdminGuard = () => {

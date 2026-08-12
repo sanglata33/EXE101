@@ -39,11 +39,6 @@ const STATUS_TABS: { value: OrderStatus | 'all'; label: string; emoji: string }[
   { value: 'cancelled',  label: 'Đã hủy',    emoji: '❌' },
 ];
 
-const ORDER_STATUS_LIST = Object.entries(STATUS_CONFIG).map(([value, cfg]) => ({
-  value: value as OrderStatus,
-  label: cfg.label,
-}));
-
 const StatusBadge: React.FC<{ status: OrderStatus }> = ({ status }) => {
   const cfg = STATUS_CONFIG[status];
   if (!cfg) return <span className="text-xs text-slate-400">{status}</span>;
@@ -82,7 +77,7 @@ interface OrdersTabProps {
 export const OrdersTab: React.FC<OrdersTabProps> = ({
   orders,
   loading,
-  updating,
+  updating: _updating,
   total,
   currentPage,
   pageSize,
@@ -322,29 +317,85 @@ export const OrdersTab: React.FC<OrdersTabProps> = ({
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center justify-center gap-1.5">
-                            <select
-                              value={order.status}
-                              disabled={updating || isCancelled || order.status === 'completed'}
-                              onChange={(e) =>
-                                onConfirmStatus({
-                                  orderId: order._id,
-                                  orderCode: order.orderCode,
-                                  currentStatus: order.status,
-                                  newStatus: e.target.value as OrderStatus,
-                                })
-                              }
-                              className="text-[11px] font-semibold border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#321fdb] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              {ORDER_STATUS_LIST.map((s) => (
-                                <option key={s.value} value={s.value}>
-                                  {s.label}
-                                </option>
-                              ))}
-                            </select>
+                            {/* In-store Staff Task Action Buttons */}
+                            {order.status === 'received' && (
+                              <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                🛵 Chờ Shipper lấy
+                              </span>
+                            )}
+                            {order.status === 'picked_up' && (
+                              <button
+                                onClick={() => onOpenDetail(order._id)}
+                                className="px-2.5 py-1 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 rounded-lg text-[11px] font-black shadow-2xs transition-all cursor-pointer"
+                              >
+                                ⚖️ Cân kg & Báo giá
+                              </button>
+                            )}
+                            {order.status === 'weighed' && (
+                              <button
+                                onClick={() =>
+                                  onConfirmStatus({
+                                    orderId: order._id,
+                                    orderCode: order.orderCode,
+                                    currentStatus: order.status,
+                                    newStatus: 'washing',
+                                  })
+                                }
+                                className="px-2.5 py-1 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 rounded-lg text-[11px] font-black shadow-2xs transition-all cursor-pointer"
+                              >
+                                🫧 Bắt đầu giặt
+                              </button>
+                            )}
+                            {order.status === 'washing' && (
+                              <button
+                                onClick={() =>
+                                  onConfirmStatus({
+                                    orderId: order._id,
+                                    orderCode: order.orderCode,
+                                    currentStatus: order.status,
+                                    newStatus: 'drying',
+                                  })
+                                }
+                                className="px-2.5 py-1 bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 text-white rounded-lg text-[11px] font-bold shadow-2xs transition-all cursor-pointer"
+                              >
+                                🌬️ Chuyển Sấy/Ủi
+                              </button>
+                            )}
+                            {order.status === 'drying' && (
+                              <button
+                                onClick={() =>
+                                  onConfirmStatus({
+                                    orderId: order._id,
+                                    orderCode: order.orderCode,
+                                    currentStatus: order.status,
+                                    newStatus: 'delivering',
+                                  })
+                                }
+                                className="px-2.5 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white rounded-lg text-[11px] font-bold shadow-2xs transition-all cursor-pointer"
+                              >
+                                🚚 Báo Shipper giao
+                              </button>
+                            )}
+                            {order.status === 'delivering' && (
+                              <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                🚚 Shipper đang giao
+                              </span>
+                            )}
+                            {order.status === 'completed' && (
+                              <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                ✅ Hoàn thành
+                              </span>
+                            )}
+                            {order.status === 'cancelled' && (
+                              <span className="px-2 py-1 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                ❌ Đã hủy
+                              </span>
+                            )}
+
                             <button
                               onClick={() => onOpenDetail(order._id)}
-                              title="Xem chi tiết"
-                              className="p-1.5 text-slate-400 hover:text-[#321fdb] hover:bg-[#321fdb]/10 rounded-lg transition-colors"
+                              title="Xem chi tiết đơn"
+                              className="p-1.5 text-slate-400 hover:text-[#321fdb] hover:bg-[#321fdb]/10 rounded-lg transition-colors cursor-pointer"
                             >
                               <ExternalLink className="w-3.5 h-3.5" />
                             </button>

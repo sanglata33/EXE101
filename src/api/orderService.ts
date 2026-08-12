@@ -277,3 +277,23 @@ export const assignStaff = async (orderId: string, staffId: string): Promise<Ord
   );
   return response.data.data.order;
 };
+
+/**
+ * [STAFF/ADMIN] Upload ảnh chụp đồ giặt / ảnh cân đồ (pickup | delivery)
+ */
+export const uploadOrderImages = async (
+  orderId: string,
+  files: File[],
+  imageType: 'pickup' | 'delivery' = 'pickup'
+): Promise<Array<{ _id: string; imageUrl: string; imageType: 'pickup' | 'delivery' }>> => {
+  const formData = new FormData();
+  formData.append('imageType', imageType);
+  files.forEach((file) => formData.append('images', file));
+
+  const response = await apiClient.post<ApiResponse<{
+    images: Array<{ _id: string; imageUrl: string; imageType: 'pickup' | 'delivery' }>;
+  }>>(`/orders/${orderId}/images`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data.data.images;
+};

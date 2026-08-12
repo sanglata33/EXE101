@@ -12,11 +12,12 @@ import {
 } from 'lucide-react';
 import type { AppUser } from '../../api/adminService';
 
-type UserRole = 'customer' | 'staff' | 'admin';
+type UserRole = 'customer' | 'staff' | 'shipper' | 'admin';
 
 const ROLE_CONFIG = {
   admin:    { label: 'Quản trị viên', badge: 'bg-violet-100 text-violet-800 border border-violet-200', icon: '👑', avatarBg: 'from-violet-500 to-purple-600' },
-  staff:    { label: 'Nhân viên',     badge: 'bg-sky-100 text-sky-800 border border-sky-200',          icon: '🧺', avatarBg: 'from-sky-500 to-blue-600'    },
+  staff:    { label: 'Nhân viên tiệm', badge: 'bg-sky-100 text-sky-800 border border-sky-200',          icon: '🧺', avatarBg: 'from-sky-500 to-blue-600'    },
+  shipper:  { label: 'Shipper Giao Nhận', badge: 'bg-amber-100 text-amber-800 border border-amber-200', icon: '🛵', avatarBg: 'from-amber-500 to-amber-600' },
   customer: { label: 'Khách hàng',    badge: 'bg-slate-100 text-slate-800 border border-slate-200',   icon: '👤', avatarBg: 'from-slate-500 to-slate-600' },
 } as const;
 
@@ -64,7 +65,8 @@ export const UsersTab: React.FC<UsersTabProps> = ({
   const roleTabs: { value: UserRole | 'all'; label: string }[] = [
     { value: 'all', label: '👥 Tất cả' },
     { value: 'admin', label: '👑 Admin' },
-    { value: 'staff', label: '🧺 Nhân viên' },
+    { value: 'staff', label: '🧺 Nhân viên tiệm' },
+    { value: 'shipper', label: '🛵 Shipper Giao Nhận' },
     { value: 'customer', label: '👤 Khách hàng' },
   ];
 
@@ -271,7 +273,8 @@ export const UsersTab: React.FC<UsersTabProps> = ({
                               className="text-[11px] font-semibold border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-[#321fdb] cursor-pointer disabled:opacity-50"
                             >
                               <option value="customer">👤 Khách hàng</option>
-                              <option value="staff">🧺 Nhân viên</option>
+                              <option value="staff">🧺 Nhân viên tiệm</option>
+                              <option value="shipper">🛵 Shipper Giao Nhận</option>
                               <option value="admin">👑 Quản trị viên</option>
                             </select>
 

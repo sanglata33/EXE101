@@ -17,9 +17,9 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import type { OrderDetail, OrderImage, OrderStatus, Staff } from '../../api/adminService';
-import { updateOrderWeight } from '../../api/orderService';
+import { updateOrderWeight, uploadOrderImages } from '../../api/orderService';
 import { CareLabelScannerModal } from '../ui/CareLabelScannerModal';
-import { Scale } from 'lucide-react';
+import { Scale, Upload, Camera } from 'lucide-react';
 
 
 // ─── Status config ──────────────────────────────────────────────────────────
@@ -123,18 +123,28 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
 }) => {
   const [isScannerOpen, setIsScannerOpen] = React.useState(false);
   const [actualWeightInput, setActualWeightInput] = React.useState<string>('');
-  const [weightImageUrlInput, setWeightImageUrlInput] = React.useState<string>('');
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = React.useState<string>('');
   const [isSubmittingWeight, setIsSubmittingWeight] = React.useState(false);
 
   React.useEffect(() => {
     if (detail) {
       setActualWeightInput(detail.actualWeight ? String(detail.actualWeight) : detail.quantity ? String(detail.quantity) : '');
-      setWeightImageUrlInput(detail.weightImageUrl || '');
+      setPreviewUrl(detail.weightImageUrl || '');
+      setSelectedFile(null);
     }
   }, [detail]);
 
   const handleApplyAINote = (aiAdvice: string) => {
     onStaffNoteChange(newStaffNote ? `${newStaffNote} ${aiAdvice}` : aiAdvice);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
   };
 
   const handleWeightSubmit = async (e: React.FormEvent) => {
@@ -148,8 +158,22 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
 
     try {
       setIsSubmittingWeight(true);
-      await updateOrderWeight(detail._id, weightNum, weightImageUrlInput.trim(), 'Staff đã cân đồ và tạo báo giá VietQR');
-      alert('Đã cập nhật số kg và chuyển trạng thái sang "Đã cân đồ & Báo giá" thành công!');
+      let uploadedUrl = previewUrl;
+
+      // Nếu có chọn file mới, upload file lên server/Cloudinary trước
+      if (selectedFile) {
+        try {
+          const uploadedImages = await uploadOrderImages(detail._id, [selectedFile], 'pickup');
+          if (uploadedImages && uploadedImages.length > 0) {
+            uploadedUrl = uploadedImages[0].imageUrl;
+          }
+        } catch (uploadErr) {
+          console.warn('File upload fallback:', uploadErr);
+        }
+      }
+
+      await updateOrderWeight(detail._id, weightNum, uploadedUrl, 'Staff đã cân đồ và tạo báo giá VietQR');
+      alert('Đã cập nhật số kg, tải ảnh cân và chuyển trạng thái sang "Đã cân đồ & Báo giá" thành công!');
       onRefresh();
     } catch (err: any) {
       alert(err?.response?.data?.message || 'Lỗi cập nhật số kg!');
@@ -273,58 +297,71 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                     {detail.status !== 'completed' && detail.status !== 'cancelled' && (
                       <div className="pt-2 border-t border-white/10 space-y-2">
                         {detail.status === 'received' && (
-                          <button
-                            onClick={() =>
-                              onConfirmStatus({
-                                orderId: detail._id,
-                                orderCode: detail.orderCode,
-                                currentStatus: detail.status,
-                                newStatus: 'picked_up',
-                              })
-                            }
-                            className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                          >
-                            <span>📦 Xác Nhận Đã Đến Nhà Nhận Đồ 🛵</span>
-                          </button>
+                          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl text-center space-y-1">
+                            <p className="text-xs font-bold text-amber-300 flex items-center justify-center gap-1.5">
+                              <span>🛵 Đang chờ Shipper tới nhà lấy đồ</span>
+                            </p>
+                            <p className="text-[10px] text-slate-300 leading-normal">
+                              Shipper sẽ thao tác lấy đồ và chụp ảnh xác thực trên Cổng Giao Nhận Shipper.
+                            </p>
+                          </div>
                         )}
 
-                        {/* FORM NHẬP SỐ KG VÀ ẢNH CÂN ĐỒ NẾU ĐÃ LẤY ĐỒ */}
+                        {/* FORM NHẬP SỐ KG VÀ BẤM CHỌN ẢNH CÂN ĐỒ NẾU ĐÃ LẤY ĐỒ */}
                         {detail.status === 'picked_up' && (
-                          <form onSubmit={handleWeightSubmit} className="bg-white/10 p-3 rounded-xl space-y-2 border border-cyan-400/30">
+                          <form onSubmit={handleWeightSubmit} className="bg-white/10 p-3.5 rounded-xl space-y-3 border border-amber-400/40">
                             <div className="flex items-center gap-2 text-xs text-amber-300 font-bold">
-                              <Scale className="w-4 h-4" />
+                              <Scale className="w-4 h-4 text-amber-400" />
                               <span>Cân đồ & Báo giá VietQR</span>
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <label className="text-[9px] text-slate-300 font-bold block mb-0.5">Số kg thực tế (*)</label>
-                                <input
-                                  type="number"
-                                  step="0.1"
-                                  placeholder="Vd: 4.5"
-                                  value={actualWeightInput}
-                                  onChange={(e) => setActualWeightInput(e.target.value)}
-                                  className="w-full px-2.5 py-1.5 bg-white text-slate-900 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400"
-                                  required
-                                />
-                              </div>
-                              <div>
-                                <label className="text-[9px] text-slate-300 font-bold block mb-0.5">URL Ảnh chụp trên cân</label>
-                                <input
-                                  type="text"
-                                  placeholder="Link ảnh chụp..."
-                                  value={weightImageUrlInput}
-                                  onChange={(e) => setWeightImageUrlInput(e.target.value)}
-                                  className="w-full px-2.5 py-1.5 bg-white text-slate-900 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-amber-400"
-                                />
-                              </div>
+
+                            <div>
+                              <label className="text-[10px] text-slate-300 font-bold block mb-1">
+                                1. Số kg thực tế cân tại tiệm (*)
+                              </label>
+                              <input
+                                type="number"
+                                step="0.1"
+                                placeholder="Nhập số kg (Vd: 4.5)"
+                                value={actualWeightInput}
+                                onChange={(e) => setActualWeightInput(e.target.value)}
+                                className="w-full px-3 py-2 bg-white text-slate-900 rounded-lg text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                required
+                              />
                             </div>
+
+                            <div>
+                              <label className="text-[10px] text-slate-300 font-bold block mb-1">
+                                2. Chọn ảnh chụp khối lượng trên cân (*)
+                              </label>
+                              <label className="flex items-center justify-center gap-2 py-2 px-3 bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/50 rounded-lg text-amber-200 text-xs font-bold cursor-pointer transition-all">
+                                <Camera className="w-4 h-4 text-amber-300 shrink-0" />
+                                <span className="truncate">{selectedFile ? selectedFile.name : 'Chụp / Chọn file ảnh từ máy'}</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleFileChange}
+                                  className="hidden"
+                                />
+                              </label>
+
+                              {/* Instant image preview */}
+                              {previewUrl && (
+                                <div className="mt-2 relative rounded-lg overflow-hidden border border-amber-400/40 bg-slate-950/60">
+                                  <img src={previewUrl} alt="Scale Preview" className="w-full h-32 object-cover" />
+                                  <span className="absolute bottom-1.5 right-1.5 text-[9px] font-bold bg-slate-950/90 text-amber-300 px-2 py-0.5 rounded border border-amber-400/30">
+                                    📸 Ảnh xem trước trên cân
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
                             <button
                               type="submit"
                               disabled={isSubmittingWeight}
-                              className="w-full py-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50"
+                              className="w-full py-2.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-md cursor-pointer disabled:opacity-50 mt-1"
                             >
-                              {isSubmittingWeight ? <Loader className="w-3.5 h-3.5 animate-spin" /> : <Scale className="w-3.5 h-3.5" />}
+                              {isSubmittingWeight ? <Loader className="w-4 h-4 animate-spin" /> : <Scale className="w-4 h-4" />}
                               <span>⚖️ Cập Nhật Số Kg & Gửi VietQR Cho Khách</span>
                             </button>
                           </form>
@@ -342,7 +379,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             }
                             className="w-full py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
                           >
-                            <span>🫧 Đã Báo Giá ➔ Chuyển Sang Đang Giặt 🫧</span>
+                            <span>🫧 Đã Báo Giá ➔ Bắt Đầu Giặt 🫧</span>
                           </button>
                         )}
 
@@ -358,7 +395,7 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             }
                             className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
                           >
-                            <span>🫧 Đã Giặt Xong → Chuyển Sang Đang Sấy/Ủi 🌬️</span>
+                            <span>🫧 Đã Giặt Xong → Chuyển Sang Sấy/Ủi 🌬️</span>
                           </button>
                         )}
                         {detail.status === 'drying' && (
@@ -373,23 +410,18 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
                             }
                             className="w-full py-2.5 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
                           >
-                            <span>🌬️ Đã Sấy/Ủi Xong → Đóng Gói & Chuyển Giao 🚚</span>
+                            <span>🌬️ Đã Sấy/Ủi Xong → Chuyển Cho Shipper Đi Giao 🚚</span>
                           </button>
                         )}
                         {detail.status === 'delivering' && (
-                          <button
-                            onClick={() =>
-                              onConfirmStatus({
-                                orderId: detail._id,
-                                orderCode: detail.orderCode,
-                                currentStatus: detail.status,
-                                newStatus: 'completed',
-                              })
-                            }
-                            className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                          >
-                            <span>🚚 Xác Nhận Đã Giao Đồ & Hoàn Thành ✅</span>
-                          </button>
+                          <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl text-center space-y-1">
+                            <p className="text-xs font-bold text-purple-300 flex items-center justify-center gap-1.5">
+                              <span>🚚 Shipper đang trên đường giao đồ sạch</span>
+                            </p>
+                            <p className="text-[10px] text-slate-300 leading-normal">
+                              Shipper sẽ chụp ảnh giao trả hàng & xác nhận hoàn thành trên Cổng Giao Nhận Shipper.
+                            </p>
+                          </div>
                         )}
                       </div>
                     )}
@@ -585,10 +617,34 @@ export const OrderDetailDrawer: React.FC<OrderDetailDrawerProps> = ({
 
                   {/* Section 5: Images */}
                   <div className="border-t border-slate-100 pt-4 space-y-3">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                      <ImageIcon className="w-3.5 h-3.5" />
-                      Hình ảnh trước & sau giặt ({images.length})
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <ImageIcon className="w-3.5 h-3.5" />
+                        Hình ảnh xác thực đồ giặt ({images.length})
+                      </p>
+                      <label className="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg cursor-pointer flex items-center gap-1 transition-colors">
+                        <Upload className="w-3 h-3 text-slate-600" />
+                        <span>Tải ảnh mới</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={async (e) => {
+                            if (e.target.files && e.target.files.length > 0 && detail) {
+                              try {
+                                const filesArr = Array.from(e.target.files);
+                                await uploadOrderImages(detail._id, filesArr, 'pickup');
+                                alert('Đã tải ảnh lên thành công!');
+                                onRefresh();
+                              } catch (err: any) {
+                                alert(err?.response?.data?.message || 'Lỗi tải ảnh');
+                              }
+                            }
+                          }}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
                     {images.length === 0 ? (
                       <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center">
                         <p className="text-xs text-slate-400">Chưa có ảnh nào được tải lên</p>
