@@ -22,7 +22,9 @@ import apiClient from './apiClient';
  *               (Bất kỳ trạng thái nào cũng → cancelled, trừ completed)
  */
 export type OrderStatus =
-  | 'received'    // 📦 Đã nhận đơn — trạng thái khởi tạo
+  | 'received'    // 📦 Đã nhận đơn — hệ thống ghi nhận, chờ đến lấy
+  | 'picked_up'   // 🛵 Đã lấy đồ — nhân viên đã đến nhà lấy đồ đem về tiệm
+  | 'weighed'     // ⚖️ Đã cân đồ & Báo giá — đã cân kg thực tế, gửi mã QR cho khách
   | 'washing'     // 🫧 Đang giặt
   | 'drying'      // 🌬️ Đang sấy/ủi
   | 'delivering'  // 🚚 Shipper đang giao
@@ -32,6 +34,8 @@ export type OrderStatus =
 /** Màu badge tương ứng với từng trạng thái (dùng cho UI) */
 export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
   received:   'blue',
+  picked_up:  'amber',
+  weighed:    'indigo',
   washing:    'cyan',
   drying:     'orange',
   delivering: 'purple',
@@ -42,6 +46,8 @@ export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
 /** Nhãn tiếng Việt tương ứng với từng trạng thái */
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   received:   '📦 Đã nhận đơn',
+  picked_up:  '🛵 Đã lấy đồ',
+  weighed:    '⚖️ Đã cân đồ & Báo giá',
   washing:    '🫧 Đang giặt',
   drying:     '🌬️ Đang sấy/ủi',
   delivering: '🚚 Đang giao',
@@ -100,6 +106,8 @@ export interface Order {
   service: ServiceRef | string;
   quantity: number;                      // kg hoặc số món tùy priceType
   totalPrice: number;                    // Tính tự động: service.price × quantity
+  actualWeight?: number | null;          // Số kg thực tế sau khi nhân viên cân đồ
+  weightImageUrl?: string;               // Link hình ảnh chụp trên cân
   status: OrderStatus;
   paymentMethod?: 'cod' | 'bank_transfer' | 'cash' | 'vnpay' | 'vietqr';
   paymentStatus?: 'unpaid' | 'paid' | 'refunded';
@@ -238,6 +246,22 @@ export const updateOrderStatus = async (
   const response = await apiClient.put<ApiResponse<{ order: Order }>>(
     `/orders/${orderId}/status`,
     { status, note }
+  );
+  return response.data.data.order;
+};
+
+/**
+ * [STAFF/ADMIN] Cập nhật số kg thực tế và ảnh chụp cân đồ.
+ */
+export const updateOrderWeight = async (
+  orderId: string,
+  actualWeight?: number,
+  weightImageUrl?: string,
+  note?: string
+): Promise<Order> => {
+  const response = await apiClient.put<ApiResponse<{ order: Order }>>(
+    `/orders/${orderId}/weight`,
+    { actualWeight, weightImageUrl, note }
   );
   return response.data.data.order;
 };

@@ -14,8 +14,6 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import type { LaundryService } from '../api/serviceService';
 import { createOrder } from '../api/orderService';
-import { createPayment, type BankInfo } from '../api/paymentService';
-import { VietQRModal } from '../components/ui/VietQRModal';
 
 /* ─── Zod Schema Validation cho Cart Order Form ──────────────────────────────── */
 const cartOrderSchema = z.object({
@@ -190,16 +188,6 @@ export const Cart: React.FC = () => {
   const [orderTotal, setOrderTotal]       = useState(0);
   const [createdOrderCodes, setCreatedOrderCodes] = useState<string[]>([]);
 
-  // ── VietQR Modal state ────────────────────────────────────────────────────
-  const [qrModalOpen, setQrModalOpen] = useState(false);
-  const [qrModalData, setQrModalData] = useState<{
-    orderId: string;
-    orderCode: string;
-    amount: number;
-    qrCodeUrl: string;
-    bankInfo?: BankInfo | null;
-  } | null>(null);
-
   // ── Fetch services ────────────────────────────────────────────────────────
   const loadServices = useCallback(async (attempt: number) => {
     setSvcStatus('loading');
@@ -297,57 +285,12 @@ export const Cart: React.FC = () => {
       setCreatedOrderCodes(orderCodes);
       setIsPaymentConfirmed(data.paymentMethod === 'cod');
 
-      // Nếu chọn chuyển khoản QR ➔ Tạo VietQR payment trước khi hoàn tất
-      if (
-        (data.paymentMethod === 'transfer' || data.paymentMethod === 'bank_transfer') &&
-        createdOrderIds.length > 0
-      ) {
-        const firstOrderId = createdOrderIds[0];
-        const firstOrderCode = orderCodes[0];
-
-        let qrUrl: string | undefined = undefined;
-        let bankInfo: BankInfo | null | undefined = undefined;
-
-        try {
-          const paymentResult = await createPayment({
-            orderId: firstOrderId,
-            method: 'bank_transfer',
-          });
-
-          const rawQr = paymentResult.qrCodeUrl || paymentResult.payment?.qrCodeUrl;
-          if (rawQr) qrUrl = rawQr;
-          bankInfo = paymentResult.bankInfo || paymentResult.payment?.bankInfo;
-        } catch (payErr: any) {
-          console.warn('Lỗi tạo mã QR thanh toán từ API backend:', payErr?.message);
-        }
-
-        // Fallback tự động tạo VietQR nếu backend không phản hồi QR url
-        if (!qrUrl) {
-          const bankId      = import.meta.env.VITE_VIETQR_BANK_ID      || 'BIDV';
-          const accountNo   = import.meta.env.VITE_VIETQR_ACCOUNT_NO   || '9624787LVG';
-          const accountName = import.meta.env.VITE_VIETQR_ACCOUNT_NAME || 'NGUYEN VAN SANG';
-          const template    = import.meta.env.VITE_VIETQR_TEMPLATE    || 'compact2';
-          qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-${template}.png?amount=${finalTotalAmount}&addInfo=${encodeURIComponent(firstOrderCode)}&accountName=${encodeURIComponent(accountName)}`;
-          bankInfo = {
-            bankId,
-            accountNo,
-            accountName,
-            amount: finalTotalAmount,
-            transferContent: firstOrderCode,
-          };
-        }
-
-        setQrModalData({
-          orderId: firstOrderId,
-          orderCode: firstOrderCode,
-          amount: finalTotalAmount,
-          qrCodeUrl: qrUrl,
-          bankInfo: bankInfo,
-        });
-        setQrModalOpen(true);
-      }
-
       clearCart();
+
+      // Sau khi đặt lịch thành công, chuyển thẳng khách sang trang Theo Dõi Đơn Hàng
+      if (createdOrderIds.length > 0) {
+        navigate(`/tracking/${createdOrderIds[0]}`);
+      }
       setIsOrdered(true);
     } catch (err: any) {
       setOrderError(err?.response?.data?.message ?? 'Có lỗi xảy ra. Vui lòng thử lại.');
@@ -429,21 +372,6 @@ export const Cart: React.FC = () => {
             </div>
           </div>
 
-          {/* Mở lại mã QR nếu chọn chuyển khoản */}
-          {qrModalData && (
-            <div className="pt-2">
-              <Button
-                variant="outline"
-                fullWidth
-                onClick={() => setQrModalOpen(true)}
-                className="border-[#1E4DB7] text-[#1E4DB7] bg-blue-50 hover:bg-blue-100 font-bold gap-2"
-              >
-                <CreditCard className="w-4 h-4 text-[#1E4DB7]" />
-                Mở lại Mã QR Thanh Toán VietQR
-              </Button>
-            </div>
-          )}
-
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
               variant="outline"
@@ -462,24 +390,6 @@ export const Cart: React.FC = () => {
               Theo Dõi Đơn Hàng
             </Button>
           </div>
-
-          {/* Render VietQR Modal */}
-          {qrModalData && (
-            <VietQRModal
-              isOpen={qrModalOpen}
-              onClose={() => setQrModalOpen(false)}
-              orderId={qrModalData.orderId}
-              orderCode={qrModalData.orderCode}
-              amount={qrModalData.amount}
-              qrCodeUrl={qrModalData.qrCodeUrl}
-              bankInfo={qrModalData.bankInfo}
-              onPaymentSuccess={() => {
-                console.log('Payment success callback triggered!');
-                setIsPaymentConfirmed(true);
-                navigate('/orders');
-              }}
-            />
-          )}
         </motion.div>
       </div>
     );
@@ -672,7 +582,16 @@ export const Cart: React.FC = () => {
               <div className="p-6 space-y-4">
                 <div>
                   <h3 className="font-display font-bold text-lg text-slate-800">Thông Tin Giao Nhận</h3>
-                  <p className="text-slate-400 text-xs mt-0.5">Kiểm tra kỹ thông tin người nhận trước khi hoàn tất đặt đơn.</p>
+                  <p className="text-slate-400 text-xs mt-0.5">Nhân viên Skill-Up sẽ tới địa chỉ của bạn để nhận đồ giặt.</p>
+                </div>
+
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-xs text-[#004B87] space-y-1">
+                  <p className="font-bold flex items-center gap-1">
+                    <span>💡 Quy trình giao nhận & thanh toán:</span>
+                  </p>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    1. Đặt lịch lấy đồ ➔ 2. Nhân viên tới tận nhà nhận đồ ➔ 3. Về tiệm cân số kg & chụp ảnh xác thực ➔ 4. Nhận thông báo số kg chính xác & mã VietQR thanh toán.
+                  </p>
                 </div>
 
                 <div className="space-y-3.5">

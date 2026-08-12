@@ -18,6 +18,8 @@ const STATUS_CONFIG: Record<
   { label: string; badge: string; dot: string; text: string }
 > = {
   received:   { label: 'Đã nhận đơn', badge: 'bg-amber-100 text-amber-800 border border-amber-200',    dot: 'bg-amber-500',   text: 'text-amber-800'   },
+  picked_up:  { label: 'Đã lấy đồ',   badge: 'bg-[#004B87]/10 text-[#004B87] border border-blue-200',  dot: 'bg-[#004B87]',    text: 'text-[#004B87]'   },
+  weighed:    { label: 'Đã cân đồ & Báo giá', badge: 'bg-blue-100 text-blue-800 border border-blue-200', dot: 'bg-blue-600', text: 'text-blue-800' },
   washing:    { label: 'Đang giặt',   badge: 'bg-cyan-100 text-cyan-800 border border-cyan-200',       dot: 'bg-cyan-500',    text: 'text-cyan-800'    },
   drying:     { label: 'Đang sấy',    badge: 'bg-orange-100 text-orange-800 border border-orange-200', dot: 'bg-orange-500',  text: 'text-orange-800'  },
   delivering: { label: 'Đang giao',   badge: 'bg-purple-100 text-purple-800 border border-purple-200', dot: 'bg-purple-500',  text: 'text-purple-800'  },
@@ -28,10 +30,12 @@ const STATUS_CONFIG: Record<
 const STATUS_TABS: { value: OrderStatus | 'all'; label: string; emoji: string }[] = [
   { value: 'all',        label: 'Tất cả',    emoji: '' },
   { value: 'received',   label: 'Đã nhận',   emoji: '📦' },
+  { value: 'picked_up',  label: 'Đã lấy đồ', emoji: '🛵' },
+  { value: 'weighed',    label: 'Đã cân đồ', emoji: '⚖️' },
   { value: 'washing',    label: 'Đang giặt', emoji: '🫧' },
   { value: 'drying',     label: 'Đang sấy',  emoji: '🌬️' },
   { value: 'delivering', label: 'Đang giao', emoji: '🚚' },
-  { value: 'completed',  label: 'Hoàn thành',emoji: '✅' },
+  { value: 'completed',  label: 'Hoàn thành', emoji: '✅' },
   { value: 'cancelled',  label: 'Đã hủy',    emoji: '❌' },
 ];
 

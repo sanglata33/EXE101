@@ -6,6 +6,8 @@ import apiClient from './apiClient';
  */
 export type OrderStatus =
   | 'received'    // 📦 Đã nhận đơn
+  | 'picked_up'   // 🛵 Đã lấy đồ
+  | 'weighed'     // ⚖️ Đã cân đồ & Báo giá
   | 'washing'     // 🫧 Đang giặt
   | 'drying'      // 🌬️ Đang sấy/ủi
   | 'delivering'  // 🚚 Đang giao

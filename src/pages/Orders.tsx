@@ -27,17 +27,21 @@ import { VietQRModal } from '../components/ui/VietQRModal';
 
 /* ─── Timeline steps ───────────────────────────────────────────── */
 const STEPS = [
-  { key: 'received',   label: '📦 Đã nhận đơn',  desc: 'Hệ thống đã ghi nhận và đang phân công nhân viên lấy đồ.' },
-  { key: 'washing',    label: '🫧 Đang giặt',     desc: 'Đồ giặt đang được phân loại và giặt sạch bằng công nghệ Skill-Up.' },
-  { key: 'drying',     label: '🌬️ Đang sấy/ủi',  desc: 'Quần áo đang được sấy khô thơm và là phẳng tươm tất.' },
-  { key: 'delivering', label: '🚚 Đang giao',     desc: 'Shipper đang trên đường giao trả đồ sạch tận nhà.' },
-  { key: 'completed',  label: '✅ Hoàn thành',    desc: 'Đơn hàng đã được giao nhận thành công. Hẹn gặp lại bạn!' },
+  { key: 'received',   label: '📦 Đã nhận đơn',          desc: 'Hệ thống đã tiếp nhận đơn hàng. Nhân viên đang chuẩn bị tới địa chỉ để nhận đồ.' },
+  { key: 'picked_up',  label: '🛵 Đã lấy đồ',           desc: 'Nhân viên đã đến nhận đồ từ bạn và đang vận chuyển đồ về tiệm giặt.' },
+  { key: 'weighed',    label: '⚖️ Đã cân đồ & Báo giá', desc: 'Đồ đã về tới tiệm. Nhân viên đã cân khối lượng thực tế và tải ảnh xác thực.' },
+  { key: 'washing',    label: '🫧 Đang giặt',             desc: 'Đồ giặt đang được phân loại và giặt sạch bằng công nghệ Skill-Up.' },
+  { key: 'drying',     label: '🌬️ Đang sấy/ủi',          desc: 'Quần áo đang được sấy khô thơm và là phẳng tươm tất.' },
+  { key: 'delivering', label: '🚚 Đang giao',             desc: 'Shipper đang trên đường giao trả đồ sạch tận nhà.' },
+  { key: 'completed',  label: '✅ Hoàn thành',            desc: 'Đơn hàng đã được giao nhận thành công. Hẹn gặp lại bạn!' },
 ];
 
 /* ─── Filter tabs ──────────────────────────────────────────────── */
 const TABS: { key: string; label: string }[] = [
   { key: 'all',        label: 'Tất cả'       },
   { key: 'received',   label: 'Đã nhận'      },
+  { key: 'picked_up',  label: 'Đã lấy đồ'    },
+  { key: 'weighed',    label: 'Đã cân đồ'    },
   { key: 'washing',    label: 'Đang giặt'    },
   { key: 'drying',     label: 'Đang sấy/ủi'  },
   { key: 'delivering', label: 'Đang giao'    },
@@ -48,8 +52,10 @@ const TABS: { key: string; label: string }[] = [
 /* ─── Status badge colours ─────────────────────────────────────── */
 const STATUS_COLORS: Record<string, string> = {
   received:   'bg-blue-50   text-blue-700   border-blue-200',
+  picked_up:  'bg-amber-50  text-amber-700  border-amber-200',
+  weighed:    'bg-sky-50    text-sky-700    border-sky-200',
   washing:    'bg-cyan-50   text-cyan-700   border-cyan-200',
-  drying:     'bg-amber-50  text-amber-700  border-amber-200',
+  drying:     'bg-orange-50 text-orange-700 border-orange-200',
   delivering: 'bg-violet-50 text-violet-700 border-violet-200',
   completed:  'bg-emerald-50 text-emerald-700 border-emerald-200',
   cancelled:  'bg-rose-50   text-rose-700   border-rose-200',
