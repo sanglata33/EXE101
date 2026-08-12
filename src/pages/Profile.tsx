@@ -123,7 +123,7 @@ export const Profile: React.FC = () => {
   const completionPct = 25 + (user?.email ? 25 : 0) + (user?.phone ? 25 : 0) + (user?.address ? 25 : 0);
 
   /* real membership tier from actual order data */
-  const totalSpent = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.totalPrice, 0);
+  const totalSpent = orders.filter(o => o && o.status !== 'cancelled').reduce((s, o) => s + (o.totalPrice ?? (o as any).totalAmount ?? 0), 0);
   const tier = getMemberTier(orders.length, totalSpent);
 
   /* ── Loading skeleton ── */
@@ -154,13 +154,13 @@ export const Profile: React.FC = () => {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center gap-6">
           {/* Avatar circle */}
           <div className="w-20 h-20 rounded-full border-4 border-white/80 bg-white/20 flex items-center justify-center text-3xl font-black text-white shadow-xl flex-shrink-0 select-none">
-            {user.name.charAt(0).toUpperCase()}
+            {(user.name || user.email || 'U').charAt(0).toUpperCase()}
           </div>
 
           {/* Info */}
           <div className="text-center sm:text-left flex-1 space-y-1">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <h1 className="text-xl font-black text-white tracking-tight leading-none">{user.name}</h1>
+              <h1 className="text-xl font-black text-white tracking-tight leading-none">{user.name || 'Người dùng'}</h1>
               <span className="inline-block bg-white/25 border border-white/40 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full">
                 {user.role === 'admin' ? 'Quản trị viên' : user.role === 'staff' ? 'Nhân viên' : 'Khách hàng'}
               </span>
@@ -386,8 +386,9 @@ export const Profile: React.FC = () => {
                 <div className="space-y-3 max-h-[480px] overflow-y-auto pr-1">
                   {orders.map(ord => {
                     const badgeCls = STATUS_COLORS[ord.status] ?? 'bg-slate-50 text-slate-700 border-slate-200';
-                    const svcName  = typeof ord.service === 'object' ? ord.service.name : 'Dịch vụ giặt ủi';
-                    const unit     = typeof ord.service === 'object' && ord.service.priceType === 'per_kg' ? 'kg' : 'món';
+                    const svcName  = typeof ord.service === 'object' && ord.service !== null ? ord.service.name : 'Dịch vụ giặt ủi';
+                    const unit     = typeof ord.service === 'object' && ord.service !== null && ord.service.priceType === 'per_kg' ? 'kg' : 'món';
+                    const priceVal = (ord.totalPrice ?? (ord as any).totalAmount ?? 0);
                     return (
                       <button
                         key={ord._id}
@@ -422,7 +423,7 @@ export const Profile: React.FC = () => {
                         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-end gap-2 flex-shrink-0">
                           <div className="text-right">
                             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Thành tiền</p>
-                            <p className="text-base font-black text-[#C5A880]">{ord.totalPrice.toLocaleString('vi-VN')}đ</p>
+                            <p className="text-base font-black text-[#C5A880]">{priceVal.toLocaleString('vi-VN')}đ</p>
                           </div>
                           <span className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-bold border border-[#EBE3D5] group-hover:border-[#C5A880] text-slate-400 group-hover:text-[#C5A880] rounded-lg transition-all">
                             <Eye className="w-3.5 h-3.5" /> Chi tiết
