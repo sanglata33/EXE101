@@ -33,17 +33,9 @@ export interface OrderImage {
 import { VietQRModal } from '../components/ui/VietQRModal';
 import { ImageLightboxModal } from '../components/ui/ImageLightboxModal';
 import { Scale, QrCode } from 'lucide-react';
+import { getStepsForOrder, isPrepaidRequiredOrder, isShoeOrder } from '../utils/orderUtils';
 
-/* ─── STEPS TIMELINE ─────────────────────────────────────────────── */
-const STEPS = [
-  { key: 'received',   label: '📦 Đã nhận đơn',          desc: 'Hệ thống đã tiếp nhận đơn hàng. Nhân viên đang chuẩn bị tới địa chỉ để nhận đồ.' },
-  { key: 'picked_up',  label: '🛵 Đã lấy đồ',           desc: 'Nhân viên đã đến nhận đồ từ bạn và đang vận chuyển đồ về tiệm giặt.' },
-  { key: 'weighed',    label: '⚖️ Đã cân đồ & Báo giá', desc: 'Đồ đã về tới tiệm. Nhân viên đã cân khối lượng thực tế và tải ảnh xác thực.' },
-  { key: 'washing',    label: '🫧 Đang giặt',             desc: 'Đồ giặt đang được phân loại và giặt sạch bằng công nghệ Skill Up.' },
-  { key: 'drying',     label: '🌬️ Đang sấy/ủi',          desc: 'Quần áo đang được sấy khô thơm và là phẳng tươm tất.' },
-  { key: 'delivering', label: '🚚 Đang giao',             desc: 'Shipper đang trên đường giao trả đồ sạch tận nhà.' },
-  { key: 'completed',  label: '✅ Hoàn thành',            desc: 'Đơn hàng đã được giao nhận thành công. Hẹn gặp lại bạn!' },
-];
+
 
 export const OrderTracking: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -105,13 +97,7 @@ export const OrderTracking: React.FC = () => {
     }
   };
 
-  const getCurrentStepIndex = () => {
-    if (!order) return -1;
-    if (order.status === 'cancelled') return -1;
-    return STEPS.findIndex(step => step.key === order.status);
-  };
 
-  const currentStepIdx = getCurrentStepIndex();
 
   // Tạo URL VietQR chuẩn
   const bankId      = import.meta.env.VITE_VIETQR_BANK_ID      || 'BIDV';
@@ -359,12 +345,16 @@ export const OrderTracking: React.FC = () => {
                   </div>
 
                   {/* KHUNG XÁC THỰC CÂN ĐỒ & THANH TOÁN VIETQR (KHI ĐÃ CÂN HOẶC CHƯA THANH TOÁN) */}
-                  {(order.status === 'weighed' || order.actualWeight != null || order.weightImageUrl) && (
+                  {(order.status === 'weighed' || order.actualWeight != null || order.weightImageUrl || isPrepaidRequiredOrder(order) || order.paymentStatus !== 'paid') && (
                     <div className="bg-gradient-to-br from-[#004B87] to-[#0077C8] text-white rounded-3xl p-6 shadow-xl space-y-4 relative overflow-hidden">
                       <div className="flex items-center justify-between border-b border-white/20 pb-3">
                         <div className="flex items-center gap-2">
                           <Scale className="w-5 h-5 text-amber-300 animate-bounce" />
-                          <h3 className="font-bold text-base text-white">Xác Nhận Số Kg & Thanh Toán VietQR</h3>
+                          <h3 className="font-bold text-base text-white">
+                            {isPrepaidRequiredOrder(order)
+                              ? '⚡ Thanh Toán VietQR Trước Khi Nhận Đồ'
+                              : 'Xác Nhận Số Kg & Thanh Toán VietQR'}
+                          </h3>
                         </div>
                         <span className="text-[10px] font-bold uppercase tracking-wider bg-white/20 px-2.5 py-1 rounded-full text-amber-200">
                           {order.paymentStatus === 'paid' ? '✅ Đã thanh toán' : '⏳ Chờ thanh toán'}
@@ -375,21 +365,25 @@ export const OrderTracking: React.FC = () => {
                         {/* Cột trái: Thông số kg & ảnh cân */}
                         <div className="space-y-3">
                           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3.5 border border-white/20">
-                            <span className="text-[10px] text-sky-200 font-bold uppercase tracking-widest block">Khối lượng thực tế</span>
+                            <span className="text-[10px] text-sky-200 font-bold uppercase tracking-widest block">
+                              {isShoeOrder(order) ? 'Số lượng giày' : 'Khối lượng / Số lượng'}
+                            </span>
                             <div className="text-2xl font-black text-amber-300 mt-0.5">
-                              {order.actualWeight || order.quantity} <span className="text-sm font-normal text-white">kg</span>
+                              {order.actualWeight || order.quantity} <span className="text-sm font-normal text-white">{isShoeOrder(order) ? 'đôi' : 'kg/món'}</span>
                             </div>
                             <span className="text-[11px] text-sky-100 block mt-1">
-                              Đã cân chính xác tại tiệm giặt Skill Up
+                              {isPrepaidRequiredOrder(order)
+                                ? 'Dịch vụ cố định — Vui lòng thanh toán mã QR trước'
+                                : 'Đã cân chính xác tại tiệm giặt Skill Up'}
                             </span>
                           </div>
 
                           {/* Ảnh chụp trên cân */}
                           {order.weightImageUrl && (
                             <div className="space-y-1">
-                              <span className="text-[10px] text-sky-200 font-bold uppercase tracking-widest block">📸 Ảnh chụp thực tế trên cân</span>
+                              <span className="text-[10px] text-sky-200 font-bold uppercase tracking-widest block">📸 Ảnh chụp thực tế tại tiệm</span>
                               <a href={getImageUrl(order.weightImageUrl)} target="_blank" rel="noopener noreferrer" className="block relative rounded-2xl overflow-hidden border-2 border-amber-300/60 shadow-lg group">
-                                <img src={getImageUrl(order.weightImageUrl)} alt="Ảnh cân đồ" className="w-full h-36 object-cover transition-transform group-hover:scale-105" />
+                                <img src={getImageUrl(order.weightImageUrl)} alt="Ảnh thực tế" className="w-full h-36 object-cover transition-transform group-hover:scale-105" />
                                 <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs font-bold text-white">
                                   Phóng to ảnh
                                 </div>
@@ -438,9 +432,10 @@ export const OrderTracking: React.FC = () => {
                       </div>
                     ) : (
                       <div className="relative pl-8 border-l-2 border-slate-100 ml-4 py-2 space-y-8">
-                        {STEPS.map((step, idx) => {
-                          const isCompleted = idx <= currentStepIdx;
-                          const isCurrent = idx === currentStepIdx;
+                        {getStepsForOrder(order).map((step, idx, stepsArr) => {
+                          const currentIdx = stepsArr.findIndex(s => s.key === order.status);
+                          const isCompleted = idx <= currentIdx;
+                          const isCurrent = idx === currentIdx;
                           const historyItem = order.statusHistory?.find(h => h.status === step.key);
 
                           return (

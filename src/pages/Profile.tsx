@@ -10,14 +10,7 @@ import {
   X, Save,
 } from 'lucide-react';
 
-/* ─── Timeline steps (labels come from DB status keys) ────────────────────── */
-const STEPS = [
-  { key: 'received',   label: '📦 Đã nhận đơn',  desc: 'Hệ thống đã ghi nhận và đang phân công nhân viên lấy đồ.' },
-  { key: 'washing',    label: '🫧 Đang giặt',     desc: 'Đồ giặt đang được phân loại và giặt sạch bằng công nghệ Skill-Up.' },
-  { key: 'drying',     label: '🌬️ Đang sấy/ủi',  desc: 'Quần áo đang được sấy khô thơm và là phẳng tươm tất.' },
-  { key: 'delivering', label: '🚚 Đang giao',     desc: 'Shipper đang trên đường giao trả đồ sạch tận nhà.' },
-  { key: 'completed',  label: '✅ Hoàn thành',    desc: 'Đơn hàng đã được giao nhận thành công. Hẹn gặp lại bạn!' },
-];
+import { getStepsForOrder } from '../utils/orderUtils';
 
 /* ─── Status badge colours ─────────────────────────────────────────────────── */
 const STATUS_COLORS: Record<string, string> = {
@@ -522,8 +515,8 @@ export const Profile: React.FC = () => {
                       </div>
                     ) : (
                       <div className="relative ml-3 pl-6 border-l-2 border-slate-100 space-y-5">
-                        {STEPS.map((step, idx) => {
-                          const curIdx      = STEPS.findIndex(s => s.key === selectedOrder.status);
+                        {getStepsForOrder(selectedOrder).map((step, idx, stepsArr) => {
+                          const curIdx      = stepsArr.findIndex(s => s.key === selectedOrder.status);
                           const isCompleted = idx <= curIdx;
                           const isCurrent   = idx === curIdx;
                           const hist        = selectedOrder.statusHistory?.find(h => h.status === step.key);

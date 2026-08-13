@@ -645,7 +645,9 @@ export const Cart: React.FC = () => {
                     <span>💡 Quy trình giao nhận & thanh toán:</span>
                   </p>
                   <p className="text-[11px] text-slate-600 leading-relaxed">
-                    1. Đặt lịch lấy đồ ➔ 2. Nhân viên tới tận nhà nhận đồ ➔ 3. Về tiệm cân số kg & chụp ảnh xác thực ➔ 4. Nhận thông báo số kg chính xác & mã VietQR thanh toán.
+                    {hasFixedItems
+                      ? '1. Đặt lịch lấy đồ ➔ 2. Quét mã VietQR chuyển khoản trước ➔ 3. Nhân viên tới tận nhà nhận đồ ➔ 4. Vệ sinh & chăm sóc chuyên dụng ➔ 5. Giao trả đồ tận nhà.'
+                      : '1. Đặt lịch lấy đồ ➔ 2. Nhân viên tới tận nhà nhận đồ ➔ 3. Về tiệm cân số kg & chụp ảnh xác thực ➔ 4. Nhận thông báo số kg chính xác & mã VietQR thanh toán.'}
                   </p>
                 </div>
 

@@ -27,16 +27,7 @@ import { getPaymentByOrder, createPayment, type Payment, type BankInfo } from '.
 import { VietQRModal } from '../components/ui/VietQRModal';
 import { ImageLightboxModal } from '../components/ui/ImageLightboxModal';
 
-/* ─── Timeline steps ───────────────────────────────────────────── */
-const STEPS = [
-  { key: 'received',   label: '📦 Đã nhận đơn',          desc: 'Hệ thống đã tiếp nhận đơn hàng. Nhân viên đang chuẩn bị tới địa chỉ để nhận đồ.' },
-  { key: 'picked_up',  label: '🛵 Đã lấy đồ',           desc: 'Nhân viên đã đến nhận đồ từ bạn và đang vận chuyển đồ về tiệm giặt.' },
-  { key: 'weighed',    label: '⚖️ Đã cân đồ & Báo giá', desc: 'Đồ đã về tới tiệm. Nhân viên đã cân khối lượng thực tế và tải ảnh xác thực.' },
-  { key: 'washing',    label: '🫧 Đang giặt',             desc: 'Đồ giặt đang được phân loại và giặt sạch bằng công nghệ Skill-Up.' },
-  { key: 'drying',     label: '🌬️ Đang sấy/ủi',          desc: 'Quần áo đang được sấy khô thơm và là phẳng tươm tất.' },
-  { key: 'delivering', label: '🚚 Đang giao',             desc: 'Shipper đang trên đường giao trả đồ sạch tận nhà.' },
-  { key: 'completed',  label: '✅ Hoàn thành',            desc: 'Đơn hàng đã được giao nhận thành công. Hẹn gặp lại bạn!' },
-];
+
 
 /* ─── Filter tabs ──────────────────────────────────────────────── */
 const TABS: { key: string; label: string }[] = [
@@ -50,6 +41,8 @@ const TABS: { key: string; label: string }[] = [
   { key: 'completed',  label: 'Hoàn thành'   },
   { key: 'cancelled',  label: 'Đã hủy'       },
 ];
+
+import { getStepsForOrder, isPrepaidRequiredOrder, isShoeOrder } from '../utils/orderUtils';
 
 /* ─── Status badge colours ─────────────────────────────────────── */
 const STATUS_COLORS: Record<string, string> = {
@@ -491,11 +484,12 @@ export const Orders: React.FC = () => {
                       </div>
                     ) : (
                       <div className="relative ml-3 pl-6 border-l-2 border-slate-100 space-y-5">
-                        {STEPS.map((step, idx) => {
-                          const curIdx      = STEPS.findIndex(s => s.key === selectedOrder.status);
+                        {getStepsForOrder(selectedOrder).map((step, idx, stepsArr) => {
+                          const curIdx      = stepsArr.findIndex(s => s.key === selectedOrder.status);
                           const isCompleted = idx <= curIdx;
                           const isCurrent   = idx === curIdx;
                           const hist        = selectedOrder.statusHistory?.find(h => h.status === step.key);
+                          const isPrepaidReq = isPrepaidRequiredOrder(selectedOrder);
                           return (
                             <div key={step.key} className="relative">
                               {/* dot */}
@@ -513,9 +507,7 @@ export const Orders: React.FC = () => {
                               </h5>
                               <p className={`text-[11px] mt-0.5 leading-relaxed
                                 ${isCompleted ? 'text-slate-600' : 'text-slate-300'}`}>
-                                {step.key === 'received' && (selectedOrder.paymentMethod === 'bank_transfer' || selectedOrder.paymentMethod === 'vietqr') && paymentInfo?.status !== 'paid' && selectedOrder.paymentStatus !== 'paid'
-                                  ? 'Đơn hàng đã được tạo. Vui lòng thanh toán VietQR để hệ thống tự động ghi nhận và phân công nhân viên lấy đồ.'
-                                  : step.desc}
+                                {step.desc}
                               </p>
                               {hist?.note && (
                                 <p className="mt-1.5 text-[10px] text-slate-700 bg-blue-50/60 border border-blue-100 rounded-lg px-2.5 py-1.5 italic">
@@ -526,6 +518,27 @@ export const Orders: React.FC = () => {
                                 <p className="text-[9px] text-slate-400 mt-0.5">
                                   {new Date(hist.timestamp).toLocaleString('vi-VN')}
                                 </p>
+                              )}
+
+                              {/* Nút thanh toán VietQR ngay ở bước Đã nhận đơn nếu chưa thanh toán */}
+                              {step.key === 'received' && selectedOrder.paymentStatus !== 'paid' && (isPrepaidReq || selectedOrder.paymentMethod === 'bank_transfer' || selectedOrder.paymentMethod === 'vietqr') && (
+                                <div className="mt-2.5 p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
+                                  <p className="text-[11px] text-amber-800 font-medium leading-relaxed">
+                                    {isPrepaidReq
+                                      ? '⚡ Dịch vụ Giặt Giày / Áo Vest yêu cầu thanh toán mã VietQR trước để nhân viên xác nhận & qua lấy đồ.'
+                                      : '💡 Vui lòng quét mã VietQR thanh toán trước để hệ thống ghi nhận & cử nhân viên qua lấy đồ.'}
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleOpenVietQR();
+                                    }}
+                                    className="px-3.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                                  >
+                                    <QrCode className="w-3.5 h-3.5" /> Quét mã VietQR thanh toán ngay
+                                  </button>
+                                </div>
                               )}
 
                               {/* Ảnh xác thực cho từng bước */}
@@ -549,10 +562,12 @@ export const Orders: React.FC = () => {
 
                               {step.key === 'weighed' && selectedOrder.weightImageUrl && (
                                 <div className="mt-2 space-y-1">
-                                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">⚖️ Ảnh chụp trên cân:</span>
+                                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">
+                                    {isShoeOrder(selectedOrder) ? '👟 Ảnh kiểm tra tình trạng giày:' : '⚖️ Ảnh chụp trên cân:'}
+                                  </span>
                                   <button
                                     type="button"
-                                    onClick={() => { setLightboxUrl(selectedOrder.weightImageUrl!); setLightboxCaption('⚖️ Ảnh chụp số kg trên cân tại tiệm'); }}
+                                    onClick={() => { setLightboxUrl(selectedOrder.weightImageUrl!); setLightboxCaption('⚖️ Ảnh chụp kiểm tra thực tế tại tiệm'); }}
                                     className="block text-left rounded-lg overflow-hidden border border-amber-200 max-w-[200px] cursor-pointer"
                                   >
                                     <img src={getImageUrl(selectedOrder.weightImageUrl)} alt="Cân đồ" className="w-full h-24 object-cover hover:scale-105 transition-transform" />
@@ -562,7 +577,9 @@ export const Orders: React.FC = () => {
 
                               {(step.key === 'washing' || step.key === 'drying') && selectedImages.filter(img => img.imageType === 'process').length > 0 && (
                                 <div className="mt-2 space-y-1">
-                                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider block">🫧 Ảnh quy trình giặt/sấy tại tiệm:</span>
+                                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider block">
+                                    {isShoeOrder(selectedOrder) ? '🧼 Ảnh quy trình vệ sinh & sấy giày:' : '🫧 Ảnh quy trình giặt/sấy tại tiệm:'}
+                                  </span>
                                   <div className="grid grid-cols-2 gap-1.5">
                                     {selectedImages.filter(img => img.imageType === 'process').map(img => (
                                       <button
