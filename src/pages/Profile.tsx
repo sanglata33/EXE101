@@ -547,29 +547,61 @@ export const Profile: React.FC = () => {
                                   Cập nhật: {new Date(hist.timestamp).toLocaleString('vi-VN')}
                                 </p>
                               )}
+
+                              {/* Ảnh xác thực cho từng bước */}
+                              {step.key === 'picked_up' && selectedImages.filter(img => img.imageType === 'pickup').length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  <span className="text-[10px] font-bold text-[#1E4DB7] uppercase tracking-wider block">📸 Ảnh lấy đồ:</span>
+                                  <div className="grid grid-cols-2 gap-1.5">
+                                    {selectedImages.filter(img => img.imageType === 'pickup').map(img => (
+                                      <div key={img._id} className="rounded-lg overflow-hidden border border-blue-100">
+                                        <img src={getImageUrl(img.imageUrl)} alt="Lấy đồ" className="w-full h-24 object-cover" />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {step.key === 'weighed' && selectedOrder.weightImageUrl && (
+                                <div className="mt-2 space-y-1">
+                                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">⚖️ Ảnh chụp trên cân:</span>
+                                  <div className="rounded-lg overflow-hidden border border-amber-200 max-w-[200px]">
+                                    <img src={getImageUrl(selectedOrder.weightImageUrl)} alt="Cân đồ" className="w-full h-24 object-cover" />
+                                  </div>
+                                </div>
+                              )}
+
+                              {(step.key === 'washing' || step.key === 'drying') && selectedImages.filter(img => img.imageType === 'process').length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider block">🫧 Ảnh quy trình giặt/sấy tại tiệm:</span>
+                                  <div className="grid grid-cols-2 gap-1.5">
+                                    {selectedImages.filter(img => img.imageType === 'process').map(img => (
+                                      <div key={img._id} className="rounded-lg overflow-hidden border border-indigo-100">
+                                        <img src={getImageUrl(img.imageUrl)} alt="Giặt sấy" className="w-full h-24 object-cover" />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {step.key === 'completed' && selectedImages.filter(img => img.imageType === 'delivery').length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">📸 Ảnh giao đồ:</span>
+                                  <div className="grid grid-cols-2 gap-1.5">
+                                    {selectedImages.filter(img => img.imageType === 'delivery').map(img => (
+                                      <div key={img._id} className="rounded-lg overflow-hidden border border-emerald-100">
+                                        <img src={getImageUrl(img.imageUrl)} alt="Giao đồ" className="w-full h-24 object-cover" />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           );
                         })}
                       </div>
                     )}
                   </div>
-
-                  {/* Verification photos */}
-                  {selectedImages.length > 0 && (
-                    <div>
-                      <h4 className="font-bold text-sm text-[#2A2520] mb-3">Ảnh xác thực giao nhận</h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        {selectedImages.map(img => (
-                          <div key={img._id} className="relative rounded-xl overflow-hidden border border-slate-100">
-                            <img src={img.imageUrl} alt="Verification" className="w-full h-32 object-cover" />
-                            <div className="absolute bottom-0 inset-x-0 bg-black/40 text-white text-[9px] font-bold text-center py-1.5">
-                              {img.imageType === 'pickup' ? '📸 Ảnh lúc nhận đồ' : '📸 Ảnh giao hàng sạch'}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </>
               ) : null}
             </div>

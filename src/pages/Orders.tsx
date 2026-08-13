@@ -529,7 +529,7 @@ export const Orders: React.FC = () => {
                               )}
 
                               {/* Ảnh xác thực cho từng bước */}
-                              {(step.key === 'picked_up' || step.key === 'received') && selectedImages.filter(img => img.imageType === 'pickup').length > 0 && (
+                              {step.key === 'picked_up' && selectedImages.filter(img => img.imageType === 'pickup').length > 0 && (
                                 <div className="mt-2 space-y-1">
                                   <span className="text-[10px] font-bold text-[#1E4DB7] uppercase tracking-wider block">📸 Ảnh lấy đồ:</span>
                                   <div className="grid grid-cols-2 gap-1.5">
@@ -578,7 +578,7 @@ export const Orders: React.FC = () => {
                                 </div>
                               )}
 
-                              {(step.key === 'delivering' || step.key === 'completed') && selectedImages.filter(img => img.imageType === 'delivery').length > 0 && (
+                              {step.key === 'completed' && selectedImages.filter(img => img.imageType === 'delivery').length > 0 && (
                                 <div className="mt-2 space-y-1">
                                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">📸 Ảnh giao đồ:</span>
                                   <div className="grid grid-cols-2 gap-1.5">
@@ -601,38 +601,6 @@ export const Orders: React.FC = () => {
                       </div>
                     )}
                   </div>
-
-                  {/* Verification photos */}
-                  {(selectedImages.length > 0 || selectedOrder.weightImageUrl) && (
-                    <div>
-                      <h4 className="font-bold text-sm text-slate-900 mb-3">📸 Bộ Ảnh Xác Thực Đồ Giặt & Quy Trình ({selectedImages.length + (selectedOrder.weightImageUrl ? 1 : 0)})</h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        {selectedOrder.weightImageUrl && (
-                          <div
-                            onClick={() => { setLightboxUrl(selectedOrder.weightImageUrl!); setLightboxCaption('⚖️ Ảnh chụp số kg trên cân'); }}
-                            className="relative rounded-xl overflow-hidden border border-amber-300 bg-amber-50 group cursor-pointer"
-                          >
-                            <img src={getImageUrl(selectedOrder.weightImageUrl)} alt="Scale" className="w-full h-36 object-cover group-hover:scale-105 transition-transform" />
-                            <div className="absolute bottom-0 inset-x-0 bg-amber-900/80 text-amber-200 text-[9px] font-bold text-center py-1.5">
-                              ⚖️ Ảnh chụp trên cân
-                            </div>
-                          </div>
-                        )}
-                        {selectedImages.map(img => (
-                          <div
-                            key={img._id}
-                            onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption(img.imageType === 'pickup' ? '📸 Ảnh lúc nhận đồ' : img.imageType === 'process' ? '🫧 Ảnh giặt sấy' : '📸 Ảnh giao hàng sạch'); }}
-                            className="relative rounded-xl overflow-hidden border border-slate-200 group cursor-pointer"
-                          >
-                            <img src={getImageUrl(img.imageUrl)} alt="Verification" className="w-full h-36 object-cover group-hover:scale-105 transition-transform" />
-                            <div className="absolute bottom-0 inset-x-0 bg-slate-900/80 text-white text-[9px] font-bold text-center py-1.5">
-                              {img.imageType === 'pickup' ? '📸 Ảnh lúc nhận đồ' : img.imageType === 'process' ? '🫧 Ảnh giặt/sấy' : '📸 Ảnh giao hàng sạch'}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </>
               ) : null}
             </div>
