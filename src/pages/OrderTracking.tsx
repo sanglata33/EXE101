@@ -478,7 +478,7 @@ export const OrderTracking: React.FC = () => {
                                 )}
 
                                 {/* HIỂN THỊ ẢNH XÁC THỰC TRỰC TIẾP DƯỚI TỪNG BƯỚC */}
-                                {(step.key === 'picked_up' || step.key === 'received') && images.filter(img => img.imageType === 'pickup').length > 0 && (
+                                {step.key === 'picked_up' && images.filter(img => img.imageType === 'pickup').length > 0 && (
                                   <div className="mt-3 space-y-2">
                                     <span className="text-[10px] font-bold text-[#1E4DB7] uppercase tracking-wider block">📸 Ảnh lấy đồ:</span>
                                     <div className="grid grid-cols-2 gap-2">
@@ -527,7 +527,7 @@ export const OrderTracking: React.FC = () => {
                                   </div>
                                 )}
 
-                                {(step.key === 'delivering' || step.key === 'completed') && images.filter(img => img.imageType === 'delivery').length > 0 && (
+                                {step.key === 'completed' && images.filter(img => img.imageType === 'delivery').length > 0 && (
                                   <div className="mt-3 space-y-2">
                                     <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider block">📸 Ảnh Shipper đã giao trả đồ sạch:</span>
                                     <div className="grid grid-cols-2 gap-2">
@@ -551,45 +551,6 @@ export const OrderTracking: React.FC = () => {
                       </div>
                     )}
                   </div>
-
-                  {/* Uploaded Images Gallery */}
-                  {(images.length > 0 || order.weightImageUrl) && (
-                    <div className="bg-white border border-blue-100 rounded-3xl p-6 shadow-xs space-y-4">
-                      <h3 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
-                        📸 Bộ Ảnh Xác Thực Đồ Giặt & Quy Trình ({images.length + (order.weightImageUrl ? 1 : 0)})
-                      </h3>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {order.weightImageUrl && (
-                          <div
-                            onClick={() => { setLightboxUrl(order.weightImageUrl!); setLightboxCaption('⚖️ Ảnh chụp số kg trên cân tại tiệm'); }}
-                            className="relative rounded-2xl overflow-hidden border border-amber-300 bg-amber-50 group cursor-pointer"
-                          >
-                            <img src={getImageUrl(order.weightImageUrl)} alt="Cân kg" className="w-full h-36 object-cover group-hover:scale-105 transition-transform" />
-                            <div className="absolute bottom-0 inset-x-0 bg-amber-900/80 text-amber-200 text-[10px] font-bold text-center py-1">
-                              ⚖️ Ảnh chụp cân kg
-                            </div>
-                          </div>
-                        )}
-                        {images.map((img) => (
-                          <div 
-                            key={img._id}
-                            onClick={() => { setLightboxUrl(img.imageUrl); setLightboxCaption(img.imageType === 'pickup' ? '📸 Ảnh lấy đồ' : img.imageType === 'process' ? '🫧 Ảnh giặt sấy' : '🚚 Ảnh giao trả đồ'); }}
-                            className="relative rounded-2xl overflow-hidden border border-slate-200 bg-white group cursor-pointer"
-                          >
-                            <img 
-                              src={getImageUrl(img.imageUrl)} 
-                              alt="Verification" 
-                              className="w-full h-36 object-cover group-hover:scale-105 transition-transform"
-                            />
-                            <div className="absolute bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-xs p-1 text-center text-[10px] font-bold text-white">
-                              {img.imageType === 'pickup' ? '📸 Ảnh lấy đồ' : img.imageType === 'process' ? '🫧 Ảnh giặt/sấy' : '🚚 Ảnh trả đồ sạch'}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                 </motion.div>
               )}
             </AnimatePresence>
