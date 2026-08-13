@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getMyOrders, getOrderById, type Order, ORDER_STATUS_LABELS } from '../api/orderService';
+import { getMyOrders, getOrderById, getImageUrl, type Order, ORDER_STATUS_LABELS } from '../api/orderService';
 import { updateProfile } from '../api/authService';
 import {
   Mail, Phone, MapPin, Package, Clock, Check,
